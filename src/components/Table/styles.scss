@@ -1,0 +1,44 @@
+.ant-table-body {
+    &::-webkit-scrollbar {
+        @apply w-[5px] transition-all duration-200
+    }
+
+    &::-webkit-scrollbar-track {
+        @apply bg-transparent rounded-md
+    }
+
+    &::-webkit-scrollbar-thumb {
+        @apply bg-transparent rounded-lg transition-all duration-200
+    }
+
+    &::-webkit-scrollbar-thumb:vertical {
+        @apply bg-black-75
+    }
+
+    .ant-table-tbody {
+        .ant-table-placeholder {
+            background: #0C1023 !important;
+            height: calc(100vh - 405px);
+
+            &:hover {
+                background: #0C1023 !important;
+            }
+
+            .ant-table-cell {
+                background: #0C1023 !important;
+
+                &:hover {
+                    background: #0C1023 !important;
+                }
+            }
+        }
+    }
+}
+
+.general-pagination {
+    li {
+        .ant-pagination-item-ellipsis {
+            color: white !important;
+        }
+    }
+}

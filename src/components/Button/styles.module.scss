@@ -1,0 +1,11 @@
+.wrapper {
+  @apply transition-all duration-500 ease-in-out max-[450px]:text-[16px] min-[451px]:text-[18px] rounded-[50px] text-white border-[1px] border-[#ca416e];
+  @apply min-[451px]:py-[15px] min-[451px]:px-[40px] max-[450px]:py-[10px] max-[450px]:px-[25px];
+
+  &:hover {
+    @apply bg-[#ca416e];
+  }
+  &:active {
+    @apply translate-y-[1px];
+  }
+}
