@@ -10,7 +10,8 @@ interface InputProps {
     value: string,
     onChange: ChangeEventHandler<HTMLInputElement>,
     isPasswordInput?: boolean,
-    isRequired?: boolean
+    isRequired?: boolean,
+    disabled?: boolean
 }
 
 export default function InputWithLabel(
@@ -19,7 +20,8 @@ export default function InputWithLabel(
         value,
         onChange,
         isPasswordInput = false,
-        isRequired = false
+        isRequired = false,
+        disabled = false
     }: InputProps) {
     const [isInputActive, setIsInputActive] = useState<boolean>(false)
     const inputRef = useRef<InputRef>(null)
@@ -34,6 +36,7 @@ export default function InputWithLabel(
         {
             isPasswordInput ?
                 <Input.Password
+                    disabled={disabled}
                     ref={inputRef}
                     onFocus={() => setIsInputActive(true)}
                     onBlur={() => setIsInputActive(false)}
@@ -41,6 +44,7 @@ export default function InputWithLabel(
                     onChange={onChange}
                 /> :
                 <Input
+                    disabled={disabled}
                     ref={inputRef}
                     onFocus={() => setIsInputActive(true)}
                     onBlur={() => setIsInputActive(false)}

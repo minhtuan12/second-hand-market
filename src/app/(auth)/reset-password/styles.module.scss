@@ -6,7 +6,10 @@
     }
 
     .title {
-        @apply font-semibold text-[22px];
+        span {
+            @apply text-[18px] text-[#f80];
+        }
+        @apply font-semibold text-[22px] flex justify-between items-end;
     }
 
     .forgotFormContent {
@@ -33,6 +36,11 @@
     }
 
     .btnWrap {
+        .disabledBtn {
+            span {
+                @apply text-[15px]
+            }
+        }
         @apply mt-5 h-[45px]
     }
 

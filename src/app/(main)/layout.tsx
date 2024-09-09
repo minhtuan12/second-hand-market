@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import React from "react";
 import NextTopLoader from "nextjs-toploader";
 import {ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export const metadata: Metadata = {
     title: "Create Next App",

@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import styles from './styles.module.scss'
 import Image from "next/image";
 import Logo from '../../../../public/logo.png'
@@ -8,19 +8,84 @@ import InputWithLabel from "@/components/InputWithLabel";
 import {Button} from "antd";
 import '../styles.scss'
 import Link from "next/link";
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch, RootState} from "@/store/configureStore";
+import {setErrorLogin} from "@/store/slices/auth";
+import ErrorMessage from "@/components/ErrorMessage";
+import {useRouter, useSearchParams} from "next/navigation";
+import {getNotification, handleCheckValidateConfirm, IValidationResult} from "../../../../utils/helper";
+import {handleLoginResult} from "@/actions/auth";
+import {SERVER_ERROR_MESSAGE} from "../../../../utils/constants";
+import GoogleLogin from "@/app/(auth)/components/GoogleLogin";
 
 export default function Login(): JSX.Element {
     const [loginData, setLoginData] = useState({
         email: '',
         password: ''
     })
+    const [isLoadingRequestLogin, setIsLoadingRequestLogin] = useState<boolean>(false)
+    const errorLogin = useSelector((state: RootState) => state.auth.errorLogin)
+    const dispatch: AppDispatch = useDispatch()
+    const router = useRouter()
+    const searchParams = useSearchParams()
 
     const handleChangeInput = (value: string, type: string): void => {
+        dispatch(setErrorLogin({
+            ...errorLogin,
+            [type]: ''
+        }))
+
         setLoginData({
             ...loginData,
             [type]: value
         })
     }
+
+    const handleRequestLogin = async (): Promise<void> => {
+        const formValidation: IValidationResult = handleCheckValidateConfirm(loginData, errorLogin)
+        if (formValidation.isError) {
+            dispatch(setErrorLogin(formValidation.errorData))
+        } else {
+            setIsLoadingRequestLogin(true)
+            await handleLoginResult(loginData)
+                .then(res => {
+                    setIsLoadingRequestLogin(false)
+                    switch (res.status) {
+                        case 200:
+                            getNotification('success', 'Đăng nhập thành công')
+                            if (searchParams.get('redirect')) {
+                                router.push(`/${searchParams.get('redirect')}`)
+                            } else {
+                                router.push('/')
+                            }
+                            break;
+                        case 401:
+                            getNotification('error', 'Email hoặc mật khẩu không đúng')
+                            break;
+                        case 403:
+                            getNotification('error', 'Tài khoản bạn đã bị khóa')
+                            break;
+                        case 500:
+                            getNotification('error', SERVER_ERROR_MESSAGE)
+                            break;
+                        default:
+                            getNotification('error', SERVER_ERROR_MESSAGE)
+                            break;
+                    }
+                })
+                .catch(err => {
+                    setIsLoadingRequestLogin(false)
+                    getNotification('error', SERVER_ERROR_MESSAGE)
+                })
+        }
+    }
+
+    useEffect(() => {
+        dispatch(setErrorLogin({
+            email: '',
+            password: ''
+        }))
+    }, [dispatch])
 
     return <div className={styles.loginWrap}>
         <div className={styles.imageWrap}>
@@ -37,6 +102,7 @@ export default function Login(): JSX.Element {
                     value={loginData.email}
                     onChange={e => handleChangeInput(e.target.value, 'email')}
                 />
+                {errorLogin.email ? <ErrorMessage message={errorLogin.email}/> : ''}
             </div>
             <div className={styles.inputWrap}>
                 <InputWithLabel
@@ -46,6 +112,7 @@ export default function Login(): JSX.Element {
                     value={loginData.password}
                     onChange={e => handleChangeInput(e.target.value, 'password')}
                 />
+                {errorLogin.password ? <ErrorMessage message={errorLogin.password}/> : ''}
             </div>
         </div>
         <div className={styles.forgotPasswordWrap}>
@@ -54,32 +121,14 @@ export default function Login(): JSX.Element {
             </div>
         </div>
         <div className={`auth-button ${styles.btnWrap}`}>
-            <Button type={'primary'} size={'large'}>Đăng nhập</Button>
+            <Button type={'primary'} size={'large'} onClick={handleRequestLogin} loading={isLoadingRequestLogin}>
+                Đăng nhập
+            </Button>
         </div>
         <div className={styles.noAccountWrap}>
             Bạn chưa có tài khoản? <Link className={styles.registerBtn} href={'/register'}>Đăng ký</Link>
         </div>
-        <div className={styles.googleLoginWrap}>
-            <div className={styles.option}>Hoặc</div>
-            <div className={styles.btnLoginWithGoogle}>
-                <Button
-                    onClick={() => {
-                    }}
-                    className={styles.btnGoogleWrap}
-                >
-                    <div className={styles.googleImageWrap}>
-                        <Image
-                            priority
-                            width={80}
-                            height={30}
-                            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                            alt="Google Logo"
-                            className={styles.googleImage}
-                        />
-                    </div>
-                    Đăng nhập bằng Google
-                </Button>
-            </div>
-        </div>
+
+        <GoogleLogin/>
     </div>
 }
