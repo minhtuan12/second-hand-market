@@ -22,7 +22,6 @@ export default function ResetPassword(): JSX.Element {
     const [newPassword, setNewPassword] = useState<string>('')
     const [isLoadingRequestResetPassword, setIsLoadingRequestResetPassword] = useState<boolean>(false)
     const [errorResetPassword, setErrorResetPassword] = useState<string>('')
-    const [isDisabledSubmitBtn, setIsDisabledSubmitBtn] = useState<boolean>(false)
     const [isTimeOut, setIsTimeOut] = useState<boolean>(false)
 
     const handleChangeInput = (value: string): void => {
@@ -30,30 +29,34 @@ export default function ResetPassword(): JSX.Element {
         setNewPassword(value)
     }
 
-    const handleSubmitResetPassword = async () => {
-        if (!newPassword) {
-            setErrorResetPassword('Mật khẩu mới không được bỏ trống!')
-            return
-        } else if (!isValidPassword(newPassword)) {
-            setErrorResetPassword('Mật khẩu ít nhất 8 kí tự, chứa kí tự viết hoa, số, kí tự đặc biệt và không có khoảng trống!')
-            return
-        }
+    const handleSubmitBtn = async () => {
+        if (!isTimeOut) {
+            if (!newPassword) {
+                setErrorResetPassword('Mật khẩu mới không được bỏ trống!')
+                return
+            } else if (!isValidPassword(newPassword)) {
+                setErrorResetPassword('Mật khẩu ít nhất 8 kí tự, chứa kí tự viết hoa, số, kí tự đặc biệt và không có khoảng trống!')
+                return
+            }
 
-        if (!errorResetPassword) {
-            setIsLoadingRequestResetPassword(true)
-            await requestResetPassword(resetToken as string, newPassword)
-                .then(res => {
-                    setIsLoadingRequestResetPassword(false)
-                    getNotification('success', 'Đặt lại mật khẩu thành công')
-                })
-                .catch(err => {
-                    setIsLoadingRequestResetPassword(false)
-                    const errorStatus = err.response.status
-                    switch (errorStatus) {
-                        case 500:
-                            getNotification('error', SERVER_ERROR_MESSAGE)
-                    }
-                })
+            if (!errorResetPassword) {
+                setIsLoadingRequestResetPassword(true)
+                await requestResetPassword(resetToken as string, newPassword)
+                    .then(res => {
+                        setIsLoadingRequestResetPassword(false)
+                        getNotification('success', 'Đặt lại mật khẩu thành công')
+                    })
+                    .catch(err => {
+                        setIsLoadingRequestResetPassword(false)
+                        const errorStatus = err.response.status
+                        switch (errorStatus) {
+                            case 500:
+                                getNotification('error', SERVER_ERROR_MESSAGE)
+                        }
+                    })
+            }
+        } else {
+            // TODO: request reset password
         }
     }
 
@@ -72,14 +75,12 @@ export default function ResetPassword(): JSX.Element {
     useEffect(() => {
         if (parseInt(minutes) === 0 && parseInt(seconds) === 0) {
             setIsTimeOut(true)
-            setIsDisabledSubmitBtn(true)
             return
         }
         if (!minutes || parseInt(minutes) < 0 || !seconds) {
             return
         }
 
-        setIsDisabledSubmitBtn(false)
         let tmpSeconds = parseInt(seconds);
         const timer = setInterval(function () {
             tmpSeconds--
@@ -119,11 +120,10 @@ export default function ResetPassword(): JSX.Element {
             <div className={`auth-button ${styles.btnWrap}`}>
                 <Button
                     type={'primary'} loading={isLoadingRequestResetPassword}
-                    size={'large'} onClick={handleSubmitResetPassword}
-                    disabled={isDisabledSubmitBtn}
+                    size={'large'} onClick={handleSubmitBtn}
                     rootClassName={isTimeOut ? styles.disabledBtn : ''}
                 >
-                    {isTimeOut ? 'Hết thời gian, vui lòng gửi lại yêu cầu' : 'Xác nhận'} <span>
+                    {isTimeOut ? 'Hết thời gian, gửi lại yêu cầu' : 'Xác nhận'} <span>
                     {
                         isTimeOut ? '' :
                             `(${(!minutes || !seconds) ? '--:--' :

@@ -2,12 +2,13 @@
 
 import React, {memo} from "react";
 
-interface ErrorProps {
-    message: string
+interface IErrorProps {
+    message: string,
+    className?: string
 }
 
-const ErrorMessage = memo(function ErrorMessage({message}: ErrorProps) {
-    return <span className={'error'}>
+const ErrorMessage = memo(function ErrorMessage({message, className = ''}: IErrorProps) {
+    return <span className={`error ${className}`}>
         {message}
     </span>
 })

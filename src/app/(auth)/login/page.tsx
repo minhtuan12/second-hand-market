@@ -21,7 +21,8 @@ import GoogleLogin from "@/app/(auth)/components/GoogleLogin";
 export default function Login(): JSX.Element {
     const [loginData, setLoginData] = useState({
         email: '',
-        password: ''
+        password: '',
+        account_role: 'user'
     })
     const [isLoadingRequestLogin, setIsLoadingRequestLogin] = useState<boolean>(false)
     const errorLogin = useSelector((state: RootState) => state.auth.errorLogin)
@@ -41,13 +42,13 @@ export default function Login(): JSX.Element {
         })
     }
 
-    const handleRequestLogin = async (): Promise<void> => {
+    const handleRequestLogin = (): void => {
         const formValidation: IValidationResult = handleCheckValidateConfirm(loginData, errorLogin)
         if (formValidation.isError) {
             dispatch(setErrorLogin(formValidation.errorData))
         } else {
             setIsLoadingRequestLogin(true)
-            await handleLoginResult(loginData)
+            handleLoginResult(loginData)
                 .then(res => {
                     setIsLoadingRequestLogin(false)
                     switch (res.status) {
@@ -63,7 +64,7 @@ export default function Login(): JSX.Element {
                             getNotification('error', 'Email hoặc mật khẩu không đúng')
                             break;
                         case 403:
-                            getNotification('error', 'Tài khoản bạn đã bị khóa')
+                            getNotification('error', 'Tài khoản của bạn đã bị khóa')
                             break;
                         case 500:
                             getNotification('error', SERVER_ERROR_MESSAGE)
@@ -130,5 +131,9 @@ export default function Login(): JSX.Element {
         </div>
 
         <GoogleLogin/>
+
+        <Link className={'mt-4 text-[15px] flex justify-center'} href={'/admin/login'}>
+            Đăng nhập với tài khoản quản trị viên
+        </Link>
     </div>
 }

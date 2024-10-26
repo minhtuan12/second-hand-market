@@ -4,9 +4,13 @@ const authSlice = createSlice({
     name: 'auth',
     initialState: {
         isAuthSuccess: false,
-        authUser: {},
+        userProfile: {},
         errorLogin: {
             email: '',
+            password: ''
+        },
+        errorAdminLogin: {
+            username: '',
             password: ''
         },
         errorRegister: {
@@ -17,9 +21,9 @@ const authSlice = createSlice({
         }
     },
     reducers: {
-        setAuthUser: (state, action) => ({
+        setUserProfile: (state, action) => ({
             ...state,
-            authUser: action.payload
+            userProfile: action.payload
         }),
         setErrorLogin: (state, action) => ({
             ...state,
@@ -28,13 +32,17 @@ const authSlice = createSlice({
         setErrorRegister: (state, action) => ({
             ...state,
             errorRegister: action.payload
-        })
+        }),
+        setErrorAdminLogin: (state, action) => ({
+            ...state,
+            errorAdminLogin: action.payload
+        }),
     }
 })
 
 export const {
     setErrorLogin, setErrorRegister,
-    setAuthUser
+    setUserProfile, setErrorAdminLogin
 } = authSlice.actions
 
 export default authSlice.reducer;

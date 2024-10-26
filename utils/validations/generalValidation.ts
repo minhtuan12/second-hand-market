@@ -2,6 +2,7 @@ import {isValidEmail, isValidPassword, isValidPhone} from "../helper";
 import _ from "lodash";
 
 interface IGeneralKeys {
+    username?: string,
     firstname?: string,
     lastname?: string,
     email?: string,
@@ -22,6 +23,14 @@ export const validate = (
     let errorData = _.cloneDeep(errors);
 
     switch (type) {
+        case 'username':
+            if (!data.username || data.username?.length === 0) {
+                errorData.username = 'Tên tài khoản không được bỏ trống!';
+                error = true;
+            } else {
+                errorData.username = '';
+            }
+            break;
         case 'firstname':
             if (!data.firstname || data.firstname?.length === 0) {
                 errorData.firstname = 'Họ không được bỏ trống!';

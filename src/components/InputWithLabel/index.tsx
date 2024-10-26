@@ -1,28 +1,26 @@
 'use client'
 
-import {Input, InputRef} from "antd";
+import {Input, InputProps, InputRef} from "antd";
 import './styles.scss'
-import {ChangeEventHandler, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import styles from './styles.module.scss'
 
-interface InputProps {
+interface IProps extends InputProps {
+    width?: string,
     label: string,
-    value: string,
-    onChange: ChangeEventHandler<HTMLInputElement>,
     isPasswordInput?: boolean,
     isRequired?: boolean,
-    disabled?: boolean
 }
 
-export default function InputWithLabel(
+const InputWithLabel: React.FC<IProps> = (
     {
+        width = '',
         label,
-        value,
-        onChange,
-        isPasswordInput = false,
-        isRequired = false,
-        disabled = false
-    }: InputProps) {
+        isPasswordInput= false,
+        isRequired= false,
+        ...rest
+    }
+) => {
     const [isInputActive, setIsInputActive] = useState<boolean>(false)
     const inputRef = useRef<InputRef>(null)
 
@@ -32,27 +30,23 @@ export default function InputWithLabel(
         }
     }, [isInputActive])
 
-    return <div className={'custom-input-with-label'}>
+    return <div className={`custom-input-with-label ${width}`}>
         {
             isPasswordInput ?
                 <Input.Password
-                    disabled={disabled}
+                    {...rest}
                     ref={inputRef}
                     onFocus={() => setIsInputActive(true)}
                     onBlur={() => setIsInputActive(false)}
-                    value={value}
-                    onChange={onChange}
                 /> :
                 <Input
-                    disabled={disabled}
+                    {...rest}
                     ref={inputRef}
                     onFocus={() => setIsInputActive(true)}
                     onBlur={() => setIsInputActive(false)}
-                    value={value}
-                    onChange={onChange}
                 />
         }
-        <div className={(isInputActive || value) ? 'active-label' : 'custom-label'}
+        <div className={(isInputActive || rest.value) ? 'active-label' : 'custom-label'}
              onClick={() => setIsInputActive(true)}
              onBlur={() => setIsInputActive(false)}
         >
@@ -60,3 +54,5 @@ export default function InputWithLabel(
         </div>
     </div>
 }
+
+export default InputWithLabel

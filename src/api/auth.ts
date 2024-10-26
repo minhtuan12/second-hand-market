@@ -1,7 +1,9 @@
 import {apiAxios} from "@/api/callApi";
+import {AxiosResponse} from "axios";
 
 export interface ILoginData {
-    email: string,
+    username?: string,
+    email?: string,
     password: string
 }
 
@@ -47,5 +49,13 @@ export const requestResetPassword = (token: string, resetPassword: string) => {
         method: 'put',
         url: 'verify-email/reset-password',
         data: {token, resetPassword},
+    })
+}
+
+export const requestGetNewTokens = async (refreshToken: string): Promise<AxiosResponse> => {
+    return apiAxios({
+        method: 'post',
+        url: 'auth/new-access-token',
+        data: {refreshToken}
     })
 }

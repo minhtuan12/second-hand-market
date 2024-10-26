@@ -1,0 +1,10 @@
+.menuWrap {
+    .item {
+        &:hover {
+            background: #eaeded;
+        }
+    }
+
+    scrollbar-gutter: both-edges;
+    @apply overflow-hidden hover:overflow-auto p-0 #{!important}
+}

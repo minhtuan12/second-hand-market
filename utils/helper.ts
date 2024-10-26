@@ -103,3 +103,58 @@ export const capitalizeFirstLetter = (str: string | '' | null): string | null =>
 export const isPositiveInteger = (num: any): boolean => {
     return num >>> 0 === parseFloat(num);
 }
+
+export const handleExportTimeAgo = (isoString: string): string => {
+    const date = new Date(isoString);
+    const now = Date.now();
+    const secondsPast = Math.floor((now - date.getTime()) / 1000);
+
+    if (secondsPast < 60) {
+        return `${secondsPast} giây trước`;
+    }
+    const minutesPast = Math.floor(secondsPast / 60);
+    if (minutesPast < 60) {
+        return `${minutesPast} phút trước`;
+    }
+    const hoursPast = Math.floor(minutesPast / 60);
+    if (hoursPast < 24) {
+        return `${hoursPast} giờ trước`;
+    }
+    const daysPast = Math.floor(hoursPast / 24);
+    if (daysPast < 7) {
+        return `${daysPast} ngày trước`;
+    }
+    const weeksPast = Math.floor(daysPast / 7);
+    if (weeksPast < 4) {
+        return `${weeksPast} tuần trước`;
+    }
+    const monthsPast = Math.floor(daysPast / 30);
+    if (monthsPast < 12) {
+        return `${monthsPast} tháng trước`;
+    }
+    const yearsPast = Math.floor(daysPast / 365);
+    return `${yearsPast} năm trước`;
+}
+
+export const handleRemoveVietnameseTones = (str: string | undefined): string => {
+    return str ? str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D') : ''
+}
+
+export const handleGetLabelFromValue = (obj: any, value: string): { label: string, color: string } => {
+    let label = '', foundedKey = ''
+    Object.keys(obj).forEach(key => {
+        if (obj[key]['VALUE'] === value) {
+            foundedKey = key
+            label = obj[key]['LABEL']
+        }
+    })
+    return {label, color: obj[foundedKey]['TAG_COLOR']}
+}
+
+export const capitalizeOnlyFirstLetter = (str: string): string => {
+    return (str.charAt(0).toUpperCase() + str.substring(1).toLowerCase()).trim()
+}

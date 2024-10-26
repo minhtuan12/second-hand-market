@@ -24,7 +24,7 @@
 }
 
 body {
-    font-family: Helvetica, Arial, Roboto, sans-serif;
+    font-family: Helvetica, Arial, Roboto, sans-serif !important;
     @apply m-0
 }
 
@@ -33,8 +33,130 @@ a {
 }
 
 .error {
-    @apply flex items-center text-red-500 text-left text-sm mt-[3px] ml-1;
     .icon {
         @apply w-3.5 mt-[3px] mr-[5px]
     }
+
+    @apply flex items-center text-red-500 text-left text-sm mt-[3px] ml-1;
+}
+
+/* Custom tabs */
+.custom-tabs {
+    .ant-tabs {
+        .ant-tabs-nav {
+            .ant-tabs-nav-wrap {
+                .ant-tabs-nav-list {
+                    .ant-tabs-tab {
+                        .ant-tabs-tab-btn {
+                            font-family: Helvetica, Arial, Roboto, sans-serif !important;
+                            @apply text-[#6b7280] font-[500] text-[16px]
+                        }
+
+                        &:hover {
+                            .ant-tabs-tab-btn {
+                                @apply text-[#f80] font-[500]
+                            }
+                        }
+                    }
+
+                    .ant-tabs-tab-active {
+                        .ant-tabs-tab-btn {
+                            font-family: Helvetica, Arial, Roboto, sans-serif !important;
+                            @apply text-[#f80]
+                        }
+                    }
+
+                    .ant-tabs-ink-bar {
+                        @apply bg-[#f80]
+                    }
+                }
+            }
+        }
+    }
+}
+
+.main-select {
+    .ant-select {
+        .ant-select-selector,
+        .ant-select-selection-item {
+            font-family: Helvetica, Arial, Roboto, sans-serif !important;
+            @apply rounded-[0.425rem] font-[500] text-[14px]
+        }
+
+        .ant-select-selector {
+            .ant-select-selection-search {
+                @apply pl-1
+            }
+
+            @apply pl-4
+        }
+
+        &:hover, &:focus-within {
+            .ant-select-selector {
+                @apply border-[#f80] #{!important}
+            }
+        }
+
+        @apply h-[45px]
+    }
+}
+
+.custom-admin-table {
+    * {
+        &::-webkit-scrollbar {
+            @apply w-[5px] transition-all duration-200 #{!important}
+        }
+
+        &::-webkit-scrollbar-track {
+            @apply bg-transparent rounded-md
+        }
+
+        &::-webkit-scrollbar-thumb {
+            @apply bg-transparent rounded-lg transition-all duration-200
+        }
+
+        &::-webkit-scrollbar-thumb:vertical {
+            @apply bg-black-75
+        }
+    }
+
+    .ant-table-body {
+        scrollbar-gutter: stable;
+        @apply min-h-[calc(100vh_-_320px)] max-h-[calc(100vh_-_320px)]
+    }
+}
+
+.main-switch {
+    &:not(.ant-switch-checked) {
+        @apply bg-gray-95 #{!important}
+    }
+}
+
+.admin-small-table {
+    .ant-table-body {
+        scrollbar-gutter: stable !important;
+        @apply overflow-hidden hover:overflow-y-auto min-h-[170px] max-h-[170px] #{!important}
+    }
+}
+
+.disabled-link {
+    @apply pointer-events-none text-[gray] hover:text-[gray]
+}
+
+.attribute-table {
+    .ant-table-body {
+        @apply max-h-[calc(100vh_-_430px)] scrollbar-thin #{!important}
+    }
+
+    .ant-table-tbody {
+        .ant-table-cell {
+            &:nth-child(4) {
+                @apply p-0 #{!important}
+            }
+        }
+    }
+}
+
+.admin-button {
+    @apply bg-[#1677ff]
 }
