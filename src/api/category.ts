@@ -20,6 +20,20 @@ export const requestGetCategoriesForAdmin = async (filter: Filter): Promise<Axio
     })
 }
 
+export const requestGetPublicCategories = async (): Promise<AxiosResponse> => {
+    return apiAxios({
+        method: 'get',
+        url: 'public/categories'
+    })
+}
+
+export const requestGetAttributesOfCategory = async (categoryId: string): Promise<AxiosResponse> => {
+    return apiAxios({
+        method: 'get',
+        url: `public/categories/${categoryId}/attributes`
+    })
+}
+
 export const requestGetCategoryById = async (categoryId: string) => {
     return apiAxios({
         method: 'get',
@@ -33,5 +47,21 @@ export const requestCreateCategory = async (category: Category) => {
         method: 'post',
         url: 'admin/category',
         data: category
+    })
+}
+
+export const requestUpdateCategory = async (categoryId: string, category: Category) => {
+    return apiAxios({
+        method: 'put',
+        url: `admin/categories/${categoryId}`,
+        data: category
+    })
+}
+
+export const requestHideOrShowCategory = async (categoryId: string, type: string) => {
+    return apiAxios({
+        method: 'patch',
+        url: `admin/categories/${categoryId}`,
+        data: {type}
     })
 }

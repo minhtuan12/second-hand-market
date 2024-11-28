@@ -6,9 +6,28 @@ const appSlice: Slice = createSlice({
         breadcrumb: [],
         pageTitle: '',
         regions: [],
-
+        isSearched: false,
+        filter: {
+            searchKey: null,
+            city: null,
+            column: 'createdAt',
+            sortOrder: -1,
+            page: 1,
+            priceFrom: null,
+            priceTo: null,
+            categoryIds: null,
+            condition: null
+        }
     },
     reducers: {
+        setFilter: (state, action: {payload: any, type: string}) => ({
+            ...state,
+            filter: action.payload
+        }),
+        setIsSearched: (state, action: {payload: any, type: string}) => ({
+            ...state,
+            isSearched: action.payload
+        }),
         setBreadcrumb: (state, action: {payload: any, type: string}) => ({
             ...state,
             breadcrumb: action.payload
@@ -25,7 +44,7 @@ const appSlice: Slice = createSlice({
 })
 
 export const {
-    setBreadcrumb, setPageTitle, setRegions
+    setBreadcrumb, setPageTitle, setRegions, setIsSearched, setFilter
 } = appSlice.actions
 
 export default appSlice.reducer;

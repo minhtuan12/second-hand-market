@@ -1,5 +1,7 @@
 import {validate} from "./validations/generalValidation";
 import {toast} from "react-toastify";
+import {ATTRIBUTE_INPUT_TYPE} from "./constants";
+import {SelectOption} from "./types";
 
 export const VALIDATE_EMAIL_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9_.+-]{1,}@[a-z0-9]{1,}(\.[a-z0-9]{1,}){1,2}$/
 export const VALIDATE_PASSWORD_REGEX = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{8,50}$/
@@ -157,4 +159,106 @@ export const handleGetLabelFromValue = (obj: any, value: string): { label: strin
 
 export const capitalizeOnlyFirstLetter = (str: string): string => {
     return (str.charAt(0).toUpperCase() + str.substring(1).toLowerCase()).trim()
+}
+
+export const countDuplicateValue = (arr: any[], keyInObject: string | null = null): string[] => {
+    let countValues: any = {}
+    let duplicateValues: any = []
+    if (arr?.length > 0) {
+        arr?.forEach((item: any) => {
+            let value = keyInObject ? item[keyInObject] : item
+            if (typeof value === 'string') {
+                value = value.toLowerCase()
+            }
+            if (!countValues?.[value]) {
+                countValues[value] = 1
+            } else {
+                countValues[value] += 1
+            }
+        })
+        Object.keys(countValues)?.forEach(key => {
+            if (countValues[key] > 1 && key !== '') {
+                duplicateValues = [...duplicateValues, key]
+            }
+        })
+        return duplicateValues
+    }
+    return []
+}
+
+export const getBase64 = (img: any, callback: (readerResult: ArrayBuffer | null | string) => void) => {
+    const reader: FileReader = new FileReader();
+    reader.addEventListener('load', () => callback(reader.result));
+    reader.readAsDataURL(img);
+}
+
+export const beforeUpload = (file: any) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+        getNotification('error', 'File ảnh phải có định dạng là jpeg hoặc png!');
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+        getNotification('error', 'Kích thước file ảnh không vượt quá 2MB!');
+    }
+    return isJpgOrPng && isLt2M;
+}
+
+export const handleGetInitialValueOfInputType = (type: string): string | [] | null => {
+    if (type === ATTRIBUTE_INPUT_TYPE.TEXT.VALUE) {
+        return ''
+    }
+    if (type === ATTRIBUTE_INPUT_TYPE.CHECKBOX.VALUE) {
+        return []
+    }
+    return null
+}
+
+export const handleFormatCityData = (res: Object[], type: string) => {
+    return res?.map((item: any): SelectOption => {
+        const areaKey: string = Object.keys(item)?.[0]
+        return {
+            label: type === 'city' ? item[areaKey]?.name : item[areaKey],
+            value: areaKey
+        }
+    })
+}
+
+export const handleFormatCurrency = (input: string | number): string => {
+    let price = input
+    try {
+        price = Number(input)
+        return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(price)
+    } catch (err) {
+        return ''
+    }
+}
+
+export const handleGetRegion = (regions: any, area: string, district: string): {
+    city: string,
+    district: string
+} | null => {
+    console.log(regions)
+    if (regions?.length === 0) {
+        return null
+    }
+    const foundedRegion = regions?.find((item: any) => Object.keys(item)?.[0] === area)
+    const foundedDistrict = foundedRegion?.[area]?.area?.find((item: any) => Object.keys(item)?.[0] === district)
+
+    return (foundedRegion && foundedDistrict) ? {
+        city: foundedRegion[area]?.name,
+        district: foundedDistrict[district]
+    } : null
+}
+
+export const setLocalStorageItem = (key: string, value: string): void => {
+    localStorage.setItem(key, value)
+}
+
+export const getLocalStorageItem = (key: string, value: string): void => {
+    localStorage.getItem(key)
+}
+
+export const deleteLocalStorageItem = (key: string, value: string): void => {
+    localStorage.removeItem(key)
 }

@@ -3,11 +3,12 @@ import './styles.scss'
 import React from "react";
 
 interface IProps extends InputProps {
-    password?: boolean
+    password?: boolean,
+    extraClassname?: string
 }
 
-const DefaultInput: React.FC<IProps> = ({password = false, ...rest}) => {
-    return <div className={'custom-input'}>
+const DefaultInput: React.FC<IProps> = ({password = false, extraClassname = '', ...rest}) => {
+    return <div className={`custom-input ${extraClassname}`}>
         {
             password ? <Input.Password {...rest}/> :
                 <Input {...rest}/>

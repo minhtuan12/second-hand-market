@@ -36,3 +36,13 @@
 
     @apply relative;
 }
+
+.small-input {
+    .ant-input, .ant-input-password {
+        @apply h-[40px];
+    }
+
+    .custom-label {
+        @apply top-[24%] text-[13px] #{!important};
+    }
+}

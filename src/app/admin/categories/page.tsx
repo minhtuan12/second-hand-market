@@ -13,7 +13,7 @@ import {PER_PAGE} from "../../../../utils/constants";
 import CategoryCard from "@/app/admin/categories/components/CategoryCard";
 import {PlusOutlined} from "@ant-design/icons";
 import Link from "next/link";
-import useDebounce from "@/app/hooks/useDebounce";
+import useDebounce from "@/hooks/useDebounce";
 
 export default function CategoryManagementPage() {
     const dispatch = useDispatch()
@@ -25,9 +25,8 @@ export default function CategoryManagementPage() {
         perPage: PER_PAGE,
         totalRecord: 0
     })
-    const debounceValue = useDebounce(filter.q, 800)
 
-    const handleSearch = useCallback(() => {
+    const handleGetCategories = () => {
         setLoading(true)
         requestGetCategoriesForAdmin(filter)
             .then(res => {
@@ -45,6 +44,12 @@ export default function CategoryManagementPage() {
             .finally(() => {
                 setLoading(false)
             })
+    }
+
+    const debounceValue = useDebounce(filter.q, 600)
+
+    const handleSearch = useCallback(() => {
+        handleGetCategories()
     }, [debounceValue])
 
     useEffect(() => {
@@ -86,7 +91,7 @@ export default function CategoryManagementPage() {
 
         <div
             style={{scrollbarGutter: 'stable'}}
-            className={'h-[calc(100vh_-_284px)] overflow-y-auto mt-3 scrollbar-thin'}
+            className={'h-[calc(100vh_-_284px)] overflow-y-hidden hover:overflow-y-auto mt-3 scrollbar-thin'}
         >
             {
                 loading ? <div className={'w-full h-full flex justify-center items-center'}>
@@ -98,8 +103,8 @@ export default function CategoryManagementPage() {
                                 <Flex className={'w-full mt-[calc(100vh_-_550px)]'} justify={'center'} align={'center'}>
                                     <Empty/>
                                 </Flex> : categories?.map((item: Category) => (
-                                    <Col key={item?._id} span={8}>
-                                        <CategoryCard category={item}/>
+                                    <Col key={item?._id} xl={8} lg={12} md={12} sm={24} xs={24}>
+                                        <CategoryCard category={item} handleRefreshCategories={handleGetCategories}/>
                                     </Col>
                                 ))
                         }

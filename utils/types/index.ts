@@ -1,3 +1,6 @@
+import React from "react";
+import dayjs from "dayjs";
+
 export type UserProfile = {
     _id: string,
     avatar: any,
@@ -11,12 +14,33 @@ export type UserProfile = {
     address: string,
     follower_ids: UserProfile[],
     following_user_ids: UserProfile[],
-    rating?: number
+    rating?: number,
+    username?: string,
+    role?: string,
+    wishlist?: string[]
+}
+
+export type Baby = {
+    _id?: string,
+    firstname: string,
+    lastname: string,
+    birthdate: string | null | dayjs.Dayjs,
+    parent_id?: string,
+    gender: string,
+    weight: number | null,
+    height: number | null,
+    createdAt?: string,
+    updatedAt?: string,
+    is_deleted?: boolean
 }
 
 export type AdminProfile = {
     _id: string,
     username: string,
+    firstname: string,
+    lastname: string,
+    email?: string,
+    avatar: string,
     role: string,
     is_active: boolean
 }
@@ -56,7 +80,8 @@ export type Attribute = {
     is_deleted?: boolean,
     is_required: boolean,
     createdAt?: string,
-    updatedAt?: string
+    updatedAt?: string,
+    order?: number
 }
 
 export type Category = {
@@ -67,4 +92,46 @@ export type Category = {
     updatedAt?: string,
     is_deleted?: boolean,
     attributes: Attribute[]
+}
+
+export interface IChildren {
+    children: React.ReactNode,
+    classname?: string
+}
+
+export type Product = {
+    _id?: string,
+    description: string | null,
+    images: any,
+    price: number | null,
+    condition: string,
+    category_id: string | null
+    createdAt?: string,
+    updatedAt?: string,
+    product_attributes?: { _id?: string, attribute_id?: string, value: string | null | [] }[]
+}
+
+export type Post = {
+    _id?: string,
+    title: string | null,
+    poster_id?: string,
+    product_id?: string,
+    status?: string,
+    location: {
+        city: string | null,
+        district: string | null
+    },
+    is_draft?: boolean,
+    createdAt?: string,
+    updatedAt?: string,
+    is_deleted?: boolean,
+    product?: Product
+}
+
+export type Conversation = {
+    _id?: string,
+    participants: string[],
+    latest_mentioned_post_id: string,
+    is_deleted: boolean,
+    participant?: UserProfile
 }

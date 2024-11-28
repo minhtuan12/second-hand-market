@@ -17,6 +17,19 @@ export const apiAxios: AxiosInstance = axios.create({
     }
 });
 
+export const fetcher = (url: string) => {
+    return apiAxios.get(url)
+        .then(res => {
+            if (!res.data) {
+                throw Error(res.data.message);
+            }
+            return res.data;
+        })
+        .catch(err => {
+            console.log('err', err)
+        })
+}
+
 apiAxios.interceptors.request.use(async (request: InternalAxiosRequestConfig) => {
     const accessToken = await getCookieValue(SERVER_AUTH_TOKEN)
     request.headers.Authorization = accessToken ? `Bearer ${accessToken}` : ''

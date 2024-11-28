@@ -40,6 +40,10 @@ a {
     @apply flex items-center text-red-500 text-left text-sm mt-[3px] ml-1;
 }
 
+.required {
+    @apply text-[red] #{!important}
+}
+
 /* Custom tabs */
 .custom-tabs {
     .ant-tabs {
@@ -84,11 +88,11 @@ a {
         }
 
         .ant-select-selector {
-            .ant-select-selection-search {
+            .ant-select-selection-search, .ant-select-selection-item {
                 @apply pl-1
             }
 
-            @apply pl-4
+            @apply pl-4 #{!important}
         }
 
         &:hover, &:focus-within {
@@ -134,8 +138,7 @@ a {
 
 .admin-small-table {
     .ant-table-body {
-        scrollbar-gutter: stable !important;
-        @apply overflow-hidden hover:overflow-y-auto min-h-[170px] max-h-[170px] #{!important}
+        @apply scrollbar-thin overflow-y-scroll overflow-x-hidden hover:overflow-x-auto min-h-[170px] max-h-[170px] #{!important}
     }
 }
 
@@ -159,4 +162,110 @@ a {
 
 .admin-button {
     @apply bg-[#1677ff]
+}
+
+.popover-icon {
+    svg {
+        @apply fill-[#ffffff]
+    }
+
+    @apply absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]
+}
+
+.main-btn {
+    @apply bg-[#f80] hover:bg-white hover:text-[#f80] hover:border-[#f80] #{!important}
+}
+
+.main-delete-btn {
+    @apply bg-[#ff4d4f] hover:bg-white hover:text-[#ff4d4f] hover:border-[#ff4d4f] #{!important}
+}
+
+.main-radio {
+    .ant-radio-wrapper {
+        .ant-radio-inner {
+            @apply border-[#f80] #{!important}
+        }
+    }
+
+    .ant-radio-checked .ant-radio-inner {
+        @apply border-[#f80] bg-[#f80] #{!important}
+    }
+}
+
+.main-input-number {
+    .ant-input-number-outlined {
+        @apply hover:border-[#f80] focus-within:border-[#f80] #{!important}
+    }
+
+    .ant-input-number-group {
+        .ant-input-number-input-wrap {
+            input {
+                @apply h-full #{!important}
+            }
+
+            @apply h-full #{!important}
+        }
+
+        @apply h-full #{!important}
+    }
+}
+
+.main-date-picker {
+    .ant-picker-outlined {
+        @apply hover:border-[#f80] focus-within:border-[#f80] #{!important}
+    }
+}
+
+.custom-table {
+    .ant-table-body,
+    .ant-table-content {
+        @apply scrollbar-thin
+    }
+}
+
+.custom-upload {
+    .ant-upload {
+        button {
+            @apply hover:text-[#f80] hover:border-[#f80] active:text-[#f80] active:border-[#f80] #{!important}
+        }
+
+        @apply w-full
+    }
+}
+
+.custom-carousel {
+    .ant-carousel {
+        .slick-initialized {
+            @apply w-full h-full #{!important}
+        }
+
+        .slick-list {
+            .slick-track {
+                @apply w-full h-full #{!important}
+            }
+
+            @apply w-full h-full #{!important}
+        }
+
+        .slick-slide {
+            div {
+                img {
+                    @apply w-fit h-auto #{!important}
+                }
+
+                @apply w-full h-full #{!important}
+            }
+        }
+
+        @apply w-full h-full #{!important}
+    }
+}
+
+.custom-list {
+    .ant-list-item-meta-content {
+        .ant-list-item-meta-title {
+            @apply overflow-hidden text-ellipsis
+        }
+        @apply pr-2
+    }
 }

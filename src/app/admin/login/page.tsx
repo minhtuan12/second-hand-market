@@ -25,7 +25,6 @@ export default function AdminLogin(): JSX.Element {
     const [isLoadingRequestLogin, setIsLoadingRequestLogin] = useState<boolean>(false)
     const errorLogin = useSelector((state: RootState) => state.auth.errorAdminLogin)
     const dispatch: AppDispatch = useDispatch()
-    const router = useRouter()
 
     const handleChangeInput = (value: string, type: string): void => {
         dispatch(setErrorAdminLogin({
@@ -58,6 +57,9 @@ export default function AdminLogin(): JSX.Element {
                             break;
                         case 403:
                             getNotification('error', 'Tài khoản của bạn đã bị khóa')
+                            break;
+                        case 404:
+                            getNotification('error', 'Tài khoản quản trị viên không tồn tại')
                             break;
                         case 500:
                             getNotification('error', SERVER_ERROR_MESSAGE)

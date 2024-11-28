@@ -5,34 +5,22 @@ import {Avatar, Flex, Select, Skeleton, Upload} from "antd";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 import {Address, SelectOption, UserProfile} from "../../../../../../utils/types";
-import {useAuthUser} from "../../../../../../utils/hooks/useAuthUser";
-import {getNotification, handleRemoveVietnameseTones} from "../../../../../../utils/helper";
+import {useAuthUser} from "../../../../../hooks/useAuthUser";
+import {
+    beforeUpload,
+    getBase64,
+    getNotification,
+    handleFormatCityData,
+    handleRemoveVietnameseTones
+} from "../../../../../../utils/helper";
 import {EditOutlined, UserOutlined} from "@ant-design/icons";
 import {requestUpdateAvatar, requestUpdateProfile} from "@/api/profile";
 import {SERVER_ERROR_MESSAGE} from "../../../../../../utils/constants";
 import {handleGetProfile} from "@/actions/auth";
-import {requestGetRegions, requestGetWards} from "@/api/location";
+import {requestGetWards, useFetchRegions} from "@/api/location";
 import {setRegions} from "@/store/slices/app";
 import {RootState} from "@/store/configureStore";
 import ErrorMessage from "@/components/ErrorMessage";
-
-const getBase64 = (img: any, callback: (readerResult: ArrayBuffer | null | string) => void) => {
-    const reader: FileReader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result));
-    reader.readAsDataURL(img);
-};
-
-const beforeUpload = (file: any) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-    if (!isJpgOrPng) {
-        getNotification('error', 'File ảnh phải có định dạng là jpeg hoặc png!');
-    }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-        getNotification('error', 'Kích thước file ảnh không vượt quá 2MB!');
-    }
-    return isJpgOrPng && isLt2M;
-};
 
 export default function AccountTab({handleConfirmUpdateProfile}: {
     handleConfirmUpdateProfile: (user: UserProfile) => void
@@ -60,20 +48,16 @@ export default function AccountTab({handleConfirmUpdateProfile}: {
     const dispatch = useDispatch()
 
     /* get regions */
+    const {data: regionsData, error, isLoading: loadingGetRegions} = useFetchRegions(() => {
+        getNotification('error', 'Không thể lấy thông tin địa chỉ các vùng')
+    })
+
     useEffect(() => {
-        if (_.isEmpty(regions)) {
-            requestGetRegions()
-                .then((res) => {
-                    dispatch(setRegions(res.data?.regions))
-                    setCityOptions(handleFormatCityData(res.data?.regions, 'city'))
-                })
-                .catch(err => {
-                    getNotification('error', 'Không thể lấy thông tin địa chỉ các vùng')
-                })
-        } else {
-            setCityOptions(handleFormatCityData(regions, 'city'))
+        if (regionsData) {
+            dispatch(setRegions(regionsData?.regions))
+            setCityOptions(handleFormatCityData(regionsData?.regions, 'city'))
         }
-    }, [dispatch])
+    }, [dispatch, regionsData])
 
     useEffect(() => {
         if (address.district) {
@@ -94,19 +78,9 @@ export default function AccountTab({handleConfirmUpdateProfile}: {
 
     useEffect(() => {
         //TODO: set address state
-        setAccountData(authUser)
+        setAccountData(authUser as UserProfile)
         setAvatarUrl(authUser?.avatar || null)
     }, [authUser])
-
-    const handleFormatCityData = (res: Object[], type: string) => {
-        return res?.map((item: any): SelectOption => {
-            const areaKey: string = Object.keys(item)?.[0]
-            return {
-                label: type === 'city' ? item[areaKey]?.name : item[areaKey],
-                value: areaKey
-            }
-        })
-    }
 
     const handleChangeAccountData = (key: string, value: string) => {
         if (key === 'firstname' || key === 'lastname') {
@@ -236,8 +210,8 @@ export default function AccountTab({handleConfirmUpdateProfile}: {
         <Flex gap={12} className={'mt-5'} vertical>
             {
                 accountData ? <div className={'px-6'}>
-                    <Flex gap={50} justify={'space-between'} className={'mt-5'}>
-                        <div className={'w-1/3 flex flex-col items-center'}>
+                    <Flex gap={20} justify={'space-between'} className={'mt-5'} wrap>
+                        <Flex vertical align={'center'} className={'w-full 2xl:w-1/4'}>
                             <div
                                 className={'w-fit border-[3px] rounded-[50%] h-fit hover:border-dashed cursor-pointer'}>
                                 <Upload
@@ -277,10 +251,10 @@ export default function AccountTab({handleConfirmUpdateProfile}: {
                                     Cập nhật ảnh đại diện
                                 </Button>
                             </Flex>
-                        </div>
+                        </Flex>
 
-                        <Flex className={'w-1/3'} gap={46} vertical>
-                            <div className={'input-wrap'}>
+                        <Flex className={'w-full 2xl:w-1/4'} gap={46} vertical>
+                            <div className={'w-full'}>
                                 <div className={'label-wrap !text-[16px] font-[600] mb-1'}>
                                     Họ và tên <span className={'text-[red]'}>*</span>
                                 </div>
@@ -319,13 +293,14 @@ export default function AccountTab({handleConfirmUpdateProfile}: {
                             </div>
                         </Flex>
 
-                        <Flex vertical className={'w-1/3'}>
+                        <Flex vertical className={'w-full 2xl:w-1/4'}>
                             <div className={'input-wrap'}>
                                 <div className={'label-wrap !text-[16px] font-[600] mb-1'}>
                                     Địa chỉ
                                 </div>
                                 <Flex vertical gap={15} className={'main-select'}>
                                     <Select
+                                        loading={loadingGetRegions}
                                         showSearch
                                         allowClear
                                         value={address.city}

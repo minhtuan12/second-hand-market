@@ -66,6 +66,9 @@ export default function Login(): JSX.Element {
                         case 403:
                             getNotification('error', 'Tài khoản của bạn đã bị khóa')
                             break;
+                        case 422:
+                            getNotification('error', 'Tài khoản bạn vừa đăng nhập là tài khoản Google')
+                            break;
                         case 500:
                             getNotification('error', SERVER_ERROR_MESSAGE)
                             break;

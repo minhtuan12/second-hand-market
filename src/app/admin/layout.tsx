@@ -2,7 +2,7 @@
 
 import React, {useState} from "react";
 import {StoreProvider} from "@/store/StoreProvider";
-import {Breadcrumb, Button, ConfigProvider, Layout, Menu, Spin, theme} from "antd";
+import {Breadcrumb, Button, ConfigProvider, Flex, Layout, Menu, Spin, theme} from "antd";
 import viVN from "antd/locale/vi_VN";
 import NextTopLoader from "nextjs-toploader";
 import {ToastContainer} from "react-toastify";
@@ -12,22 +12,25 @@ import "tw-elements-react/dist/css/tw-elements-react.min.css";
 import '../global.scss'
 import {useSelector} from "react-redux";
 import {RootState} from "@/store/configureStore";
-import {useAuthUser} from "../../../utils/hooks/useAuthUser";
+import {useAuthUser} from "../../hooks/useAuthUser";
 import Sider from "antd/es/layout/Sider";
 import styles from './styles.module.scss'
 import {
     ContainerOutlined,
     FileDoneOutlined,
-    HomeOutlined,
+    HomeOutlined, LogoutOutlined,
     MenuFoldOutlined,
-    MenuUnfoldOutlined,
+    MenuUnfoldOutlined, SettingOutlined,
     UserOutlined
 } from "@ant-design/icons";
 import {Content, Header} from "antd/es/layout/layout";
+import AuthUserPopover from "@/components/Popover";
+import ProfileDrawer from "@/app/admin/components/ProfileDrawer";
+import {AdminProfile} from "../../../utils/types";
 
 const AdminLayout = ({adminChildren}: Readonly<{ adminChildren?: React.ReactNode }>) => <StoreProvider>
     <ConfigProvider locale={viVN}>
-        <NextTopLoader color={'#1677ff'} height={2}/>
+        <NextTopLoader color={'#1677ff'} height={2} speed={100}/>
         <div className={'relative min-h-screen'}>
             {adminChildren}
         </div>
@@ -50,6 +53,27 @@ export default function RootLayout(
     const pathname = usePathname()
     const breadcrumb = useSelector((state: RootState) => state.app.breadcrumb)
     const {loading, authUser} = useAuthUser()
+    const [isOpenUpdateProfileDrawer, setIsOpenUpdateProfileDrawer] = useState<boolean>(false)
+
+    const handleOpenDrawer = () => {
+        setIsOpenUpdateProfileDrawer(true)
+    }
+
+    const handleCloseDrawer = () => {
+        setIsOpenUpdateProfileDrawer(false)
+    }
+
+    const popoverItems = [
+        {
+            key: '1',
+            icon: <div className={'w-6 h-6 rounded-[50%] relative bg-[#D0B8A8]'} onClick={handleOpenDrawer}>
+                <SettingOutlined className={'popover-icon'} rotate={180}/>
+            </div>,
+            label: <div className={'text-[14px] font-medium'} onClick={handleOpenDrawer}>
+                Cập nhật thông tin
+            </div>,
+        }
+    ]
 
     if (loading) {
         return <div className={'relative min-h-screen w-full flex justify-center items-center'}>
@@ -112,26 +136,39 @@ export default function RootLayout(
                     />
                 </Sider>
                 <Layout>
-                    <Header style={{padding: 0, background: colorBgContainer}} className={'flex items-center'}>
-                        <Button
-                            type="text"
-                            icon={collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/>}
-                            onClick={() => setCollapsed(!collapsed)}
-                            style={{
-                                fontSize: '16px',
-                                width: 64,
-                                height: 64,
-                            }}
-                        />
-                        <Breadcrumb
-                            separator=">"
-                            items={breadcrumb?.map((item: {
-                                path: string,
-                                name: string
-                            }): { href: string, title: string } => ({
-                                href: item.path,
-                                title: item.name
-                            }))}
+                    <Header
+                        style={{padding: 0, background: colorBgContainer}}
+                        className={'flex items-center justify-between'}
+                    >
+                        <Flex align={'center'}>
+                            <Button
+                                type="text"
+                                icon={collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/>}
+                                onClick={() => setCollapsed(!collapsed)}
+                                style={{
+                                    fontSize: '16px',
+                                    width: 64,
+                                    height: 64,
+                                }}
+                            />
+                            <Breadcrumb
+                                separator=">"
+                                items={breadcrumb?.map((item: {
+                                    path: string,
+                                    name: string
+                                }): { href: string, title: string } => ({
+                                    href: item.path,
+                                    title: item.name
+                                }))}
+                            />
+                        </Flex>
+                        <div className={'mr-6'}>
+                            <AuthUserPopover authUser={authUser} items={popoverItems}/>
+                        </div>
+                        <ProfileDrawer
+                            isOpen={isOpenUpdateProfileDrawer}
+                            onClose={handleCloseDrawer}
+                            user={authUser as AdminProfile}
                         />
                     </Header>
                     <Content

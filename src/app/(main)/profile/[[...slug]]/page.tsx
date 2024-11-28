@@ -4,7 +4,6 @@ import React, {useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import DefaultAvatar from '../../../../assets/images/logos/user_default.png'
 import OnlineDotIcon from '../../../../assets/images/icons/solid/online-dot.svg'
-import './styles.scss'
 import styles from './styles.module.scss'
 import {
     BarsOutlined,
@@ -15,6 +14,7 @@ import {
     ShopOutlined,
     ShoppingOutlined,
     SmileOutlined,
+    TeamOutlined,
     UserAddOutlined
 } from "@ant-design/icons";
 import AccountTab from "../components/AccountTab";
@@ -24,11 +24,14 @@ import Link from "next/link";
 import {Flex, Rate, Skeleton, Tabs, TabsProps} from "antd";
 import Button from "@/components/Button";
 import Image from "next/image";
-import {setBreadcrumb, setPageTitle} from "@/store/slices/app";
-import Breadcrumb from "@/components/Breadcrumb";
-import {useAuthUser} from "../../../../../utils/hooks/useAuthUser";
+import {setPageTitle} from "@/store/slices/app";
+import {useAuthUser} from "@/hooks/useAuthUser";
 import {handleGetProfile} from "@/actions/auth";
 import {UserProfile} from "../../../../../utils/types";
+import KidInformationTab from "@/app/(main)/profile/components/KidInformationTab";
+import BreadcrumbUpdater from "../../../../components/BreadcrumbUpdater";
+
+const TabItem = ({children}: { children: React.ReactNode }) => <div className={'flex gap-[6px] items-center'}>{children}</div>
 
 export default function Profile({params}: { params: { slug: string } }) {
     const id = params.slug?.[0]
@@ -37,17 +40,17 @@ export default function Profile({params}: { params: { slug: string } }) {
     const [user, setUser] = useState<UserProfile | null>(null)
     const [isAuthUser, setIsAuthUser] = useState<boolean>(false)
     const [tabIndex, setTabIndex] = useState<string>('account')
+    const breadcrumbData = [
+        {
+            path: '/',
+            name: 'Trang chủ'
+        },
+        {
+            name: 'Trang cá nhân'
+        }
+    ]
 
     useEffect(() => {
-        dispatch(setBreadcrumb([
-            {
-                path: '/',
-                name: 'Trang chủ'
-            },
-            {
-                name: 'Trang cá nhân'
-            }
-        ]))
         dispatch(setPageTitle('Trang cá nhân'))
     }, [dispatch])
 
@@ -77,33 +80,38 @@ export default function Profile({params}: { params: { slug: string } }) {
     const tabItems: TabsProps['items'] = [
         {
             key: 'account',
-            label: <div className={'flex gap-[6px]'}><BarsOutlined/>Thông tin tài khoản</div>,
+            label: <TabItem><BarsOutlined/>Thông tin tài khoản</TabItem>,
             children: <AccountTab handleConfirmUpdateProfile={handleConfirmUpdateProfile}/>,
         },
         {
+            key: 'kid-info',
+            label: <TabItem><TeamOutlined/>Thông tin về con</TabItem>,
+            children: <KidInformationTab/>,
+        },
+        {
             key: 'password',
-            label: <div className={'flex gap-[6px]'}><LockOutlined/> Đổi mật khẩu</div>,
+            label: <TabItem><LockOutlined/> Đổi mật khẩu</TabItem>,
             children: <ChangePasswordTab/>,
         },
         {
             key: 'selling',
-            label: <div className={'flex gap-[6px]'}><ShopOutlined/>Đang bán</div>,
+            label: <TabItem><ShopOutlined/>Đang bán</TabItem>,
             children: <SellingTab/>,
         },
         {
             key: 'sold',
-            label: <div className={'flex gap-[6px]'}><ShoppingOutlined/>Đã bán</div>,
+            label: <TabItem><ShoppingOutlined/>Đã bán</TabItem>,
             children: <div>Edit your profile or update contact information.</div>,
         },
         {
             key: 'ratings',
-            label: <div className={'flex gap-[6px]'}><SmileOutlined/>Đánh giá</div>,
+            label: <TabItem><SmileOutlined/>Đánh giá</TabItem>,
             children: <div>Edit your profile or update contact information.</div>,
         }
     ]
 
     return <div className={'w-full pt-3'}>
-        <Breadcrumb className={'mb-5'}/>
+        <BreadcrumbUpdater className={'mb-5'} breadcrumbData={breadcrumbData} title={'Trang cá nhân'}/>
         <div className={`bg-[#fff] w-full h-auto rounded-[12px] pt-8`}>
             <Flex gap={25} align={'center'} className={'mx-8'} wrap justify={'center'}>
                 {
@@ -130,7 +138,7 @@ export default function Profile({params}: { params: { slug: string } }) {
                                     <Flex wrap className={'gap-x-[30px]'}>
                                         <Flex className={styles.detailText} align={'center'} gap={6}>
                                             <MailOutlined/>
-                                            <Link href={'mailto: adsasd@gmail.com'}
+                                            <Link href={`mailto: ${user?.email}`}
                                                   className={'hover:decoration-transparent'}>
                                                 {user?.email}
                                             </Link>

@@ -6,18 +6,20 @@ import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "@/store/configureStore";
 import {Attribute, Category} from "../../../../../utils/types";
 import _ from "lodash";
-import {Button, Flex, Input, Modal, Popconfirm, Select, Switch, Table, TableProps} from "antd";
-import {DeleteOutlined, PlusOutlined, ReloadOutlined} from "@ant-design/icons";
-import {ADDABLE_INPUT_TYPE, ATTRIBUTE_INPUT_TYPE} from "../../../../../utils/constants";
+import {Button, Flex, Input, Popconfirm, Select, Spin, Switch, Table, TableProps} from "antd";
+import {CaretLeftOutlined, DeleteOutlined, PlusOutlined} from "@ant-design/icons";
+import {ADDABLE_INPUT_TYPE, ATTRIBUTE_INPUT_TYPE, SERVER_ERROR_MESSAGE} from "../../../../../utils/constants";
 import {submitValidation} from "@/app/admin/categories/[action]/validate";
 import ErrorMessage from "@/components/ErrorMessage";
 import {capitalizeOnlyFirstLetter, getNotification} from "../../../../../utils/helper";
-import {requestCreateCategory, requestGetCategoryById} from "@/api/category";
+import {requestCreateCategory, requestGetCategoryById, requestUpdateCategory} from "@/api/category";
 import {setCurrentCategory} from "@/store/slices/category";
 import {useRouter} from "next/navigation";
+import ModalAddOptions from "@/app/admin/categories/components/ModalAddOptions";
 
 type DataType = {
     key: number,
+    order: number,
     label: string,
     input_type: string,
     initial_value: string[] | null,
@@ -72,11 +74,12 @@ export default function CategoryAction({params}: { params: { action: string } })
     const [initialValues, setInitialValues] = useState<string[]>([''])
     const [selectedAttributes, setSelectedAttributes] = useState<AttributeWithKey[]>([])
     const [isLoadingSubmit, setIsLoadingSubmit] = useState<boolean>(false)
-    const AddButton = ({isAddable, index, children}: { isAddable: boolean, index: number, children: any }) =>
+    const [loadingGetData, setLoadingGetData] = useState<boolean>(false)
+    const AddButton = ({isAddable, order, children}: { isAddable: boolean, order: number, children: any }) =>
         <Button
             disabled={!isAddable}
             rootClassName={`w-full border-none h-[64px] text-[#1677ff]`}
-            onClick={() => handleOpenModalAddInitialValue(index)}
+            onClick={() => handleOpenModalAddInitialValue(order)}
         >
             {children}
         </Button>
@@ -85,24 +88,24 @@ export default function CategoryAction({params}: { params: { action: string } })
             title: 'Tên thuộc tính',
             dataIndex: 'label',
             width: 200,
-            render: (text: string, _, index: number) => <Input
+            render: (text: string, record: DataType) => <Input
                 placeholder={'Nhập tên thuộc tính'}
                 value={text}
-                onChange={e => handleChangeAttribute(e.target.value, 'label', index)}
+                onChange={e => handleChangeAttribute(e.target.value, 'label', record.order)}
             />
         },
         {
             title: 'Kiểu đầu vào',
             dataIndex: 'input_type',
             width: 200,
-            render: (text: string, _, index: number) =>
+            render: (text: string, record: DataType) =>
                 <Select
                     rootClassName={'w-full'}
                     className={'main-select'}
                     options={inputTypeOptions}
                     placeholder={'Nhập tên thuộc tính'}
                     value={text}
-                    onChange={e => handleChangeAttribute(e, 'input_type', index)}
+                    onChange={e => handleChangeAttribute(e, 'input_type', record.order)}
                 />
         },
         {
@@ -110,13 +113,14 @@ export default function CategoryAction({params}: { params: { action: string } })
             dataIndex: 'initial_value',
             align: 'center',
             width: 150,
-            render: (text: any, record: DataType, index: number) => {
-                const isAddable: boolean = ADDABLE_INPUT_TYPE?.includes(category.attributes?.[index].input_type)
-                const options: string[] | null = category?.attributes?.[index]?.initial_value ?
-                    category?.attributes?.[index]?.initial_value?.filter(item => item !== '') : null
+            render: (text: any, record: DataType) => {
+                const currentAttribute: Attribute = category.attributes?.find((item: Attribute) => item.order === record.order) as Attribute
+                const isAddable: boolean = ADDABLE_INPUT_TYPE?.includes(currentAttribute?.input_type)
+                const options: string[] | null = currentAttribute?.initial_value ?
+                    currentAttribute.initial_value?.filter(item => item !== '') : null
                 return (!options || options?.length === 0) ?
-                    <AddButton index={index} isAddable={isAddable}><PlusOutlined/></AddButton> :
-                    <AddButton index={index} isAddable={isAddable}>Bấm để xem</AddButton>
+                    <AddButton order={record.order} isAddable={isAddable}><PlusOutlined/></AddButton> :
+                    <AddButton order={record.order} isAddable={isAddable}>Bấm để xem</AddButton>
             }
         },
         {
@@ -124,8 +128,8 @@ export default function CategoryAction({params}: { params: { action: string } })
             dataIndex: 'is_required',
             align: 'center',
             width: 120,
-            render: (text: boolean, _, index: number) => <Switch
-                onChange={e => handleChangeAttribute(e, 'is_required', index)}
+            render: (text: boolean, record: DataType) => <Switch
+                onChange={e => handleChangeAttribute(e, 'is_required', record.order)}
                 className={'main-switch'}
                 checked={text}
             />
@@ -134,11 +138,12 @@ export default function CategoryAction({params}: { params: { action: string } })
             title: '',
             align: 'center',
             width: 80,
-            render: (text, _, index: number) => {
+            fixed: 'right',
+            render: (text, record: DataType) => {
                 return <Popconfirm
                     okButtonProps={{className: 'bg-[#1677ff]'}}
                     title="Xóa thuộc tính này?"
-                    onConfirm={() => handleDeleteAttribute(index)}
+                    onConfirm={() => handleDeleteAttribute(record.order)}
                 >
                     <div className={'text-[red] cursor-pointer'}>Xóa</div>
                 </Popconfirm>
@@ -162,16 +167,33 @@ export default function CategoryAction({params}: { params: { action: string } })
         }]
         if (params.action !== 'create') {
             if (!_.isEmpty(currentCategory)) {
-                setCategory(currentCategory)
+                setCategory({
+                    ...currentCategory,
+                    attributes: currentCategory.attributes?.map((item: Attribute, index: number): Attribute => ({
+                        ...item,
+                        order: index
+                    }))
+                })
             } else {
+                setLoadingGetData(true)
                 requestGetCategoryById(params.action)
                     .then(res => {
-                        dispatch(setCurrentCategory(res.data.category))
-                        setCategory(res.data.category)
+                        const categoryResponse: Category = {
+                            ...res.data.category,
+                            attributes: res.data.category.attributes?.map((item: Attribute, index: number): Attribute => ({
+                                ...item,
+                                order: index
+                            }))
+                        }
+                        dispatch(setCurrentCategory(categoryResponse))
+                        setCategory(categoryResponse)
                     })
                     .catch(err => {
                         getNotification('error', 'Không lấy được thông tin danh mục')
                         router.push('/admin/categories')
+                    })
+                    .finally(() => {
+                        setLoadingGetData(false)
                     })
             }
             dispatch(setBreadcrumb([...breadcrumb, {name: currentCategory?.name}]))
@@ -190,10 +212,10 @@ export default function CategoryAction({params}: { params: { action: string } })
         })
     }
 
-    const handleOpenModalAddInitialValue = (attributeIndex: number): void => {
+    const handleOpenModalAddInitialValue = (attributeOrder: number): void => {
         handleResetAttributeErrorSubmit()
-        setCurrentAttributeIndex(attributeIndex)
-        const selectedAttribute = category.attributes?.find((item: Attribute, index: number) => index === attributeIndex)
+        setCurrentAttributeIndex(attributeOrder)
+        const selectedAttribute: Attribute = category.attributes?.find((item: Attribute) => item.order === attributeOrder) as Attribute
         setCurrentAttributeToAddInitialValue(selectedAttribute)
         if (selectedAttribute?.initial_value) {
             setInitialValues(selectedAttribute?.initial_value)
@@ -206,7 +228,7 @@ export default function CategoryAction({params}: { params: { action: string } })
             ...category,
             attributes: [
                 ...category?.attributes,
-                initialAttribute
+                {...initialAttribute, order: category?.attributes?.length || 0}
             ]
         })
     }
@@ -224,47 +246,51 @@ export default function CategoryAction({params}: { params: { action: string } })
         })
     }
 
-    const handleDeleteAttribute = (index: number) => {
+    const handleDeleteAttribute = (order: number) => {
         handleResetAttributeErrorSubmit()
         let afterCategory: Category = _.cloneDeep(category)
-        if (!category.attributes?.[index]?._id) {
+        const currentAttribute: Attribute = afterCategory.attributes?.find(item => item.order === order) as Attribute
+        const currentIndex: number = afterCategory.attributes?.findIndex(item => item.order === order)
+        if (!currentAttribute?._id) {
             afterCategory = {
                 ...afterCategory,
-                attributes: afterCategory.attributes?.filter((item, currentIndex) => currentIndex !== index)
+                attributes: afterCategory.attributes?.filter((item: Attribute) => item.order !== order)
             }
         } else {
             afterCategory = {
                 ...afterCategory,
                 attributes: [
-                    ...afterCategory.attributes?.slice(0, index),
+                    ...afterCategory.attributes?.slice(0, currentIndex),
                     {
-                        ...afterCategory.attributes?.[index],
+                        ...currentAttribute,
                         is_deleted: true
                     },
-                    ...afterCategory.attributes?.slice(index + 1)
+                    ...afterCategory.attributes?.slice(currentIndex + 1)
                 ]
             }
         }
         setCategory(afterCategory)
     }
 
-    const handleChangeAttribute = (value: string | boolean, type: string, index: number) => {
+    const handleChangeAttribute = (value: string | boolean, type: string, order: number) => {
         handleResetAttributeErrorSubmit()
         let initialValue = null
         if (type === 'input_type') {
             initialValue = ADDABLE_INPUT_TYPE.includes(value as string) ? [''] : null
             setInitialValues([''])
         }
+        const currentAttribute: Attribute = category.attributes?.find((item: Attribute): boolean => item.order === order) as Attribute
+        const currentIndex: number = category.attributes?.findIndex((item: Attribute): boolean => item.order === order)
         setCategory({
             ...category,
             attributes: [
-                ...category.attributes?.slice(0, index),
+                ...category.attributes?.slice(0, currentIndex),
                 {
-                    ...category.attributes[index],
+                    ...currentAttribute,
                     [type]: value,
-                    initial_value: initialValue
+                    initial_value: type === 'input_type' ? initialValue : currentAttribute.initial_value
                 },
-                ...category.attributes?.slice(index + 1)
+                ...category.attributes?.slice(currentIndex + 1)
             ]
         })
     }
@@ -299,8 +325,8 @@ export default function CategoryAction({params}: { params: { action: string } })
         if (selectedAttributes?.length > 0) {
             let remainingAttributes: Attribute[] = _.cloneDeep(category.attributes)
             const selectedKeys: number[] = selectedAttributes?.map((item: AttributeWithKey) => item.key)
-            remainingAttributes = remainingAttributes.map((item: Attribute, index: number) => {
-                return selectedKeys?.includes(index) ? {
+            remainingAttributes = remainingAttributes.map((item: Attribute) => {
+                return selectedKeys?.includes(item.order as number) ? {
                     ...item,
                     is_deleted: true
                 } : item
@@ -312,6 +338,44 @@ export default function CategoryAction({params}: { params: { action: string } })
         }
     }
 
+    const handleSetErrorFromServerResponse = (errorDetails: any) => {
+        setErrorSubmit({
+            name: errorDetails?.name || '',
+            attribute: {
+                label: errorDetails?.label || '',
+                initialValues: errorDetails?.initialValues || ''
+            }
+        })
+    }
+
+    const handleCreateCategory = (submitCategory: Category) => {
+        requestCreateCategory(submitCategory)
+            .then(res => {
+                getNotification('success', 'Tạo mới thành công')
+            })
+            .catch(err => {
+                getNotification('error', SERVER_ERROR_MESSAGE)
+            })
+            .finally(() => {
+                setIsLoadingSubmit(false)
+            })
+    }
+
+    const handleUpdateCategory = (submitCategory: Category) => {
+        if (submitCategory?._id) {
+            requestUpdateCategory(submitCategory?._id, submitCategory)
+                .then(res => {
+                    getNotification('success', 'Cập nhật thành công')
+                })
+                .catch(err => {
+                    getNotification('error', SERVER_ERROR_MESSAGE)
+                })
+                .finally(() => {
+                    setIsLoadingSubmit(false)
+                })
+        }
+    }
+
     const handleSubmit = () => {
         const {isError, errorDetail} = submitValidation(category)
         if (isError) {
@@ -320,45 +384,70 @@ export default function CategoryAction({params}: { params: { action: string } })
             setIsLoadingSubmit(true)
             let submitCategory: Category = _.cloneDeep(category)
             submitCategory = {
+                ...submitCategory,
                 name: capitalizeOnlyFirstLetter(submitCategory.name),
-                description: capitalizeOnlyFirstLetter(submitCategory.description),
-                attributes: submitCategory.attributes
+                description: submitCategory.description ? capitalizeOnlyFirstLetter(submitCategory.description) : '',
+                attributes: submitCategory.attributes?.length > 0 ? (submitCategory.attributes
                     ?.filter((item: Attribute) => {
-                        if (!item?._id && item.is_deleted) {
-                            return
-                        }
-                        return item
+                        return item?._id || !item?.is_deleted
                     })
                     ?.map((item: Attribute): Attribute => {
-                        delete item.is_deleted
                         return {
                             ...item,
                             label: capitalizeOnlyFirstLetter(item.label),
                             initial_value: item.initial_value ?
                                 item.initial_value?.map((option: string) => capitalizeOnlyFirstLetter(option)) : null
                         }
-                    })
+                    })) : []
             }
-            requestCreateCategory(submitCategory)
-                .then(res => {
-                    getNotification('success', 'Tạo mới thành công')
-                })
-                .catch(err => {
-                    console.log(err)
-                    getNotification('error', 'Đã có lỗi xảy ra')
-                })
-                .finally(() => {
-                    setIsLoadingSubmit(false)
-                })
+            if (params.action === 'create') {
+                submitCategory = {
+                    ...submitCategory,
+                    attributes: submitCategory.attributes?.map((item: Attribute): Attribute => {
+                        delete item.is_deleted
+                        delete item.order
+                        return item
+                    })
+                }
+                handleCreateCategory(submitCategory)
+            } else {
+                submitCategory = {
+                    ...submitCategory,
+                    attributes: submitCategory.attributes?.map((item: Attribute): Attribute => {
+                        if (!item?._id) {
+                            delete item.is_deleted
+                        }
+                        delete item.order
+                        return item
+                    })
+                }
+                handleUpdateCategory(submitCategory)
+            }
         }
     }
 
+    if (loadingGetData) {
+        return <Flex justify={'center'} align={'center'} className={'w-full h-full'}>
+            <Spin/>
+        </Flex>
+    }
+
     return <div className={'h-full'}>
-        <div className={'font-semibold text-[22px]'}>
-            {params.action === 'create' ? 'Tạo mới danh mục' : `Cập nhật ${category?.name}`}
-        </div>
+        <Flex className={'w-full'} justify={'space-between'} align={'center'}>
+            <div className={'font-semibold text-[22px]'}>
+                {params.action === 'create' ? 'Tạo mới danh mục' : `Cập nhật ${currentCategory?.name}`}
+            </div>
+            <Flex
+                align={'center'}
+                gap={3}
+                onClick={() => router.push('/admin/categories')}
+                className={'text-[#1677ff] cursor-pointer'}
+            >
+                <CaretLeftOutlined className={'mt-0.5'}/>Quay lại
+            </Flex>
+        </Flex>
         <Flex vertical className={'h-full'}>
-            <Flex className={'mt-8'} gap={50}>
+            <Flex className={'mt-8'} gap={50} wrap>
                 <Flex gap={20} vertical>
                     <Flex vertical>
                         <Label label={'Tên danh mục'} isRequired/>
@@ -380,7 +469,8 @@ export default function CategoryAction({params}: { params: { action: string } })
                         />
                     </Flex>
                 </Flex>
-                <div className={'flex flex-col py-6 px-8 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] rounded-xl flex-1'}>
+                <div
+                    className={'flex flex-col py-6 px-8 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] rounded-xl flex-1 max-w-full'}>
                     <Flex align={'center'} justify={'space-between'}>
                         <Label label={'Các thuộc tính'}/>
                         <Flex gap={30}>
@@ -416,24 +506,28 @@ export default function CategoryAction({params}: { params: { action: string } })
                                 columns={attributeTableColumns}
                                 dataSource={category?.attributes
                                     ?.filter((item: Attribute) => item.is_deleted === false)
-                                    ?.map((item: Attribute, index: number): DataType => ({
+                                    ?.map((item: Attribute): DataType => ({
                                             label: item?.label,
                                             input_type: item?.input_type,
                                             initial_value: item?.initial_value,
                                             is_required: item?.is_required,
                                             is_deleted: item?.is_deleted,
-                                            key: index
+                                            key: item.order,
+                                            order: item.order
                                         }) as DataType
                                     )}
                                 scroll={{y: 'calc(100vh - 430px)'}}
+                                loading={loadingGetData}
                             />
                     }
-                    {
-                        (errorSubmit.attribute.initialValues || errorSubmit.attribute.label) ?
-                            Object.values(errorSubmit.attribute).map((error: string, index: number) => (
-                                <ErrorMessage message={error} key={index}/>
-                            )) : ''
-                    }
+                    <div className={'mt-2'}>
+                        {
+                            (errorSubmit.attribute.initialValues || errorSubmit.attribute.label) ?
+                                Object.values(errorSubmit.attribute).map((error: string, index: number) => (
+                                    <ErrorMessage message={error} key={index} className={`mb-1`}/>
+                                )) : ''
+                        }
+                    </div>
                 </div>
             </Flex>
             <div className={'w-fit mt-[22px]'}>
@@ -447,75 +541,13 @@ export default function CategoryAction({params}: { params: { action: string } })
             </div>
         </Flex>
 
-        <Modal
-            title={<div className={'text-[17px]'}>
-                Thêm các lựa chọn cho thuộc tính&nbsp;
-                <span className={'text-danger-700'}>{currentAttributeToAddInitialValue?.label || '...'}</span>
-            </div>
-            }
-            open={currentAttributeToAddInitialValue !== undefined}
-            onOk={handleSetInitialValueForAttribute}
-            onCancel={() => {
-                setCurrentAttributeIndex(-1)
-                setCurrentAttributeToAddInitialValue(undefined)
-            }}
-            okButtonProps={{className: 'bg-[#1677ff]'}}
-            okText='Xong'
-            width={400}
-        >
-            <Flex className={'py-3'} vertical>
-                <Flex className={'w-full'} justify={'space-between'}>
-                    <Flex
-                        className={'text-[green] text-[14px] cursor-pointer mb-1.5 select-none w-fit'}
-                        align={'center'} gap={4}
-                        onClick={() => {
-                            setInitialValues([''])
-                        }}
-                    >
-                        <ReloadOutlined style={{fontSize: '10px', marginTop: '1px'}}/> Làm mới
-                    </Flex>
-                    <Flex
-                        className={'text-[#1677ff] text-[14px] cursor-pointer mb-1.5 select-none w-fit'}
-                        align={'center'} gap={3}
-                        onClick={() => {
-                            setInitialValues([...initialValues, ''])
-                        }}
-                    >
-                        <PlusOutlined style={{fontSize: '8px'}}/> Thêm giá trị
-                    </Flex>
-                </Flex>
-                <Flex
-                    style={{scrollbarGutter: 'stable'}}
-                    className={'max-h-[300px] overflow-hidden hover:overflow-y-auto scrollbar-thin mr-[-23px]'}
-                    vertical
-                    gap={10}
-                >
-                    {
-                        initialValues.map((value: string, index: number) => (
-                            <Flex key={index}>
-                                <Input
-                                    value={value}
-                                    placeholder={'Nhập giá trị'}
-                                    onChange={(e) => {
-                                        let newInitialValues: string[] = _.cloneDeep(initialValues)
-                                        newInitialValues[index] = e.target.value
-                                        setInitialValues(newInitialValues)
-                                    }}
-                                />
-                                {
-                                    initialValues?.length > 1 ? <DeleteOutlined
-                                        style={{color: 'red', fontSize: '15px'}}
-                                        className={'cursor-pointer ml-3 mr-3'}
-                                        onClick={() => {
-                                            setInitialValues(initialValues.filter((_: string, currentIndex: number) => currentIndex !== index))
-                                        }}
-                                    /> : ''
-                                }
-                            </Flex>
-                        ))
-                    }
-                </Flex>
-            </Flex>
-        </Modal>
+        <ModalAddOptions
+            initialValues={initialValues}
+            currentAttributeToAddInitialValue={currentAttributeToAddInitialValue}
+            handleSetInitialValueForAttribute={handleSetInitialValueForAttribute}
+            setCurrentAttributeIndex={setCurrentAttributeIndex}
+            setCurrentAttributeToAddInitialValue={setCurrentAttributeToAddInitialValue}
+            setInitialValues={setInitialValues}
+        />
     </div>
 }

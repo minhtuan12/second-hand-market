@@ -3,58 +3,39 @@
 import React, {useState} from 'react';
 import styles from './styles.module.scss';
 import './styles.scss';
-import {useDispatch} from "react-redux";
 import _ from "lodash";
 import {
     BellOutlined,
-    CaretDownOutlined,
     HeartFilled,
-    LogoutOutlined,
+    ProductOutlined,
     SearchOutlined,
     ShopFilled,
     ShoppingFilled,
     UserOutlined
 } from "@ant-design/icons";
-import {Avatar, Dropdown, Flex, MenuProps, Tooltip} from "antd";
+import {Flex, MenuProps, Popover, Tooltip} from "antd";
 import {usePathname, useRouter} from "next/navigation";
 import DefaultInput from "@/components/Input";
-import {useAuthUser} from "../../../../../utils/hooks/useAuthUser";
-import {handleLogout} from "@/actions/auth";
+import {useAuthUser} from "@/hooks/useAuthUser";
+import AuthUserPopover from "@/components/Popover";
+import Link from "next/link";
+import PopoverFeature from "@/app/(main)/components/Header/components/PopoverFeature";
+import {useDispatch} from "react-redux";
+import {setFilter, setIsSearched} from "@/store/slices/app";
 
 const Header = () => {
     const {authUser} = useAuthUser()
     const [showMenu, setShowMenu] = useState(false)
-    const dispatch = useDispatch()
     const pathname = usePathname()
     const router = useRouter()
-
-    const handleClickLogout = async () => {
-        await handleLogout()
-        router.push('/')
-    }
+    const dispatch = useDispatch()
 
     const dropdownMenu: MenuProps['items'] = [
         {
-            key: '0',
-            label: <Flex vertical onClick={() => router.push('/profile')}>
-                <Flex gap={10} align={'center'}>
-                    <Avatar size={"large"} src={authUser?.avatar} icon={!authUser?.avatar && <UserOutlined/>}/>
-                    <Flex vertical>
-                        <div
-                            className={'font-semibold text-black text-base'}>{authUser?.firstname + " " + authUser?.lastname}</div>
-                        <div className={'text-gray-500 text-[14px]'}>{authUser?.email}</div>
-                    </Flex>
-                </Flex>
-            </Flex>
-        },
-        {
-            type: 'divider',
-        },
-        {
             key: '1',
-            icon: <div className={'w-6 h-6 rounded-[50%] relative bg-[#8ecd3c]'}>
-                <ShoppingFilled className={styles.dropdownIcon}/></div>,
-            label: <div className={'text-[14px] font-medium'}>Đơn mua</div>,
+            icon: <Link href={'/profile'} className={'w-6 h-6 rounded-[50%] relative bg-[#8ecd3c]'}>
+                <ShoppingFilled className={styles.dropdownIcon}/></Link>,
+            label: <Link href={'/profile'} className={'text-[14px] font-medium'}>Đơn mua</Link>,
         },
         {
             key: '2',
@@ -71,34 +52,21 @@ const Header = () => {
                 <HeartFilled className={styles.dropdownIcon}/></div>,
             label: <div className={'text-[14px] font-medium'}>Bài đăng đã lưu</div>,
         },
-        {
-            type: 'divider',
-        },
-        {
-            key: '4',
-            icon: <div className={'w-6 h-6 rounded-[50%] relative bg-[#D0B8A8]'} onClick={handleClickLogout}>
-                <LogoutOutlined className={styles.dropdownIcon} rotate={180}/>
-            </div>,
-            label: <div className={'text-[14px] font-medium'} onClick={handleClickLogout}>
-                Đăng xuất
-            </div>,
-        },
     ]
 
     const handleChangeKeySearch = (value: string): void => {
-
+        dispatch(setFilter((prev: any) => ({...prev, search_key: value})))
     }
 
     const handleSearch = () => {
 
     }
-    console.log(authUser)
+
     return (
         <header className={styles.headerWrap}>
             <div className={styles.headerLeftWrap}>
                 <div className={styles.menuIcon} onClick={() => setShowMenu(true)}>
-                    {/*<Image alt={''} src={MainLogo} width={45} className={'rounded-[50%] mr-3'}/>*/}
-                    {/*<div className={styles.headerTitle}>Chợ đồ cũ</div>*/}
+                    <div className={styles.headerTitle}>Chợ đồ cũ</div>
                 </div>
             </div>
             {
@@ -106,9 +74,11 @@ const Header = () => {
                     <div className={`${styles.search}`}>
                         <div className={'h-[45px] max-w-[500px]'}>
                             <DefaultInput
+                                onPressEnter={() => dispatch(setIsSearched(true))}
                                 className={styles.searchInput} size={'large'}
                                 placeholder="Tìm kiếm sản phẩm trên Chợ Đồ Cũ"
                                 prefix={<SearchOutlined/>}
+                                onChange={e => handleChangeKeySearch(e.target.value)}
                             />
                         </div>
                     </div>
@@ -136,17 +106,15 @@ const Header = () => {
                                         </div>
                                     </Flex>
                                 </Flex>
-                            </Flex> : <Dropdown trigger={['click']} menu={{items: dropdownMenu}}
-                                                rootClassName={'dropdown-custom'}>
-                                <div className={'flex items-center text-[15px] cursor-pointer hover:opacity-75'}>
-                                    {
-                                        authUser?.avatar ?
-                                            <Avatar src={authUser?.avatar}/> : <Avatar icon={<UserOutlined/>}/>
-                                    }
-                                    <div className={'ml-2'}>{authUser?.firstname + " " + authUser?.lastname}</div>
-                                    <CaretDownOutlined className={'ml-2 mt-0.5'} style={{fontSize: '14px'}}/>
-                                </div>
-                            </Dropdown>
+                            </Flex> : <Flex gap={40}>
+                                <Popover
+                                    content={<PopoverFeature/>} className={'cursor-pointer'}
+                                    trigger={['click', 'hover']}
+                                >
+                                    <ProductOutlined className={'text-[22px]'}/>
+                                </Popover>
+                                <AuthUserPopover authUser={authUser} items={dropdownMenu}/>
+                            </Flex>
                     }
                 </div>
             </div>

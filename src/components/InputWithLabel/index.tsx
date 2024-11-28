@@ -10,6 +10,7 @@ interface IProps extends InputProps {
     label: string,
     isPasswordInput?: boolean,
     isRequired?: boolean,
+    small?: boolean
 }
 
 const InputWithLabel: React.FC<IProps> = (
@@ -18,6 +19,7 @@ const InputWithLabel: React.FC<IProps> = (
         label,
         isPasswordInput= false,
         isRequired= false,
+        small = false,
         ...rest
     }
 ) => {
@@ -30,7 +32,7 @@ const InputWithLabel: React.FC<IProps> = (
         }
     }, [isInputActive])
 
-    return <div className={`custom-input-with-label ${width}`}>
+    return <div className={`custom-input-with-label ${width} ${small ? 'small-input' : ''}`}>
         {
             isPasswordInput ?
                 <Input.Password
