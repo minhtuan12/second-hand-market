@@ -58,7 +58,11 @@ apiAxios.interceptors.response.use(
                 return apiAxios(originalRequest)
             }
         }
+        
         if (error?.response?.status === 403) {
+            if (error?.response?.data === 'Tài khoản đã bị khóa, vui lòng liên hệ admin để mở khóa') {
+                return onRejected(error)
+            }
             window.location.href = '/forbidden'
             return
         }

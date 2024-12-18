@@ -154,7 +154,7 @@ export const handleGetLabelFromValue = (obj: any, value: string): { label: strin
             label = obj[key]['LABEL']
         }
     })
-    return {label, color: obj[foundedKey]['TAG_COLOR']}
+    return {label, color: obj[foundedKey]?.['TAG_COLOR']}
 }
 
 export const capitalizeOnlyFirstLetter = (str: string): string => {
@@ -238,7 +238,6 @@ export const handleGetRegion = (regions: any, area: string, district: string): {
     city: string,
     district: string
 } | null => {
-    console.log(regions)
     if (regions?.length === 0) {
         return null
     }

@@ -223,6 +223,12 @@ a {
     }
 }
 
+.order-table {
+    .ant-table-content {
+        @apply min-h-[calc(100vh_-_440px)] max-h-[calc(100vh_-_440px)] overflow-auto
+    }
+}
+
 .custom-upload {
     .ant-upload {
         button {
@@ -268,4 +274,29 @@ a {
         }
         @apply pr-2
     }
+}
+
+.custom-modal {
+    .ant-modal-header {
+        .ant-modal-title {
+            @apply bg-[#c8c8c8] text-[#000]
+        }
+    }
+    .ant-modal-content {
+        @apply bg-[#c8c8c8]
+    }
+}
+
+.custom-carousel {
+    .slick-next, .slick-prev {
+        @apply text-[#000] #{!important}
+    }
+}
+
+.dropdown-icon {
+    svg {
+        @apply fill-[#ffffff]
+    }
+
+    @apply absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]
 }

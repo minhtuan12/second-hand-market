@@ -1,154 +1,341 @@
 import React from "react";
-import '../../../global.scss'
+import "../../../global.scss";
 import BreadcrumbUpdater from "@/components/BreadcrumbUpdater";
-import {Avatar, Carousel, Flex, Rate, Tag} from "antd";
-import {handleExportTimeAgo, handleFormatCurrency, handleGetRegion} from "../../../../../utils/helper";
-import {ClockCircleOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, UserOutlined} from "@ant-design/icons";
-import {fetchRegions} from "@/actions/public";
+import { Avatar, Col, Empty, Flex, Rate, Tag } from "antd";
+import {
+    handleExportTimeAgo,
+    handleFormatCurrency,
+    handleGetRegion,
+} from "../../../../../utils/helper";
+import {
+    CaretRightOutlined,
+    ClockCircleOutlined,
+    EnvironmentOutlined,
+    MailOutlined,
+    PhoneOutlined,
+    PushpinFilled,
+    UserOutlined,
+} from "@ant-design/icons";
+import { fetchRegions } from "@/actions/public";
 import Link from "next/link";
-import Image from "next/image";
-import LikedPostHeart from "@/app/(main)/posts/components/LikedPostHeart";
 import PostAction from "@/app/(main)/posts/components/PostAction";
+import Image from "next/image";
+import DetailProductTable from "../components/DetailProductTable";
+import PostItem from "../../components/PostItem";
 
 async function fetchDetailPost(id: string) {
     try {
-        const postResponse = await fetch(`${process.env.API_URL}/public/posts/${id}`, {cache: 'no-store'})
+        const postResponse = await fetch(
+            `${process.env.API_URL}/public/posts/${id}`,
+            { cache: "no-store" }
+        );
         if (!postResponse?.ok) {
-            return {post: null}
+            return { post: null };
         }
-        return postResponse.json()
+        return postResponse.json();
     } catch (err) {
-        return {post: null}
+        return { post: null };
     }
 }
 
-export default async function PostDetail({params}: { params: { id: string } }) {
-    const id = params.id
-    const {post} = await fetchDetailPost(id)
+async function fetchUserPost(userId: string, postId: string) {
+    try {
+        const response = await fetch(
+            `${process.env.API_URL}/public/user/${userId}/posts`,
+            { cache: "no-store" }
+        );
+        if (!response?.ok) {
+            return { posts: null };
+        }
+        const posts = await response.json();
+        return posts?.filter((item: any) => item?._id !== postId);
+    } catch (err) {
+        return { posts: null };
+    }
+}
+
+export default async function PostDetail({
+    params,
+}: {
+    params: { id: string };
+}) {
+    const id = params.id;
+    const { post } = await fetchDetailPost(id);
+    const posterPosts = await fetchUserPost(post?.poster_id, post?._id);
+
     const breadcrumbData = [
         {
-            path: '/',
-            name: 'Trang chủ'
+            path: "/",
+            name: "Trang chủ",
         },
         {
-            name: `Thông tin bài đăng`
-        }
-    ]
-    const {regions} = await fetchRegions()
-    const location = handleGetRegion(regions, post?.location?.city, post?.location?.district)
-    const poster = post?.poster
+            name: `Thông tin bài đăng`,
+        },
+    ];
+    const { regions } = await fetchRegions();
+    const location = handleGetRegion(
+        regions,
+        post?.location?.city,
+        post?.location?.district
+    );
+    const poster = post?.poster;
 
-    return <div className={'w-full pt-3'}>
-        <BreadcrumbUpdater
-            className={'mb-5'} breadcrumbData={breadcrumbData}
-            title={`Bài đăng`}
-        />
-        <div className={`bg-[#fff] w-full h-auto rounded-[12px] pt-8`}>
-            <Flex className={'w-full px-8 pb-8'} justify={'space-between'}>
-                <Flex gap={30} className={'w-2/3'}>
-                    <div
-                        className={'relative min-w-[300px] max-w-[300px] h-[300px] custom-carousel border-[1px] border-[gray] p-2 rounded-lg'}>
-                        <Carousel autoplay={true} arrows>
-                            {
-                                post?.product?.images?.map((image: string, index: number) => (
-                                    <div key={index} className="relative w-full h-full">
-                                        <Image
-                                            key={index}
-                                            src={image}
-                                            alt={image}
-                                            quality={90}
-                                            width={0}
-                                            height={0}
-                                            sizes={'100vw'}
-                                        />
-                                    </div>
-                                ))
-                            }
-                        </Carousel>
-                        <LikedPostHeart postId={post?._id}/>
-                    </div>
-                    <Flex vertical justify={'space-between'} className={'flex-1'}>
+    return (
+        <div className={"w-full pt-3"}>
+            <BreadcrumbUpdater
+                className={"mb-5"}
+                breadcrumbData={breadcrumbData}
+                title={`Bài đăng`}
+            />
+            <div className={`bg-[#fff] w-full h-auto rounded-[12px] pt-8`}>
+                <Flex
+                    className={"w-full px-8 pb-8"}
+                    justify={"space-between"}
+                    wrap
+                    gap={30}
+                >
+                    <Flex gap={30} wrap>
                         <Flex vertical>
-                            <div className={'font-semibold text-[22px]'}>{post?.title}</div>
-                            <div className={'font-semibold text-[22px]'}>{post?.title}</div>
-                            <div className={'font-semibold text-[22px]'}>{post?.title}</div>
-                            <div className={'text-[18px]'}>{post?.product?.description}</div>
-                            <div className={'mt-1'}>
-                                {
-                                    post?.product?.price ? <div className={'text-[24px] font-semibold text-[#f80]'}>
-                                            {handleFormatCurrency(post?.product?.price)}
-                                        </div> :
+                            <div
+                                className={
+                                    "relative min-w-[300px] max-w-[300px] h-[300px] custom-carousel border-[1px] border-[gray] p-2 rounded-lg"
+                                }
+                            >
+                                <Image
+                                    src={post?.product?.images?.[0]}
+                                    alt={post?.title}
+                                    className="p-2"
+                                    fill
+                                />
+
+                                {/* <LikedPostHeart postId={post?._id} /> */}
+                            </div>
+                        </Flex>
+                        <Flex
+                            vertical
+                            justify={"space-between"}
+                            className={"flex-1"}
+                        >
+                            <Flex vertical>
+                                <div
+                                    className={
+                                        "font-semibold text-[22px] w-full overflow-hidden text-ellipsis"
+                                    }
+                                >
+                                    {post?.title}
+                                </div>
+                                <div className={"text-[18px]"}>
+                                    {post?.product?.description}
+                                </div>
+                                <div className={"mt-1"}>
+                                    {post?.product?.price ? (
+                                        <div
+                                            className={
+                                                "text-[24px] font-semibold text-[#f80]"
+                                            }
+                                        >
+                                            {handleFormatCurrency(
+                                                post?.product?.price
+                                            )}
+                                        </div>
+                                    ) : (
                                         <Tag
-                                            className={'!text-[15px] !h-[30px] w-fit !p-3 !flex !items-center !justify-center'}
-                                            color={'cyan'}
+                                            className={
+                                                "!text-[15px] !h-[30px] w-fit !p-3 !flex !items-center !justify-center"
+                                            }
+                                            color={"cyan"}
                                         >
                                             Đồ cho tặng
                                         </Tag>
-                                }
-                            </div>
-                            <Flex vertical className={'mt-3'} gap={5}>
-                                <Flex className={'text-[17px]'} gap={12}>
-                                    <PhoneOutlined/>
-                                    {
-                                        poster?.phone ?
+                                    )}
+                                </div>
+                                <Flex vertical className={"mt-3"} gap={5}>
+                                    <Flex className={"text-[17px]"} gap={12}>
+                                        <PhoneOutlined />
+                                        {poster?.phone ? (
                                             <Link
                                                 href={`tel:${poster?.phone}`}
-                                                className={'hover:decoration-transparent text-[#f80]'}
+                                                className={
+                                                    "hover:decoration-transparent text-[#f80]"
+                                                }
                                             >
                                                 {poster?.phone}
-                                            </Link> :
-                                            <i className={'text-gray-500'}>Chưa cập nhật</i>
-                                    }
-                                </Flex>
-                                <Flex className={'text-[17px]'} gap={12}>
-                                    <MailOutlined/>
-                                    {
-                                        poster?.email ?
+                                            </Link>
+                                        ) : (
+                                            <i className={"text-gray-500"}>
+                                                Chưa cập nhật
+                                            </i>
+                                        )}
+                                    </Flex>
+                                    <Flex className={"text-[17px]"} gap={12}>
+                                        <MailOutlined />
+                                        {poster?.email ? (
                                             <Link
                                                 href={`mailto:${poster?.email}`}
-                                                className={'hover:decoration-transparent text-[#f80]'}
+                                                className={
+                                                    "hover:decoration-transparent text-[#f80]"
+                                                }
                                             >
                                                 {poster?.email}
-                                            </Link> :
-                                            <i className={'text-gray-500'}>Chưa cập nhật</i>
-                                    }
+                                            </Link>
+                                        ) : (
+                                            <i className={"text-gray-500"}>
+                                                Chưa cập nhật
+                                            </i>
+                                        )}
+                                    </Flex>
+                                    <Flex className={"text-[17px]"} gap={12}>
+                                        <EnvironmentOutlined />{" "}
+                                        {location?.district +
+                                            ", " +
+                                            location?.city}
+                                    </Flex>
+                                    <Flex className={"text-[17px]"} gap={12}>
+                                        <ClockCircleOutlined /> Cập nhật{" "}
+                                        {handleExportTimeAgo(post?.updatedAt)}
+                                    </Flex>
                                 </Flex>
-                                <Flex className={'text-[17px]'} gap={12}>
-                                    <EnvironmentOutlined/> {location?.district + ', ' + location?.city}
+                            </Flex>
+                            <div className="mt-2">
+                                <PostAction
+                                    posterId={post?.poster_id}
+                                    postId={post?._id}
+                                />
+                            </div>
+                        </Flex>
+                    </Flex>
+                    <Link
+                        href={`/profile/${poster?._id}`}
+                        className="rounded-lg text-[#000] hover:text-[#000] w-fit shadow-[rgba(0,_0,_0,_0.35)_0px_2px_5px] h-fit hover:shadow-[rgba(0,_0,_0,_0.35)_0px_3px_8px]"
+                    >
+                        <Flex className={"p-4 flex-1 h-fit"} gap={20}>
+                            <div
+                                className={
+                                    "w-fit h-fit rounded-lg border-[1px] border-[#f80]"
+                                }
+                            >
+                                {poster?.avatar ? (
+                                    <Avatar
+                                        shape="square"
+                                        src={poster?.avatar}
+                                        size={100}
+                                        alt={
+                                            poster?.firstname +
+                                            " " +
+                                            poster?.lastname
+                                        }
+                                    />
+                                ) : (
+                                    <Avatar icon={<UserOutlined />} />
+                                )}
+                            </div>
+                            <Flex vertical justify={"space-between"}>
+                                <div className={"font-semibold"}>
+                                    {poster?.firstname + " " + poster?.lastname}
+                                </div>
+                                <Flex vertical>
+                                    <div className={"font-medium text-[14px]"}>
+                                        Người theo dõi:{" "}
+                                        {poster?.follower_ids?.length}
+                                    </div>
+                                    <div className={"font-medium text-[14px]"}>
+                                        Đang theo dõi:{" "}
+                                        {poster?.following_user_ids?.length}
+                                    </div>
                                 </Flex>
-                                <Flex className={'text-[17px]'} gap={12}>
-                                    <ClockCircleOutlined/> Cập nhật {handleExportTimeAgo(post?.updatedAt)}
+                                <Flex
+                                    className={"font-medium text-[14px]"}
+                                    gap={15}
+                                    align={"center"}
+                                >
+                                    <Rate
+                                        allowHalf
+                                        value={poster?.averageStars || 0}
+                                        disabled
+                                    />
+                                    ({poster?.reviewers?.length} đánh giá)
                                 </Flex>
                             </Flex>
                         </Flex>
-                        <PostAction posterId={post?.poster_id} postId={post?._id}/>
+                    </Link>
+                </Flex>
+            </div>
+            <div
+                className={`bg-[#fff] w-full h-auto rounded-[12px] py-5 px-8 mt-6`}
+            >
+                <div className="font-semibold">Mô tả chi tiết</div>
+                <Flex vertical className="mt-2" gap={4}>
+                    <div>{post?.title}</div>
+                    <div>{post?.product?.description}</div>
+                    <Flex gap={6}>
+                        <PushpinFilled />
+                        Địa chỉ: {location?.district + ", " + location?.city}
+                    </Flex>
+                    <Flex gap={6}>
+                        <PushpinFilled />
+                        Số điện thoại:{" "}
+                        {poster?.phone ? (
+                            <Link
+                                href={`tel:${poster?.phone}`}
+                                className={
+                                    "hover:decoration-transparent text-[#f80]"
+                                }
+                            >
+                                {poster?.phone}
+                            </Link>
+                        ) : (
+                            <i className={"text-gray-500"}>Chưa cập nhật</i>
+                        )}
+                    </Flex>
+                    <Flex vertical className="mt-4">
+                        <div className="font-semibold">Chi tiết sản phẩm</div>
+                        <DetailProductTable
+                            productAttributes={
+                                post?.product?.product_attributes
+                            }
+                        />
                     </Flex>
                 </Flex>
-                <Flex className={'border-[1px] border-[gray] rounded-lg p-4 flex-1 h-fit'} gap={15}>
-                    <div className={'w-fit h-fit rounded-lg border-[1px] border-[#f80]'}>
-                        {
-                            poster?.avatar ? <Avatar
-                                shape="square"
-                                src={poster?.avatar} size={100}
-                                alt={poster?.firstname + " " + poster?.lastname}
-                            /> : <Avatar icon={<UserOutlined/>}/>
-                        }
+            </div>
+
+            <div
+                className={`bg-[#fff] w-full h-auto rounded-[12px] py-5 px-8 mt-6`}
+            >
+                <Flex justify="space-between" align="center" className="w-full">
+                    <div className="font-semibold">
+                        Bài đăng khác của{" "}
+                        {poster?.firstname + " " + poster?.lastname}
                     </div>
-                    <Flex vertical justify={'space-between'}>
-                        <div className={'font-semibold'}>{poster?.firstname + " " + poster?.lastname}</div>
-                        <Flex vertical>
-                            <div className={'font-medium text-[14px]'}>Người theo
-                                dõi: {poster?.follower_ids?.length}</div>
-                            <div className={'font-medium text-[14px]'}>Đang theo
-                                dõi: {poster?.following_user_ids?.length}</div>
-                        </Flex>
-                        <Flex className={'font-medium text-[14px]'} gap={15} align={'center'}>
-                            <Rate allowHalf value={poster?.averageStars || 0} disabled/>
-                            ({poster?.reviewers?.length} đánh giá)
-                        </Flex>
-                    </Flex>
+                    <Link
+                        href={`/profile/${poster?._id}`}
+                        className="font-semibold cursor-pointer flex items-center hover:text-[#f80]"
+                    >
+                        Xem tất cả{" "}
+                        <CaretRightOutlined className="mt-[1px] ml-1" />
+                    </Link>
                 </Flex>
-            </Flex>
+                <Flex
+                    style={{ scrollbarGutter: "stable" }}
+                    className="mt-2 w-full overflow-hidden hover:overflow-auto scrollbar-thin py-3"
+                    gap={20}
+                >
+                    {posterPosts?.length > 0 ? (
+                        posterPosts?.map((post: any) => (
+                            <Col key={post?._id} span={5}>
+                                <PostItem
+                                    post={post}
+                                    regions={regions}
+                                    className="border-2"
+                                />
+                            </Col>
+                        ))
+                    ) : (
+                        <Flex className="w-full text-gray-50" justify="center">
+                            Chưa có thêm bài đăng nào
+                        </Flex>
+                    )}
+                </Flex>
+            </div>
         </div>
-    </div>
+    );
 }

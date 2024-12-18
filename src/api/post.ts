@@ -103,3 +103,18 @@ export const useFetchAllPosts = (
         revalidateOnMount: true
     })
 }
+
+export const requestAddToWishlist = async (postId: string): Promise<AxiosResponse> => {
+    return apiAxios({
+        method: 'post',
+        url: `wishlist/add-to-wishlist`,
+        data: {postId}
+    })
+}
+
+export const requestRemoveFromWishlist = async (postId: string): Promise<AxiosResponse> => {
+    return apiAxios({
+        method: 'patch',
+        url: `wishlist/remove/${postId}`
+    })
+}

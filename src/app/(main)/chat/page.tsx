@@ -1,58 +1,158 @@
-'use client'
+"use client";
 
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import socketService from "@/socket";
-import {Conversation, UserProfile} from "../../../../utils/types";
+import {
+    Conversation,
+    Post,
+    Product,
+    UserProfile,
+} from "../../../../utils/types";
 import LeftSider from "@/app/(main)/chat/components/LeftSider";
-import {useAuthUser} from "@/hooks/useAuthUser";
+import { useAuthUser } from "@/hooks/useAuthUser";
 import Middle from "@/app/(main)/chat/components/Middle";
 import RightSider from "@/app/(main)/chat/components/RightSider";
+import { Flex, Spin, Tag } from "antd";
+import { RootState, store } from "@/store/configureStore";
+import { useDispatch, useSelector } from "react-redux";
+import { setChosenConversation, setUnreadMessages } from "@/store/slices/chat";
+import _ from "lodash";
+import { setOrder } from "@/store/slices/order";
+import { handleGetRegion } from "../../../../utils/helper";
+import { useFetchRegions } from "@/api/location";
+import { PAYMENT_METHOD } from "../../../../utils/constants";
+import CreateOrderModal from "./components/CreateOrderModal";
 
 export default function Chat() {
     const [conversations, setConversations] = useState([]);
-    const [chosenConversation, setChosenConversation] = useState<null | Conversation>(null);
     const [firstTime, setFirstTime] = useState(true);
-    const {authUser: user} = useAuthUser()
-    const [socket, setSocket] = useState(null)
+    const { authUser: user } = useAuthUser() as { authUser: UserProfile };
+    const dispatch = useDispatch();
+    const { order } = useSelector((state: RootState) => state.order);
+    const { data: regionsData } = useFetchRegions(() => {
+        dispatch(setOrder({ ...order, customer_address: "" }));
+    });
+    const [socket, setSocket] = useState(null);
+    const { chosenConversation } = useSelector(
+        (state: RootState) => state.chat
+    );
+    const [creatingPost, setCreatingPost] = useState<any>(null);
 
     useEffect(() => {
-        const newSocket = socketService.getSocket(user?._id as string)
-        setSocket(newSocket)
+        if (user) {
+            const newSocket = socketService.getSocket(user?._id as string);
+            setSocket(newSocket);
 
-        newSocket.on('getConversations', (res: any) => {
-            setConversations(res);
-        });
+            newSocket.on("getConversations", (res: any) => {
+                setConversations(res);
+            });
 
-        newSocket.on('err', (error: any) => {
-            console.error('Error fetching conversations:', error);
-        });
-    }, [user]);
+            newSocket.on("err", (error: any) => {
+                console.error("Error fetching conversations:", error);
+            });
+        }
+    }, [user?._id]);
 
     useEffect(() => {
-        if (firstTime && conversations?.length > 0) {
-            setFirstTime(false);
-            setChosenConversation(conversations[0]);
+        if (firstTime) {
+            if (conversations?.length > 0) {
+                setFirstTime(false);
+                dispatch(setChosenConversation(conversations?.[0]));
+            } else {
+                dispatch(setChosenConversation(undefined));
+            }
         }
     }, [conversations]);
 
     const handleChosenConversation = (conversation: Conversation) => {
-        setChosenConversation(conversation);
+        dispatch(setChosenConversation(conversation));
     };
 
-    return <div className="flex h-[calc(100vh_-_130px)] bg-gray-100 text-gray-800">
-        <LeftSider
-            user={user as UserProfile}
-            conversations={conversations}
-            chosenConversation={chosenConversation}
-            handleChosenConversation={handleChosenConversation}
-        />
+    const handleConfirmSeenMessage = (socket: any, conversationId: string) => {
+        if (conversationId) {
+            const { unreadMessages } = store.getState().chat;
+            socket.emit("seenMessage", { conversationId });
+            let newUnreadMessages = _.cloneDeep(unreadMessages);
+            delete newUnreadMessages?.[conversationId];
+            dispatch(setUnreadMessages(newUnreadMessages));
+        }
+    };
 
-        <Middle
-            user={user as UserProfile}
-            chosenConversation={chosenConversation}
-            socket={socket}
-        />
+    const handleClickCreateOrderBtn = (post: Post) => {
+        const product: Product = post?.product
+            ? post?.product
+            : (post?.product_id as any);
+        setCreatingPost({
+            ...post,
+            product,
+        });
+        const { chosenConversation } = store.getState().chat;
+        if (chosenConversation?._id && post) {
+            const customer: UserProfile = chosenConversation?.participant;
+            let address = "";
+            if (customer?.address?.city) {
+                const location = handleGetRegion(
+                    regionsData.regions,
+                    customer?.address?.city,
+                    customer?.address?.district as string
+                );
+                address = location?.district + ", " + location?.city;
+            }
+            dispatch(
+                setOrder({
+                    customer_id: customer?._id,
+                    post_id: post?._id,
+                    customer_name:
+                        customer?.firstname + " " + customer?.lastname,
+                    customer_phone: customer?.phone,
+                    customer_address: address,
+                    payment_method: PAYMENT_METHOD.CREDIT.VALUE,
+                    total: product?.price,
+                    receiver_stripe_account_id: user?.stripe_account_id
+                })
+            );
+        }
+    };
 
-        <RightSider user={user as UserProfile} chosenConversation={chosenConversation}/>
-    </div>
+    return (
+        <>
+            <div className="flex h-[calc(100vh_-_130px)] bg-gray-100 text-gray-800 rounded-xl">
+                {chosenConversation || chosenConversation === undefined ? (
+                    <>
+                        <LeftSider
+                            user={user as UserProfile}
+                            conversations={conversations}
+                            handleChosenConversation={handleChosenConversation}
+                            handleConfirmSeenMessage={handleConfirmSeenMessage}
+                        />
+
+                        <Middle
+                            user={user as UserProfile}
+                            socket={socket}
+                            handleConfirmSeenMessage={handleConfirmSeenMessage}
+                            handleClickCreateOrderBtn={
+                                handleClickCreateOrderBtn
+                            }
+                        />
+
+                        <RightSider
+                            user={user as UserProfile}
+                            handleClickCreateOrderBtn={
+                                handleClickCreateOrderBtn
+                            }
+                        />
+                    </>
+                ) : (
+                    <Flex
+                        className="w-full h-full"
+                        justify="center"
+                        align="center"
+                    >
+                        <Spin />
+                    </Flex>
+                )}
+            </div>
+            <CreateOrderModal creatingPost={creatingPost} />
+        </>
+    );
 }
