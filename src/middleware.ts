@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from 'next/server'
-import _ from 'lodash'
+import {isEmpty} from 'lodash'
 import {PATHNAME, SERVER_AUTH_TOKEN, SERVER_USER_PROFILE} from "../utils/cookie/constants";
 import {AUTH_ROUTES, PROTECTED_ROUTES} from "../utils/constants";
 import {RequestCookies} from "next/dist/compiled/@edge-runtime/cookies";
@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse<any
     const currentPathname: string = request.nextUrl.pathname
     const previousPathname: string = requestCookies.get(PATHNAME)?.value || '/'
 
-    if (accessToken && !_.isEmpty(authUserProfile)) {
+    if (accessToken && !isEmpty(authUserProfile)) {
         if (authUserProfile?.username && !currentPathname?.includes('/admin')) {
             return NextResponse.redirect(new URL('/admin', request.url))
         }

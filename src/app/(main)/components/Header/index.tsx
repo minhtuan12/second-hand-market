@@ -124,12 +124,12 @@ const Header = () => {
                     className={styles.menuIcon}
                     onClick={() => setShowMenu(true)}
                 >
-                    <div
-                        className={styles.headerTitle}
-                        onClick={() => router.push("/")}
+                    <Link
+                        className={`${styles.headerTitle} !text-[#000]`}
+                        href={"/"}
                     >
                         Chợ đồ cũ
-                    </div>
+                    </Link>
                 </div>
             </div>
             {pathname !== "/checkout" ? (
@@ -160,12 +160,12 @@ const Header = () => {
                     align="center"
                     className={`${styles.itemHeaderRight} icon-custom`}
                 >
-                    <div
-                        className={"cursor-pointer"}
-                        onClick={() => router.push("/chat")}
+                    <Link
+                        href={"/chat"}
+                        className={"cursor-pointer text-[#000] hover:text-[#000]"}
                     >
                         <MessageOutlined className={"text-[24px] mt-1"} />
-                    </div>
+                    </Link>
                     {/* TODO: tooltip notification */}
                     <Popover
                         trigger={["click"]}
@@ -182,13 +182,13 @@ const Header = () => {
                             </Badge>
                         </div>
                     </Popover>
-                    <div
-                        onClick={() => router.push("/my-post")}
-                        className="flex items-center gap-[8px] cursor-pointer"
+                    <Link
+                        href={"/my-post"}
+                        className="flex items-center gap-[8px] cursor-pointer text-[#000] hover:text-[#000]"
                     >
                         <SnippetsOutlined className={"text-[24px]"} />
                         <div className="text-[17px]">Quản lý bài đăng</div>
-                    </div>
+                    </Link>
                     {_.isEmpty(authUser) ? (
                         <Flex gap={2} justify={"center"} align={"center"}>
                             <Flex vertical justify={"center"} align={"start"}>
