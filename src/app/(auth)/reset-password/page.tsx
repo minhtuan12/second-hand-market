@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useEffect, useState} from "react";
+import React, {Suspense, useEffect, useState} from "react";
 import styles from './styles.module.scss'
 import Image from "next/image";
 import Logo from '../../../../public/logo.png'
@@ -12,8 +12,9 @@ import {getNotification, isPositiveInteger, isValidPassword} from "../../../../u
 import {SERVER_ERROR_MESSAGE} from "../../../../utils/constants";
 import ErrorMessage from "@/components/ErrorMessage";
 import {ReadonlyURLSearchParams, redirect, useSearchParams} from "next/navigation";
+import Loading from "@/components/Loading";
 
-export default function ResetPassword(): JSX.Element {
+function ResetPasswordSuspense() {
     const searchParams: ReadonlyURLSearchParams = useSearchParams()
     const resetToken: string | null = searchParams.get('token')
     const expiryTime: string | null = searchParams.get('expired_within')
@@ -133,4 +134,10 @@ export default function ResetPassword(): JSX.Element {
                 </Button>
             </div>
         </div>
+}
+
+export default function ResetPassword(): JSX.Element {
+    return <Suspense fallback={<Loading/>}>
+        <ResetPasswordSuspense/>
+    </Suspense>
 }

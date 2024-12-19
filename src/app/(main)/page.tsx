@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import PostItem from "@/app/(main)/components/PostItem";
 import { Post } from "../../../utils/types";
 import { Col, Empty, Flex, Row } from "antd";
@@ -6,6 +6,7 @@ import MoreLoadedPosts from "@/app/(main)/components/MoreLoadedPosts";
 import { FilterOutlined } from "@ant-design/icons";
 import FilterByRegions from "@/app/(main)/components/FilterByRegions";
 import FilterBar from "@/app/(main)/components/FilterBar";
+import Loading from "@/components/Loading";
 
 let controller: AbortController | null = null;
 
@@ -79,7 +80,7 @@ async function fetchRegions() {
     }
 }
 
-export default async function Home({ searchParams }: { searchParams: any }) {
+async function HomeSuspense({ searchParams }: { searchParams: any }) {
     if (controller) {
         controller.abort()
     }
@@ -150,4 +151,10 @@ export default async function Home({ searchParams }: { searchParams: any }) {
             </Flex>
         </>
     );
+}
+
+export default async function Home({ searchParams }: { searchParams: any }) {
+    return <Suspense fallback={<Loading/>}>
+        <HomeSuspense searchParams={searchParams}/>
+    </Suspense>
 }

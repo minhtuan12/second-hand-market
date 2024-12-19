@@ -109,7 +109,7 @@ export default function RootLayout({
                             theme="dark"
                             mode="inline"
                             onSelect={(item) =>
-                                router.push(item.key, { shallow: true })
+                                router.push(item.key, { shallow: true } as any)
                             }
                             defaultSelectedKeys={[pathname]}
                             items={[

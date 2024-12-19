@@ -62,7 +62,7 @@ export default function Chat() {
                 dispatch(setChosenConversation(undefined));
             }
         }
-    }, [conversations]);
+    }, [conversations, dispatch]);
 
     const handleChosenConversation = (conversation: Conversation) => {
         dispatch(setChosenConversation(conversation));

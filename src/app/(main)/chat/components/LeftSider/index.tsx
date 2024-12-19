@@ -8,6 +8,7 @@ import { Avatar, Badge, Flex } from "antd";
 import socketService from "@/socket";
 import { Message } from "../Middle";
 import _ from "lodash";
+import Image from "next/image";
 
 interface IProps {
     user: UserProfile;
@@ -61,17 +62,19 @@ export default function LeftSider({
         return () => {
             socketService.disconnectSocket();
         };
-    }, [user?._id]);
+    }, [user?._id, dispatch]);
 
     return (
         <div className="flex flex-col w-1/4 bg-white p-4 border-r border-gray-300 w-1/4 h-full rounded-l-xl">
             <div className="flex items-center justify-between mb-6 w-full">
                 <div className="flex items-center w-full">
                     {user?.avatar ? (
-                        <img
+                        <Image
                             src={user?.avatar}
                             alt={userFullName}
                             className="w-10 h-10 rounded-full mr-3"
+                            width={40}
+                            height={40}
                         />
                     ) : (
                         <Avatar icon={<UserOutlined />} />
@@ -108,7 +111,7 @@ export default function LeftSider({
                               >
                                   <Flex>
                                       {conversation?.participant?.avatar ? (
-                                          <img
+                                          <Image
                                               src={
                                                   conversation?.participant
                                                       ?.avatar
@@ -121,6 +124,8 @@ export default function LeftSider({
                                                       ?.lastname
                                               }
                                               className="w-12 h-12 rounded-full mr-3"
+                                              width={48}
+                                              height={48}
                                           />
                                       ) : (
                                           <div className="mr-3.5">

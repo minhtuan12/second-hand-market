@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import styles from "./styles.module.scss";
 import Image from "next/image";
 import Logo from "../../../../public/logo.png";
 import InputWithLabel from "@/components/InputWithLabel";
-import { Button } from "antd";
+import { Button, Spin } from "antd";
 import "../styles.scss";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,8 +21,9 @@ import {
 import { handleLoginResult } from "@/actions/auth";
 import { SERVER_ERROR_MESSAGE } from "../../../../utils/constants";
 import GoogleLogin from "@/app/(auth)/components/GoogleLogin";
+import Loading from "@/components/Loading";
 
-export default function Login(): JSX.Element {
+function LoginSuspense() {
     const [loginData, setLoginData] = useState({
         email: "",
         password: "",
@@ -118,7 +119,7 @@ export default function Login(): JSX.Element {
                 password: "",
             })
         );
-    }, [dispatch]);
+    }, [dispatch, router, searchParams]);
 
     return (
         <div className={styles.loginWrap}>
@@ -186,4 +187,10 @@ export default function Login(): JSX.Element {
             <GoogleLogin />
         </div>
     );
+}
+
+export default function Login(): JSX.Element {
+    return <Suspense fallback={<Loading/>}>
+        <LoginSuspense/>
+    </Suspense>
 }

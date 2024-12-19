@@ -19,6 +19,7 @@ import {
     handleGetRegion,
 } from "../../../../../../utils/helper";
 import { getMenu } from "../RightSider";
+import Image from "next/image";
 
 interface IProps {
     user: UserProfile;
@@ -105,7 +106,7 @@ export default function Middle({
                 console.error("Error fetching conversations:", error);
             });
         }
-    }, [chosenConversation?._id]);
+    }, [chosenConversation?._id, dispatch]);
 
     useEffect(() => {
         if (user?._id) {
@@ -147,14 +148,16 @@ export default function Middle({
         return () => {
             socketService.disconnectSocket();
         };
-    }, [user?._id]);
+    }, [user?._id, dispatch]);
 
     return chosenConversation ? (
         <div className="flex-1 flex flex-col w-1/2 h-full">
             <div className="bg-[white] p-4 flex items-center justify-between border-b border-gray-300">
                 <div className="flex items-center">
                     {chosenConversation?.participant?.avatar ? (
-                        <img
+                        <Image
+                            width={40}
+                            height={40}
                             src={chosenConversation?.participant?.avatar}
                             alt={fullName || ""}
                             className="w-10 h-10 rounded-full mr-3"
@@ -189,7 +192,9 @@ export default function Middle({
                 >
                     <div className="flex items-center justify-between w-full">
                         <Flex align="center">
-                            <img
+                            <Image
+                                width={40}
+                                height={40}
                                 src={
                                     chosenConversation?.lastest_mentioned_post
                                         ?.product_id?.images?.[0]
