@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse<any
     const previousPathname: string = requestCookies.get(PATHNAME)?.value || '/'
 
     if (accessToken && (authUserProfile && Object.keys(authUserProfile).length > 0)) {
-        if (authUserProfile?.username && !currentPathname?.includes('/admin')) {
+        if (authUserProfile?.username && !currentPathname?.includes('/admin') && !currentPathname?.includes('/admin/login')) {
             return NextResponse.redirect(new URL('/admin', request.url))
         }
         if (AUTH_ROUTES.includes(currentPathname.split('?')[0])) {
@@ -29,8 +29,13 @@ export async function middleware(request: NextRequest): Promise<NextResponse<any
             }
             return NextResponse.redirect(new URL('/', request.url))
         }
-    } else if (!accessToken && PROTECTED_ROUTES.includes(currentPathname)) {
-        return NextResponse.redirect(new URL(`/login?redirect=${currentPathname?.substring(1)}`, request.url))
+    } else if (!accessToken) {
+        if (PROTECTED_ROUTES.includes(currentPathname)) {
+            return NextResponse.redirect(new URL(`/login?redirect=${currentPathname?.substring(1)}`, request.url))
+        }
+        if (currentPathname?.includes('/admin') && !currentPathname?.includes('/login')) {
+            return NextResponse.redirect(new URL('/admin/login', request.url))
+        }
     }
 
     /* Set the current url */
