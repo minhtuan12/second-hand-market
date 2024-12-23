@@ -6,6 +6,7 @@ import "./styles.scss";
 import _ from "lodash";
 import {
     BellOutlined,
+    DashboardOutlined,
     HeartFilled,
     MessageOutlined,
     ProductOutlined,
@@ -44,6 +45,25 @@ const Header = () => {
             key: "1",
             icon: (
                 <Link
+                    href={"/dashboard"}
+                    className={"w-6 h-6 rounded-[50%] relative bg-[#8c6a65]"}
+                >
+                    <DashboardOutlined className={styles.dropdownIcon}/>
+                </Link>
+            ),
+            label: (
+                <Link
+                    href={"/dashboard"}
+                    className={"text-[14px] font-medium"}
+                >
+                    Thống kê
+                </Link>
+            ),
+        },
+        {
+            key: "2",
+            icon: (
+                <Link
                     href={"/order?tab=buying-order"}
                     className={"w-6 h-6 rounded-[50%] relative bg-[#8ecd3c]"}
                 >
@@ -60,7 +80,7 @@ const Header = () => {
             ),
         },
         {
-            key: "2",
+            key: "3",
             icon: (
                 <Link
                     href={"/order?tab=selling-order"}
@@ -82,7 +102,7 @@ const Header = () => {
             type: "divider",
         },
         {
-            key: "3",
+            key: "4",
             icon: (
                 <Link
                     href={"/saved-posts"}
