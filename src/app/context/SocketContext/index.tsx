@@ -28,6 +28,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         setSocket(
             io(process.env.API_URL, {
                 query: { user_id: authUser?._id },
+                transports: ["websocket"],
             })
         );
 
