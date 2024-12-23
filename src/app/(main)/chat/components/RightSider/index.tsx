@@ -22,35 +22,44 @@ import { setIsOpenConfirmSell } from "@/store/slices/order";
 interface IProps {
     user: UserProfile;
     handleClickCreateOrderBtn: (post: Post) => void;
+    loadingGetPosts: boolean,
+    postsData: any
 }
 
 export const getMenu = (
     post: Post,
     dispatch: Dispatch,
-    handleClickCreateOrderBtn: any
-) => (
-    <Menu>
+    handleClickCreateOrderBtn: any,
+    isPoster: boolean = true
+) => {
+    return <Menu>
         <Menu.Item key={"detail"} icon={<EyeOutlined />}>
             <Link href={`/posts/${post?._id}`} target={"_blank"}>
                 Chi tiết
             </Link>
         </Menu.Item>
-        <Menu.Item
-            key={"confirm"}
-            icon={<FileAddOutlined />}
-            onClick={() => {
-                dispatch(setIsOpenConfirmSell(true));
-                handleClickCreateOrderBtn(post);
-            }}
-        >
-            Tạo đơn
-        </Menu.Item>
+        {(post?.product?.price && isPoster) ? (
+            <Menu.Item
+                key={"confirm"}
+                icon={<FileAddOutlined />}
+                onClick={() => {
+                    dispatch(setIsOpenConfirmSell(true));
+                    handleClickCreateOrderBtn(post);
+                }}
+            >
+                Tạo đơn
+            </Menu.Item>
+        ) : (
+            ""
+        )}
     </Menu>
-);
+};
 
 export default function RightSider({
     user,
     handleClickCreateOrderBtn,
+    loadingGetPosts,
+    postsData
 }: IProps) {
     const { chosenConversation } = useSelector(
         (state: RootState) => state.chat
@@ -59,16 +68,7 @@ export default function RightSider({
     const { data: regionsData } = useFetchRegions(() => {
         getNotification("error", "Không thể lấy thông tin địa chỉ các vùng");
     });
-    const { data: postsData, isLoading: loadingGetPosts } = useFetchMyPosts(
-        POST_STATUS.APPROVED.VALUE,
-        { page: 1 },
-        () => {
-            getNotification(
-                "error",
-                "Đã xảy ra lỗi khi lấy danh sách bài đăng"
-            );
-        }
-    );
+    
     const dispatch = useDispatch();
 
     return (

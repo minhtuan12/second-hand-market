@@ -1,15 +1,23 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import { Conversation, Post, UserProfile } from "../../../../../../utils/types";
 import moment from "moment";
 import {
     DownOutlined,
     EllipsisOutlined,
+    EyeOutlined,
+    FileAddOutlined,
     PaperClipOutlined,
     SendOutlined,
     SmileOutlined,
     UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Button, Dropdown, Flex, Tag } from "antd";
+import { Avatar, Button, Dropdown, Flex, Menu, Tag } from "antd";
 import socketService from "@/socket";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, store } from "@/store/configureStore";
@@ -20,6 +28,8 @@ import {
 } from "../../../../../../utils/helper";
 import { getMenu } from "../RightSider";
 import Image from "next/image";
+import Link from "next/link";
+import { setIsOpenConfirmSell } from "@/store/slices/order";
 
 interface IProps {
     user: UserProfile;
@@ -89,6 +99,36 @@ export default function Middle({
     const handleInputChange = (e: any) => {
         setInputMessage(e.target.value);
     };
+
+    const getMenu = useMemo(() => {
+        const post = chosenConversation?.lastest_mentioned_post;
+        const isPoster =
+            chosenConversation?.lastest_mentioned_post?.poster_id === user?._id;
+
+        return (
+            <Menu>
+                <Menu.Item key={"detail"} icon={<EyeOutlined />}>
+                    <Link href={`/posts/${post?._id}`} target={"_blank"}>
+                        Chi tiết
+                    </Link>
+                </Menu.Item>
+                {post?.product_id?.price && isPoster ? (
+                    <Menu.Item
+                        key={"confirm"}
+                        icon={<FileAddOutlined />}
+                        onClick={() => {
+                            dispatch(setIsOpenConfirmSell(true));
+                            handleClickCreateOrderBtn(post);
+                        }}
+                    >
+                        Tạo đơn
+                    </Menu.Item>
+                ) : (
+                    ""
+                )}
+            </Menu>
+        );
+    }, [chosenConversation?.lastest_mentioned_post]);
 
     useEffect(() => {
         if (chosenConversation?._id && socket) {
@@ -225,26 +265,15 @@ export default function Middle({
                                 </p>
                             </div>
                         </Flex>
-                        {chosenConversation?.lastest_mentioned_post
-                            ?.poster_id === user?._id ? (
-                            <Dropdown
-                                overlay={getMenu(
-                                    chosenConversation?.lastest_mentioned_post,
-                                    dispatch,
-                                    handleClickCreateOrderBtn
-                                )}
-                                trigger={["click"]}
+
+                        <Dropdown overlay={getMenu} trigger={["click"]}>
+                            <Button
+                                className="rounded-[50%] bg-white"
+                                shape="circle"
                             >
-                                <Button
-                                    className="rounded-[50%] bg-white"
-                                    shape="circle"
-                                >
-                                    <EllipsisOutlined className="text-gray-500 cursor-pointer" />
-                                </Button>
-                            </Dropdown>
-                        ) : (
-                            ""
-                        )}
+                                <EllipsisOutlined className="text-gray-500 cursor-pointer" />
+                            </Button>
+                        </Dropdown>
                     </div>
                 </div>
             ) : (

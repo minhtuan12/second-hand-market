@@ -19,13 +19,17 @@ import { Badge, Flex, MenuProps, Popover, Tooltip } from "antd";
 import { usePathname, useRouter } from "next/navigation";
 import DefaultInput from "@/components/Input";
 import { useAuthUser } from "@/hooks/useAuthUser";
-import { useDispatch } from "react-redux";
-import { setFilter, setIsSearched } from "@/store/slices/app";
+import { useDispatch, useSelector } from "react-redux";
+import { setFilter, setIsSearched, setNotifications } from "@/store/slices/app";
 import DefaultButton from "@/components/Button";
 import AuthUserPopover from "@/components/Popover";
 import Notifications from "../Notifications";
 import socketService from "@/socket";
 import Link from "next/link";
+import { useFetchOldNotifications } from "@/api/notifications";
+import { Notification as NotificationType } from "../../../../../utils/types";
+import { RootState, store } from "@/store/configureStore";
+import { useSocket } from "@/app/context/SocketContext";
 
 const Header = () => {
     const { authUser } = useAuthUser();
@@ -104,18 +108,44 @@ const Header = () => {
 
     const handleSearch = () => {};
 
+    const {
+        data: notifications,
+        isLoading,
+        mutate: getOldNotifications,
+    } = useFetchOldNotifications();
+
+    const notificationsStore = useSelector(
+        (state: RootState) => state.app.notifications
+    );
+    const socket = useSocket();
+
     useEffect(() => {
-        if (authUser?._id) {
-            const socket = socketService.getSocket(authUser?._id);
-            socket.on("notification", (res: any) => {
-                setNotificationBadge(notificationBadge + 1);
-            });
+        if (socket) {
+            const handleUpdateNoti = (res: any) => {
+                const { notifications } = store.getState().app;
+                dispatch(
+                    setNotifications([res?.newNotification, ...notifications])
+                );
+                setNotificationBadge((prevBadge) => prevBadge + 1);
+            };
+            socket.on("notification", handleUpdateNoti);
 
             return () => {
+                socket.off("notification", handleUpdateNoti);
                 socketService.disconnectSocket();
             };
         }
-    }, [authUser?._id]);
+    }, [socket]);
+
+    useEffect(() => {
+        if (notifications) {
+            dispatch(setNotifications(notifications));
+            setNotificationBadge(
+                notifications?.filter((item: NotificationType) => !item.seen_at)
+                    ?.length
+            );
+        }
+    }, [notifications]);
 
     return (
         <header className={styles.headerWrap}>
@@ -162,15 +192,20 @@ const Header = () => {
                 >
                     <Link
                         href={"/chat"}
-                        className={"cursor-pointer text-[#000] hover:text-[#000]"}
+                        className={
+                            "cursor-pointer text-[#000] hover:text-[#000]"
+                        }
                     >
                         <MessageOutlined className={"text-[24px] mt-1"} />
                     </Link>
-                    {/* TODO: tooltip notification */}
                     <Popover
                         trigger={["click"]}
                         content={
-                            <Notifications userId={authUser?._id as string} />
+                            <Notifications
+                                userId={authUser?._id as string}
+                                getOldNotifications={getOldNotifications}
+                                isLoading={isLoading}
+                            />
                         }
                     >
                         <div className={"cursor-pointer"}>
@@ -212,13 +247,11 @@ const Header = () => {
                             items={dropdownMenu}
                         />
                     )}
-                    <DefaultButton
-                        reverseColor
-                        size="large"
-                        onClick={() => router.push("/post/create")}
-                    >
-                        ĐĂNG TIN
-                    </DefaultButton>
+                    <Link href={"/post/create"}>
+                        <DefaultButton reverseColor size="large">
+                            ĐĂNG TIN
+                        </DefaultButton>
+                    </Link>
                 </Flex>
             </div>
         </header>

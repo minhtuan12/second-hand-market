@@ -17,9 +17,19 @@ const appSlice: Slice = createSlice({
             priceTo: null,
             categoryIds: null,
             condition: null
-        }
+        },
+        notifications: [],
+        socket: null
     },
     reducers: {
+        setSocket: (state, action: {payload: any, type: string}) => ({
+            ...state,
+            socket: action.payload
+        }),
+        setNotifications: (state, action: {payload: any, type: string}) => ({
+            ...state,
+            notifications: action.payload
+        }),
         setFilter: (state, action: {payload: any, type: string}) => ({
             ...state,
             filter: action.payload
@@ -44,7 +54,7 @@ const appSlice: Slice = createSlice({
 })
 
 export const {
-    setBreadcrumb, setPageTitle, setRegions, setIsSearched, setFilter
+    setBreadcrumb, setPageTitle, setRegions, setIsSearched, setFilter, setNotifications, setSocket
 } = appSlice.actions
 
 export default appSlice.reducer;

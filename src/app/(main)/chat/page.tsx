@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import socketService from "@/socket";
 import {
     Conversation,
     Post,
@@ -18,10 +17,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { setChosenConversation, setUnreadMessages } from "@/store/slices/chat";
 import _ from "lodash";
 import { setOrder } from "@/store/slices/order";
-import { handleGetRegion } from "../../../../utils/helper";
+import { getNotification, handleGetRegion } from "../../../../utils/helper";
 import { useFetchRegions } from "@/api/location";
-import { PAYMENT_METHOD } from "../../../../utils/constants";
+import { PAYMENT_METHOD, POST_STATUS } from "../../../../utils/constants";
 import CreateOrderModal from "./components/CreateOrderModal";
+import { useFetchMyPosts } from "@/api/post";
+import { useSocket } from "@/app/context/SocketContext";
 
 export default function Chat() {
     const [conversations, setConversations] = useState([]);
@@ -32,26 +33,27 @@ export default function Chat() {
     const { data: regionsData } = useFetchRegions(() => {
         dispatch(setOrder({ ...order, customer_address: "" }));
     });
-    const [socket, setSocket] = useState(null);
     const { chosenConversation } = useSelector(
         (state: RootState) => state.chat
     );
     const [creatingPost, setCreatingPost] = useState<any>(null);
-
+    const socket = useSocket();
+    
     useEffect(() => {
-        if (user) {
-            const newSocket = socketService.getSocket(user?._id as string);
-            setSocket(newSocket);
-
-            newSocket.on("getConversations", (res: any) => {
+        if (socket) {
+            socket.on("getConversations", (res: any) => {
                 setConversations(res);
             });
 
-            newSocket.on("err", (error: any) => {
+            socket.on("err", (error: any) => {
                 console.error("Error fetching conversations:", error);
             });
+
+            return () => {
+                socket.disconnect();
+            };
         }
-    }, [user?._id]);
+    }, [socket]);
 
     useEffect(() => {
         if (firstTime) {
@@ -108,11 +110,19 @@ export default function Chat() {
                     customer_address: address,
                     payment_method: PAYMENT_METHOD.CREDIT.VALUE,
                     total: product?.price,
-                    receiver_stripe_account_id: user?.stripe_account_id
+                    receiver_stripe_account_id: user?.stripe_account_id,
                 })
             );
         }
     };
+
+    const {
+        data: postsData,
+        isLoading: loadingGetPosts,
+        mutate: getMyPosts,
+    } = useFetchMyPosts(POST_STATUS.APPROVED.VALUE, { page: 1 }, () => {
+        getNotification("error", "Đã xảy ra lỗi khi lấy danh sách bài đăng");
+    });
 
     return (
         <>
@@ -140,6 +150,8 @@ export default function Chat() {
                             handleClickCreateOrderBtn={
                                 handleClickCreateOrderBtn
                             }
+                            postsData={postsData}
+                            loadingGetPosts={loadingGetPosts}
                         />
                     </>
                 ) : (
@@ -152,7 +164,10 @@ export default function Chat() {
                     </Flex>
                 )}
             </div>
-            <CreateOrderModal creatingPost={creatingPost} />
+            <CreateOrderModal
+                creatingPost={creatingPost}
+                getMyPosts={getMyPosts}
+            />
         </>
     );
 }

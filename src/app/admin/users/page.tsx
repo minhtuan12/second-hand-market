@@ -97,7 +97,7 @@ export default function UserManagement() {
                     {record?.avatar ? (
                         <img
                             src={record?.avatar as string}
-                            className="rounded-[50%] w-[50px] h-[50px]"
+                            className="rounded-[50%] w-[30px] h-[30px]"
                         />
                     ) : (
                         <div className="rounded-[50%] bg-gray-50 p-2 w-[30px] h-[30px] flex items-center justify-center">
@@ -210,7 +210,7 @@ export default function UserManagement() {
             <TableDefault
                 columns={columns}
                 loading={isLoading}
-                dataSource={users}
+                dataSource={users?.users}
                 hasPagination={false}
             />
         </Flex>

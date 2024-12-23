@@ -24,11 +24,6 @@ export default function AuthUserPopover({ items = [], authUser }: IProps) {
     const router = useRouter();
     const handleClickLogout = async () => {
         await handleLogout();
-        if (authUser?.username) {
-            router.push("/login");
-        } else {
-            router.push("/");
-        }
     };
 
     const displayName: string =

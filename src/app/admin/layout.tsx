@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StoreProvider } from "@/store/StoreProvider";
 import {
     Breadcrumb,
@@ -34,6 +34,7 @@ import {
 } from "@ant-design/icons";
 import { Content, Header } from "antd/es/layout/layout";
 import AuthUserPopover from "@/components/Popover";
+import socketService from "@/socket";
 
 const AdminLayout = ({
     adminChildren,
@@ -60,6 +61,12 @@ export default function RootLayout({
     const pathname = usePathname();
     const breadcrumb = useSelector((state: RootState) => state.app.breadcrumb);
     const { loading, authUser } = useAuthUser();
+
+    useEffect(() => {
+        if (authUser?._id) {
+            socketService.createNewSocket(authUser?._id as string);
+        }
+    }, [authUser?._id])
 
     if (loading) {
         return (

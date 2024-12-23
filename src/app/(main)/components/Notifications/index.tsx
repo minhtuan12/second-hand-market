@@ -14,18 +14,27 @@ import {
     SERVER_ERROR_MESSAGE,
 } from "../../../../../utils/constants";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/configureStore";
 
-export default function Notifications({ userId }: { userId: string }) {
-    const {
-        data: notifications,
-        isLoading,
-        mutate: getOldNotifications,
-    } = useFetchOldNotifications();
+export default function Notifications({
+    isLoading,
+    userId,
+    getOldNotifications,
+}: {
+    userId: string;
+    isLoading: boolean;
+    getOldNotifications: () => void;
+}) {
     const [loadingSeen, setLoadingSeen] = useState<boolean>(false);
+    const { notifications } = useSelector((state: RootState) => state.app);
 
-    const handleSeenNotification = (notificationId: string | string[]) => {
+    const handleSeenNotification = (notificationId: any) => {
         setLoadingSeen(true);
-        const data = typeof notificationId === 'string' ? [notificationId] : notificationId
+        const data =
+            typeof notificationId === "string"
+                ? [notificationId]
+                : notificationId;
         requestSeenNotification(data)
             .then(() => {
                 getOldNotifications();
@@ -50,18 +59,39 @@ export default function Notifications({ userId }: { userId: string }) {
                 </Flex>
             ) : (
                 <Flex vertical>
-                    <Flex justify="end" className="w-full h-fit pt-5 px-6">
+                    <Flex
+                        justify="space-between"
+                        className="w-full h-fit pt-5 px-6"
+                    >
+                        <div className="font-medium text-[15px] text-gray-50">
+                            Mới (
+                            {
+                                notifications?.filter(
+                                    (item: Notification) => !item.seen_at
+                                )?.length
+                            }
+                            )
+                        </div>
                         <div
                             className="w-fit text-[#f80] font-medium text-[15px] cursor-pointer text-right"
                             onClick={() => {
-                                handleSeenNotification(
-                                    notifications
-                                        ?.filter(
-                                            (item: Notification) =>
-                                                item.seen_at === null
-                                        )
-                                        ?.map((item: Notification) => item?._id)
+                                const hasUnseenNoti = notifications?.some(
+                                    (item: Notification) =>
+                                        item && item.seen_at === null
                                 );
+                                if (notifications && hasUnseenNoti) {
+                                    handleSeenNotification(
+                                        notifications
+                                            ?.filter(
+                                                (item: Notification) =>
+                                                    item?.seen_at === null
+                                            )
+                                            ?.map(
+                                                (item: Notification) =>
+                                                    item?._id
+                                            )
+                                    );
+                                }
                             }}
                         >
                             Đánh dấu đã đọc toàn bộ

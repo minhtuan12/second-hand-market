@@ -1088,7 +1088,7 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
                                                                             );
                                                                         } else {
                                                                             return handleChangeProductData(
-                                                                                1000,
+                                                                                20000,
                                                                                 "price"
                                                                             );
                                                                         }

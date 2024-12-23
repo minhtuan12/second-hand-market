@@ -36,8 +36,10 @@ const ProductInformation = ({
 
 export default function CreateOrderModal({
     creatingPost,
+    getMyPosts,
 }: {
     creatingPost: any;
+    getMyPosts: () => void;
 }) {
     const { isOpenConfirmationSellingPopup, order } = useSelector(
         (state: RootState) => state.order
@@ -63,6 +65,7 @@ export default function CreateOrderModal({
                     "success",
                     "Tạo đơn hàng thành công, thông tin đã được thông báo đến người mua"
                 );
+                getMyPosts();
                 dispatch(setIsOpenConfirmSell(false));
             })
             .catch((err) => {

@@ -260,6 +260,27 @@ export default function PostManagement() {
                             </Button>
                         </Tooltip>
                     </Flex>
+                ) : record?.status === POST_STATUS.APPROVED.VALUE ? (
+                    <Flex gap={15} justify="center" align="center">
+                        <Tooltip title="Từ chối">
+                            <Button
+                                loading={
+                                    record?._id === actionPostId &&
+                                    loadingActionBtn
+                                }
+                                type="primary"
+                                rootClassName="bg-[red] hover:!bg-[red]"
+                                onClick={() =>
+                                    handleApproveOrRejectPost(
+                                        record?._id,
+                                        "reject"
+                                    )
+                                }
+                            >
+                                <CloseCircleOutlined />
+                            </Button>
+                        </Tooltip>
+                    </Flex>
                 ) : (
                     ""
                 );
