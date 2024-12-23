@@ -28,7 +28,8 @@ export async function handleLoginResult(data: ILoginData): Promise<any> {
                 data: res.data,
             };
         })
-        .catch((err) => {
+        .catch((err) => {console.log('err',err);
+        
             return {
                 status: err.response?.status,
                 message: err.response?.data,
