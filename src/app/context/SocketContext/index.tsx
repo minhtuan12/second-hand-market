@@ -25,16 +25,18 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const { authUser } = useAuthUser();
 
     useEffect(() => {
-        setSocket(
-            io(process.env.API_URL, {
-                query: { user_id: authUser?._id },
-                transports: ["websocket"],
-            })
-        );
+        if (authUser?._id) {
+            setSocket(
+                io(process.env.API_URL, {
+                    query: {user_id: authUser?._id},
+                    transports: ["websocket"],
+                })
+            );
 
-        return () => {
-            socket?.disconnect();
-        };
+            return () => {
+                socket?.disconnect();
+            };
+        }
     }, [authUser?._id]);
 
     return (
