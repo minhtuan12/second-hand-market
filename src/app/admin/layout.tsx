@@ -34,7 +34,7 @@ import {
 } from "@ant-design/icons";
 import { Content, Header } from "antd/es/layout/layout";
 import AuthUserPopover from "@/components/Popover";
-import socketService from "@/socket";
+import Link from "next/link";
 
 const AdminLayout = ({
     adminChildren,
@@ -61,12 +61,6 @@ export default function RootLayout({
     const pathname = usePathname();
     const breadcrumb = useSelector((state: RootState) => state.app.breadcrumb);
     const { loading, authUser } = useAuthUser();
-
-    useEffect(() => {
-        if (authUser?._id) {
-            socketService.createNewSocket(authUser?._id as string);
-        }
-    }, [authUser?._id])
 
     if (loading) {
         return (
@@ -115,30 +109,41 @@ export default function RootLayout({
                         <Menu
                             theme="dark"
                             mode="inline"
-                            onSelect={(item) =>
-                                router.push(item.key, { shallow: true } as any)
-                            }
                             defaultSelectedKeys={[pathname]}
                             items={[
                                 {
                                     key: "/admin",
                                     icon: <HomeOutlined />,
-                                    label: "Tổng quan",
+                                    label: (
+                                        <Link href={"/admin"}>Tổng quan</Link>
+                                    ),
                                 },
                                 {
                                     key: "/admin/users",
                                     icon: <UserOutlined />,
-                                    label: "Quản lý người dùng",
+                                    label: (
+                                        <Link href={"/admin/users"}>
+                                            Quản lý người dùng
+                                        </Link>
+                                    ),
                                 },
                                 {
                                     key: "/admin/categories",
                                     icon: <ContainerOutlined />,
-                                    label: "Quản lý danh mục",
+                                    label: (
+                                        <Link href={"/admin/categories"}>
+                                            Quản lý danh mục
+                                        </Link>
+                                    ),
                                 },
                                 {
                                     key: "/admin/posts",
                                     icon: <FileDoneOutlined />,
-                                    label: "Quản lý bài đăng",
+                                    label: (
+                                        <Link href={"/admin/posts"}>
+                                            Quản lý bài đăng
+                                        </Link>
+                                    ),
                                 },
                             ]}
                         />

@@ -38,7 +38,7 @@ export default function Chat() {
     );
     const [creatingPost, setCreatingPost] = useState<any>(null);
     const socket = useSocket();
-    
+
     useEffect(() => {
         if (socket) {
             socket.on("getConversations", (res: any) => {
@@ -130,6 +130,7 @@ export default function Chat() {
                 {chosenConversation || chosenConversation === undefined ? (
                     <>
                         <LeftSider
+                            socket={socket}
                             user={user as UserProfile}
                             conversations={conversations}
                             handleChosenConversation={handleChosenConversation}

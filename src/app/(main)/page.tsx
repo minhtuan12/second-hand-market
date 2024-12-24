@@ -45,7 +45,11 @@ async function fetchPosts(filter: any, signal: any) {
         if (!postsResponse?.ok) {
             return { posts: 0, total: 0 };
         }
-        return postsResponse.json();
+        const data = await postsResponse.json();
+        return {
+            posts: data?.posts?.filter((item: Post) => !item.is_ordering),
+            total: data?.total
+        }
     } catch (err) {
         return { posts: [], total: 0 };
     }

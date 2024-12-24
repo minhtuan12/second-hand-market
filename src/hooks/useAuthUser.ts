@@ -6,7 +6,6 @@ import {getCookieValue} from "../../utils/cookie/server";
 import {SERVER_REFRESH_TOKEN, SERVER_USER_PROFILE} from "../../utils/cookie/constants";
 import {handleGetProfile, handleLogout} from "@/actions/auth";
 import {useRouter} from "next/navigation";
-import socketService from "@/socket";
 
 export const useAuthUser = () => {
     const [authUser, setAuthUser] = useState<UserProfile | AdminProfile | null>(null)

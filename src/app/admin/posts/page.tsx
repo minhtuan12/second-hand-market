@@ -16,6 +16,7 @@ import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { approvePost, rejectPost, useFetchAllPostsForAdmin } from "./api";
 import {
     getNotification,
+    handleFormatCurrency,
     handleGetLabelFromValue,
     handleGetRegion,
 } from "../../../../utils/helper";
@@ -189,6 +190,33 @@ export default function PostManagement() {
                     record?.location?.district as string
                 );
                 return <div>{location?.district + ", " + location?.city}</div>;
+            },
+        },
+        {
+            title: "Giá sản phẩm",
+            dataIndex: "price",
+            key: "price",
+            width: 150,
+            align: "center",
+            render: (text, record) => {
+                return (
+                    <div>
+                        {record?.product?.price ? (
+                            <Flex justify="end" className="font-medium">
+                                {handleFormatCurrency(record?.product?.price)}
+                            </Flex>
+                        ) : (
+                            <Tag
+                                color={"cyan"}
+                                className={
+                                    "!text-[15px] !h-[30px] w-fit !p-3 !flex !items-center !justify-center"
+                                }
+                            >
+                                Đồ cho tặng
+                            </Tag>
+                        )}
+                    </div>
+                );
             },
         },
         {

@@ -59,13 +59,13 @@ export default function Notifications({
             return `/my-post?tab=rejected`;
         }
         if (notification?.type === NOTIFICATION_TYPE.PAYMENT_CREDIT) {
-            return `/order?tab=buying-order?status=${ORDER_STATUS.WAITING_FOR_PAYMENT.VALUE}`;
+            return `/order?tab=buying-order&status=${ORDER_STATUS.WAITING_FOR_PAYMENT.VALUE}`;
         }
         if (notification?.type === NOTIFICATION_TYPE.DELIVERED_ORDER) {
-            return `/order?tab=buying-order?status=${ORDER_STATUS.DELIVERED.VALUE}`;
+            return `/order?tab=buying-order&status=${ORDER_STATUS.DELIVERED.VALUE}`;
         }
         if (notification?.type === NOTIFICATION_TYPE.RECEIVED) {
-            return `/order?tab=buying-order?status=${ORDER_STATUS.RECEIVED.VALUE}`;
+            return `/order?tab=buying-order&status=${ORDER_STATUS.RECEIVED.VALUE}`;
         }
         return '/'
     };
@@ -86,7 +86,7 @@ export default function Notifications({
                         justify="space-between"
                         className="w-full h-fit pt-5 px-6"
                     >
-                        <div className="font-medium text-[15px] text-gray-200">
+                        <div className="font-medium text-[15px] text-[#8c8c8c]">
                             Mới (
                             {
                                 notifications?.filter(
@@ -146,7 +146,7 @@ export default function Notifications({
                                         ""
                                     )}
                                     <Flex
-                                        className="text-gray-200 w-full"
+                                        className="text-[#8c8c8c] mt-1 w-full"
                                         justify="space-between"
                                         align="center"
                                     >

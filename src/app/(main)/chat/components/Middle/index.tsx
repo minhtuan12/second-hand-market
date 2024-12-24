@@ -149,46 +149,40 @@ export default function Middle({
     }, [chosenConversation?._id, dispatch]);
 
     useEffect(() => {
-        if (user?._id) {
-            const socket = socketService.getSocket(user?._id);
-            if (socket) {
-                socket.on("receiveMessage", (data: any) => {
-                    const { messages, chosenConversation, unreadMessages } =
-                        store.getState().chat;
-                    if (data.conversationId === chosenConversation?._id) {
-                        dispatch(
-                            setMessages([
-                                ...messages,
-                                {
-                                    sender_id: data.senderUserId,
-                                    content: data.message,
-                                },
-                            ])
-                        );
-                        handleConfirmSeenMessage(
-                            socket,
-                            chosenConversation?._id
-                        );
-                    } else if (data.senderUserId !== user?._id) {
-                        dispatch(
-                            setUnreadMessages({
-                                ...unreadMessages,
-                                [data.conversationId]: unreadMessages?.[
-                                    data.conversationId
-                                ]
-                                    ? unreadMessages?.[data.conversationId] + 1
-                                    : 1,
-                            })
-                        );
-                    }
-                });
-            }
+        if (user?._id && socket) {
+            socket.on("receiveMessage", (data: any) => {
+                const { messages, chosenConversation, unreadMessages } =
+                    store.getState().chat;
+                if (data.conversationId === chosenConversation?._id) {
+                    dispatch(
+                        setMessages([
+                            ...messages,
+                            {
+                                sender_id: data.senderUserId,
+                                content: data.message,
+                            },
+                        ])
+                    );
+                    handleConfirmSeenMessage(socket, chosenConversation?._id);
+                } else if (data.senderUserId !== user?._id) {
+                    dispatch(
+                        setUnreadMessages({
+                            ...unreadMessages,
+                            [data.conversationId]: unreadMessages?.[
+                                data.conversationId
+                            ]
+                                ? unreadMessages?.[data.conversationId] + 1
+                                : 1,
+                        })
+                    );
+                }
+            });
         }
 
         return () => {
             socketService.disconnectSocket();
         };
-    }, [user?._id, dispatch]);
+    }, [user?._id, dispatch, socket]);
 
     return chosenConversation ? (
         <div className="flex-1 flex flex-col w-1/2 h-full">

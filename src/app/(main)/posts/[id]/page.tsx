@@ -65,7 +65,6 @@ export default async function PostDetail({
     const id = params.id;
     const { post } = await fetchDetailPost(id);
     if (post?.status !== POST_STATUS.APPROVED.VALUE || post?.is_ordering) {
-        getNotification('error', 'Bài đăng đã bị xóa, đang trong một đơn hàng hoặc không tồn tại')
         return redirect('/');
     }
 

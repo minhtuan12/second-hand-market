@@ -6,11 +6,11 @@ import { RootState, store } from "@/store/configureStore";
 import { UserOutlined } from "@ant-design/icons";
 import { Avatar, Badge, Flex } from "antd";
 import socketService from "@/socket";
-import { Message } from "../Middle";
 import _ from "lodash";
 import Image from "next/image";
 
 interface IProps {
+    socket: any;
     user: UserProfile;
     conversations: Conversation[];
     handleChosenConversation: (conversation: Conversation) => void;
@@ -18,6 +18,7 @@ interface IProps {
 }
 
 export default function LeftSider({
+    socket,
     user,
     conversations,
     handleChosenConversation,
@@ -31,7 +32,6 @@ export default function LeftSider({
 
     const handleClickConversation = (conversation: Conversation) => {
         if (user?._id && conversation?._id) {
-            const socket = socketService.getSocket(user?._id);
             const { unreadMessages } = store.getState().chat;
             let newUnreadMessages = _.cloneDeep(unreadMessages);
             dispatch(setChosenConversation(conversation));
@@ -42,8 +42,7 @@ export default function LeftSider({
     };
 
     useEffect(() => {
-        if (user?._id) {
-            const socket = socketService.getSocket(user?._id);
+        if (user?._id && socket) {
             socket.emit(
                 "getUnreadMessages",
                 { userId: user?._id },
@@ -62,7 +61,7 @@ export default function LeftSider({
         return () => {
             socketService.disconnectSocket();
         };
-    }, [user?._id, dispatch]);
+    }, [user?._id, dispatch, socket]);
 
     return (
         <div className="flex flex-col w-1/4 bg-white p-4 border-r border-gray-300 w-1/4 h-full rounded-l-xl">

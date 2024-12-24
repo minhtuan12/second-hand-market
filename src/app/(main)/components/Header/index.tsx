@@ -17,7 +17,7 @@ import {
     UserOutlined,
 } from "@ant-design/icons";
 import { Badge, Flex, MenuProps, Popover, Tooltip } from "antd";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import DefaultInput from "@/components/Input";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import { useDispatch, useSelector } from "react-redux";
@@ -48,14 +48,11 @@ const Header = () => {
                     href={"/dashboard"}
                     className={"w-6 h-6 rounded-[50%] relative bg-[#8c6a65]"}
                 >
-                    <DashboardOutlined className={styles.dropdownIcon}/>
+                    <DashboardOutlined className={styles.dropdownIcon} />
                 </Link>
             ),
             label: (
-                <Link
-                    href={"/dashboard"}
-                    className={"text-[14px] font-medium"}
-                >
+                <Link href={"/dashboard"} className={"text-[14px] font-medium"}>
                     Thống kê
                 </Link>
             ),
@@ -122,11 +119,17 @@ const Header = () => {
         },
     ];
 
-    const handleChangeKeySearch = (value: string): void => {
-        dispatch(setFilter((prev: any) => ({ ...prev, search_key: value })));
-    };
+    const { filter } = useSelector((state: RootState) => state.app);
+    const searchParams = useSearchParams();
 
-    const handleSearch = () => {};
+    const handleChangeKeySearch = (value: string): void => {
+        dispatch(setFilter({ ...filter, searchKey: value }));
+        if (!value) {
+            const params = new URLSearchParams(searchParams);
+            params.delete("searchKey");
+            router.push(`/?${params.toString()}`);
+        }
+    };
 
     const {
         data: notifications,
@@ -187,9 +190,22 @@ const Header = () => {
                     <div className={`${styles.search}`}>
                         <div className={"h-[45px] max-w-[500px]"}>
                             <DefaultInput
-                                onPressEnter={() =>
-                                    dispatch(setIsSearched(true))
-                                }
+                                onPressEnter={() => {
+                                    // dispatch(setIsSearched(true))
+                                    const params = new URLSearchParams(
+                                        searchParams
+                                    );
+                                    const { filter } = store.getState().app;
+                                    if (filter.searchKey) {
+                                        params.set(
+                                            "searchKey",
+                                            filter.searchKey
+                                        );
+                                    } else {
+                                        params.delete("searchKey");
+                                    }
+                                    router.push(`/?${params.toString()}`);
+                                }}
                                 className={styles.searchInput}
                                 size={"large"}
                                 placeholder="Tìm kiếm sản phẩm trên Chợ Đồ Cũ"

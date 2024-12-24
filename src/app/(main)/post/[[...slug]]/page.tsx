@@ -601,7 +601,7 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
             setLoadingGetPost(true);
             requestGetPost(id)
                 .then((res) => {
-                    if (res.data.post?.poster_id !== authUser?._id) {
+                    if (authUser?._id && res.data.post?.poster_id !== authUser?._id) {
                         router.push("/");
                         getNotification(
                             "error",
@@ -687,12 +687,12 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
         }
     }, [regions, post.location.city]);
 
-    if (loadingGetPost) {
+    if (loadingGetPost || (id !== 'create' && post?.poster_id !== authUser?._id)) {
         return (
             <Flex
                 align={"center"}
                 justify={"center"}
-                className={"w-full h-full"}
+                className={"w-full h-screen"}
             >
                 <Spin />
             </Flex>
@@ -713,11 +713,13 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
                     <Flex
                         gap={25}
                         align={"center"}
-                        className={"mx-8 main-select"}
+                        className={"mx-8 main-select h-full"}
                         wrap
                     >
                         {loadingGetCategories ? (
-                            <Spin />
+                            <Flex className="relative top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]" justify="center" align="center">
+                                <Spin />
+                            </Flex>
                         ) : (
                             <Flex gap={4} vertical className={"w-full"}>
                                 <div className={"font-medium text-[17px]"}>
