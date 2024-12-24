@@ -7,6 +7,7 @@ import { FilterOutlined } from "@ant-design/icons";
 import FilterByRegions from "@/app/(main)/components/FilterByRegions";
 import FilterBar from "@/app/(main)/components/FilterBar";
 import Loading from "@/components/Loading";
+import Head from "next/head";
 
 let controller: AbortController | null = null;
 
@@ -48,8 +49,8 @@ async function fetchPosts(filter: any, signal: any) {
         const data = await postsResponse.json();
         return {
             posts: data?.posts?.filter((item: Post) => !item.is_ordering),
-            total: data?.total
-        }
+            total: data?.total,
+        };
     } catch (err) {
         return { posts: [], total: 0 };
     }
@@ -86,7 +87,7 @@ async function fetchRegions() {
 
 async function HomeSuspense({ searchParams }: { searchParams: any }) {
     if (controller) {
-        controller.abort()
+        controller.abort();
     }
     controller = new AbortController();
     const { posts, total } = await fetchPosts(searchParams, controller?.signal);
@@ -158,7 +159,22 @@ async function HomeSuspense({ searchParams }: { searchParams: any }) {
 }
 
 export default async function Home({ searchParams }: { searchParams: any }) {
-    return <Suspense fallback={<Loading/>}>
-        <HomeSuspense searchParams={searchParams}/>
-    </Suspense>
+    return (
+        <Suspense fallback={<Loading />}>
+            <Head>
+                <title>Chợ đồ cũ</title>
+                <meta
+                    name="description"
+                    content="Chợ đồ cũ là nơi người dùng có thể đăng bán các sản phẩm cũ của trẻ em."
+                />
+                <meta
+                    name="keywords"
+                    content="Chợ đồ cũ, trẻ em, quần áo, đồ chơi, trang sức"
+                />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href="https://chodocu.vercel.app" />
+            </Head>
+            <HomeSuspense searchParams={searchParams} />
+        </Suspense>
+    );
 }

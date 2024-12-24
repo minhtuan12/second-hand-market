@@ -668,7 +668,7 @@ export default function AccountTab({
                                                         <div className="font-semibold text-[26px]">
                                                             Stripe
                                                         </div>
-                                                        <div className="text-gray-50">
+                                                        <div className="text-[#8c8c8c]">
                                                             Tài khoản:{" "}
                                                             {
                                                                 accountData?.stripe_account_id

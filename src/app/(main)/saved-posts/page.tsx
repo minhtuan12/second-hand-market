@@ -93,7 +93,7 @@ export default function SavedPosts() {
                                     align="center"
                                     gap={20}
                                 >
-                                    <div className="text-gray-50 text-[17px]">
+                                    <div className="text-[#8c8c8c] text-[17px]">
                                         Chưa có bài đăng yêu thích nào
                                     </div>
                                     <Link href="/">

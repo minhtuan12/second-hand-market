@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setChosenConversation, setUnreadMessages } from "@/store/slices/chat";
 import { RootState, store } from "@/store/configureStore";
 import { UserOutlined } from "@ant-design/icons";
-import { Avatar, Badge, Flex } from "antd";
+import { Avatar, Badge, Flex, Skeleton } from "antd";
 import socketService from "@/socket";
 import _ from "lodash";
 import Image from "next/image";
@@ -79,7 +79,7 @@ export default function LeftSider({
                         <Avatar icon={<UserOutlined />} />
                     )}
                     <span className="font-semibold ml-2 w-full overflow-hidden text-ellipsis">
-                        {userFullName}
+                        {userFullName || <Skeleton />}
                     </span>
                 </div>
             </div>

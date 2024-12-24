@@ -43,6 +43,7 @@ import {
 } from "../../../../../utils/constants";
 import RatingTab from "../components/RatingTab";
 import { useRouter } from "next/navigation";
+import Head from "next/head";
 
 const TabItem = ({ children }: { children: React.ReactNode }) => (
     <div className={"flex gap-[6px] items-center"}>{children}</div>
@@ -197,7 +198,13 @@ export default function Profile({ params }: { params: { slug: string } }) {
                     Đánh giá
                 </TabItem>
             ),
-            children: <RatingTab isNotMe={!!id} user={user} getUserProfile={getUserProfile}/>,
+            children: (
+                <RatingTab
+                    isNotMe={!!id}
+                    user={user}
+                    getUserProfile={getUserProfile}
+                />
+            ),
         },
     ];
 
@@ -244,176 +251,204 @@ export default function Profile({ params }: { params: { slug: string } }) {
     };
 
     return (
-        <div className={"w-full pt-3"}>
-            <BreadcrumbUpdater
-                className={"mb-5"}
-                breadcrumbData={breadcrumbData}
-                title={"Trang cá nhân"}
-            />
-            <div className={`bg-[#fff] w-full h-auto rounded-[12px] pt-8`}>
-                <Flex
-                    gap={25}
-                    align={"center"}
-                    className={"mx-8"}
-                    wrap
-                    justify={"center"}
-                >
-                    {user ? (
-                        <>
-                            <div
-                                className={
-                                    "w-[105px] relative border-[2px] border-gray-300 rounded-xl"
-                                }
-                            >
-                                <Image
-                                    src={user?.avatar || DefaultAvatar}
-                                    alt={""}
-                                    style={{
-                                        borderRadius: "10px",
-                                        height: "100%",
-                                        width: "100%",
-                                    }}
-                                    width={0}
-                                    height={0}
-                                    sizes="100vw"
-                                />
+        <>
+            <Head>
+                <title>Trang cá nhân</title>
+                <meta
+                    name="description"
+                    content="Trang cá nhân của người dùng trong hệ thống Chợ đồ cũ, bao gồm thông tin cá nhân, các bài đăng và đánh giá từ những người dùng khác"
+                />
+                <meta
+                    name="keywords"
+                    content="Trang cá nhân"
+                />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={`https://chodocu.vercel.app/profile/${params.slug?.[0]}`} />
+            </Head>
+            <div className={"w-full pt-3"}>
+                <BreadcrumbUpdater
+                    className={"mb-5"}
+                    breadcrumbData={breadcrumbData}
+                    title={"Trang cá nhân"}
+                />
+                <div className={`bg-[#fff] w-full h-auto rounded-[12px] pt-8`}>
+                    <Flex
+                        gap={25}
+                        align={"center"}
+                        className={"mx-8"}
+                        wrap
+                        justify={"center"}
+                    >
+                        {user ? (
+                            <>
                                 <div
                                     className={
-                                        "absolute right-[-9px] bottom-3 border-[3px] rounded-2xl border-white"
+                                        "w-[105px] relative border-[2px] border-gray-300 rounded-xl"
                                     }
                                 >
                                     <Image
-                                        src={OnlineDotIcon}
+                                        src={user?.avatar || DefaultAvatar}
                                         alt={""}
-                                        width={11}
-                                        height={11}
+                                        style={{
+                                            borderRadius: "10px",
+                                            height: "100%",
+                                            width: "100%",
+                                        }}
+                                        width={0}
+                                        height={0}
+                                        sizes="100vw"
                                     />
+                                    <div
+                                        className={
+                                            "absolute right-[-9px] bottom-3 border-[3px] rounded-2xl border-white"
+                                        }
+                                    >
+                                        <Image
+                                            src={OnlineDotIcon}
+                                            alt={""}
+                                            width={11}
+                                            height={11}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                            <Flex className={`flex-1`} gap={2} vertical>
-                                <Flex
-                                    justify={"space-between"}
-                                    align={"center"}
-                                    className={styles.headerWrap}
-                                >
-                                    <Flex vertical>
-                                        <div
-                                            className={
-                                                "font-semibold text-[20px] text-black"
-                                            }
-                                        >
-                                            {user?.firstname +
-                                                " " +
-                                                user?.lastname}
-                                        </div>
-                                        <Flex wrap className={"gap-x-[30px]"}>
+                                <Flex className={`flex-1`} gap={2} vertical>
+                                    <Flex
+                                        justify={"space-between"}
+                                        align={"center"}
+                                        className={styles.headerWrap}
+                                    >
+                                        <Flex vertical>
+                                            <div
+                                                className={
+                                                    "font-semibold text-[20px] text-black"
+                                                }
+                                            >
+                                                {user?.firstname +
+                                                    " " +
+                                                    user?.lastname}
+                                            </div>
+                                            <Flex
+                                                wrap
+                                                className={"gap-x-[30px]"}
+                                            >
+                                                <Flex
+                                                    className={
+                                                        styles.detailText
+                                                    }
+                                                    align={"center"}
+                                                    gap={6}
+                                                >
+                                                    <MailOutlined />
+                                                    <Link
+                                                        href={`mailto: ${user?.email}`}
+                                                        className={
+                                                            "hover:decoration-transparent"
+                                                        }
+                                                    >
+                                                        {user?.email}
+                                                    </Link>
+                                                </Flex>
+                                                <Flex
+                                                    className={
+                                                        styles.detailText
+                                                    }
+                                                    align={"center"}
+                                                    gap={6}
+                                                >
+                                                    <PhoneOutlined />
+                                                    <div>
+                                                        {user?.phone || (
+                                                            <i>Chưa cập nhật</i>
+                                                        )}
+                                                    </div>
+                                                </Flex>
+                                            </Flex>
+                                        </Flex>
+                                        {!isAuthUser ? (
+                                            <Button
+                                                size={"large"}
+                                                className={"cursor-pointer"}
+                                                onClick={
+                                                    handleFollowOrUnfollowUser
+                                                }
+                                                loading={loadingFollowBtn}
+                                            >
+                                                <UserAddOutlined /> Theo dõi
+                                            </Button>
+                                        ) : (
+                                            ""
+                                        )}
+                                    </Flex>
+
+                                    <Flex
+                                        justify={"space-between"}
+                                        align={"center"}
+                                    >
+                                        <Flex vertical>
+                                            <Flex
+                                                className={styles.detailText}
+                                                gap={6}
+                                            >
+                                                Địa chỉ: {userAddress}
+                                            </Flex>
                                             <Flex
                                                 className={styles.detailText}
                                                 align={"center"}
-                                                gap={6}
+                                                gap={1}
                                             >
-                                                <MailOutlined />
-                                                <Link
-                                                    href={`mailto: ${user?.email}`}
+                                                Người theo dõi:{" "}
+                                                <span
                                                     className={
-                                                        "hover:decoration-transparent"
+                                                        "font-semibold text-black ml-1"
                                                     }
                                                 >
-                                                    {user?.email}
-                                                </Link>
+                                                    {user?.follower_ids
+                                                        ?.length || 0}
+                                                </span>
+                                                <MinusOutlined rotate={90} />
+                                                Đang theo dõi:{" "}
+                                                <span
+                                                    className={
+                                                        "font-semibold text-black ml-1"
+                                                    }
+                                                >
+                                                    {user?.following_user_ids
+                                                        ?.length || 0}
+                                                </span>
                                             </Flex>
-                                            <Flex
-                                                className={styles.detailText}
-                                                align={"center"}
-                                                gap={6}
-                                            >
-                                                <PhoneOutlined />
-                                                <div>
-                                                    {user?.phone || (
-                                                        <i>Chưa cập nhật</i>
-                                                    )}
-                                                </div>
-                                            </Flex>
-                                        </Flex>
-                                    </Flex>
-                                    {!isAuthUser ? (
-                                        <Button
-                                            size={"large"}
-                                            className={"cursor-pointer"}
-                                            onClick={handleFollowOrUnfollowUser}
-                                            loading={loadingFollowBtn}
-                                        >
-                                            <UserAddOutlined /> Theo dõi
-                                        </Button>
-                                    ) : (
-                                        ""
-                                    )}
-                                </Flex>
-
-                                <Flex
-                                    justify={"space-between"}
-                                    align={"center"}
-                                >
-                                    <Flex vertical>
-                                        <Flex
-                                            className={styles.detailText}
-                                            gap={6}
-                                        >
-                                            Địa chỉ: {userAddress}
                                         </Flex>
                                         <Flex
-                                            className={styles.detailText}
-                                            align={"center"}
-                                            gap={1}
+                                            vertical
+                                            align="end"
+                                            className="mt-2"
                                         >
-                                            Người theo dõi:{" "}
-                                            <span
-                                                className={
-                                                    "font-semibold text-black ml-1"
-                                                }
-                                            >
-                                                {user?.follower_ids?.length ||
-                                                    0}
-                                            </span>
-                                            <MinusOutlined rotate={90} />
-                                            Đang theo dõi:{" "}
-                                            <span
-                                                className={
-                                                    "font-semibold text-black ml-1"
-                                                }
-                                            >
-                                                {user?.following_user_ids
-                                                    ?.length || 0}
-                                            </span>
+                                            <Rate
+                                                allowHalf
+                                                value={user?.averageStars || 0}
+                                                disabled
+                                            />
+                                            <div className="mt-1 text-[14px] text-[#6b7280]">
+                                                ({user?.reviewers?.length || 0}{" "}
+                                                đánh giá)
+                                            </div>
                                         </Flex>
                                     </Flex>
-                                    <Flex vertical align="end" className="mt-2">
-                                        <Rate
-                                            allowHalf
-                                            value={user?.averageStars || 0}
-                                            disabled
-                                        />
-                                        <div className="mt-1 text-[14px] text-[#6b7280]">
-                                            ({user?.reviewers?.length || 0} đánh
-                                            giá)
-                                        </div>
-                                    </Flex>
                                 </Flex>
-                            </Flex>
-                        </>
-                    ) : (
-                        <Skeleton loading={true} />
-                    )}
-                </Flex>
-                <div className={"w-full px-8 mt-6 pb-8 custom-tabs"}>
-                    <Tabs
-                        activeKey={tabIndex}
-                        items={isAuthUser ? tabItems : tabItems.slice(3)}
-                        onChange={handleChangeTab}
-                        destroyInactiveTabPane
-                    />
+                            </>
+                        ) : (
+                            <Skeleton loading={true} />
+                        )}
+                    </Flex>
+                    <div className={"w-full px-8 mt-6 pb-8 custom-tabs"}>
+                        <Tabs
+                            activeKey={tabIndex}
+                            items={isAuthUser ? tabItems : tabItems.slice(3)}
+                            onChange={handleChangeTab}
+                            destroyInactiveTabPane
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

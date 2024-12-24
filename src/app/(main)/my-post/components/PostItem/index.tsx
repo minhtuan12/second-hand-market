@@ -116,7 +116,7 @@ export default function PostItem({
                         {hasFullLocation ? (
                             location
                         ) : (
-                            <span className={"text-gray-50"}>
+                            <span className={"text-[#8c8c8c]"}>
                                 Chưa cập nhật địa chỉ
                             </span>
                         )}
