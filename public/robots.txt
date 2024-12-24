@@ -1,5 +1,5 @@
 User-agent: *
-Allow: /sitemap.xml
-Disallow:
+Allow: /
+Disallow: /admin/
 
 Sitemap: https://chodocu.vercel.app/sitemap.xml
