@@ -1,8 +1,6 @@
 /** @[action] {import('next').NextConfig} */
 
-import sitemap from "./next-sitemap.config.js";
-
-const nextConfig = sitemap({
+const nextConfig = {
     reactStrictMode: false,
     env: {
         API_URL: process.env.API_URL,
@@ -16,8 +14,6 @@ const nextConfig = sitemap({
             },
         ],
     },
-    siteUrl: "https://chodocu.vercel.app",
-    generateRobotsTxt: true,
-});
+};
 
 export default nextConfig;
