@@ -160,6 +160,7 @@ export type Post = {
     updatedAt?: string;
     is_deleted?: boolean;
     product?: Product;
+    is_ordering?: boolean;
 };
 
 export type Conversation = {

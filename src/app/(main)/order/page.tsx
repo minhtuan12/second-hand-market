@@ -8,6 +8,7 @@ import { ORDER_STATUS } from "../../../../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/configureStore";
 import { setFilter } from "@/store/slices/order";
+import { useEffect } from "react";
 
 const TabItem = ({ children }: { children: React.ReactNode }) => (
     <div className={"flex gap-[6px] items-center"}>{children}</div>
@@ -59,6 +60,18 @@ export default function Order({ searchParams }: { searchParams: any }) {
         },
     ];
 
+    useEffect(() => {
+        if (
+            orderStatusOptions
+                .map((item) => item.value)
+                .includes(searchParams?.status)
+        ) {
+            dispatch(
+                setFilter({ ...filter, status: searchParams?.status, page: 1 })
+            );
+        }
+    }, [searchParams?.status]);
+
     return (
         <>
             <div className={"w-full pt-3"}>
@@ -74,7 +87,11 @@ export default function Order({ searchParams }: { searchParams: any }) {
                                 className="w-full"
                                 onChange={(value) =>
                                     dispatch(
-                                        setFilter({ ...filter, status: value, page: 1 })
+                                        setFilter({
+                                            ...filter,
+                                            status: value,
+                                            page: 1,
+                                        })
                                     )
                                 }
                                 allowClear

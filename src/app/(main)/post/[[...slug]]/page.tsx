@@ -60,6 +60,7 @@ import {
 } from "@/api/post";
 import BreadcrumbUpdater from "../../../../components/BreadcrumbUpdater";
 import { useRouter } from "next/navigation";
+import { useAuthUser } from "@/hooks/useAuthUser";
 
 const initialPostData = {
     title: null,
@@ -92,6 +93,7 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
     const id = params.slug?.[0];
     const router = useRouter();
     const dispatch = useDispatch();
+    const { authUser } = useAuthUser();
     const [categories, setCategories] = useState<Category[]>([]);
     const [loadingGetPost, setLoadingGetPost] = useState(false);
     const [loadingGetCategories, setLoadingGetCategories] = useState(false);
@@ -192,7 +194,6 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
                 setLoadingGetCategories(false);
             });
     };
-    console.log(post);
 
     const handleGetAttributesOfCategory = (categoryId: string) => {
         setLoadingGetAttributes(true);
@@ -600,6 +601,13 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
             setLoadingGetPost(true);
             requestGetPost(id)
                 .then((res) => {
+                    if (res.data.post?.poster_id !== authUser?._id) {
+                        router.push("/");
+                        getNotification(
+                            "error",
+                            "Bạn không phải chủ bài đăng này"
+                        );
+                    }
                     setImageUrls(res.data?.post?.product?.images || []);
                     setSelectedCategoryId(res.data?.post?.product?.category_id);
                     setPost({
@@ -624,7 +632,7 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
                     setLoadingGetPost(false);
                 });
         }
-    }, [id]);
+    }, [id, authUser?._id]);
 
     useEffect(() => {
         if (regionsData) {

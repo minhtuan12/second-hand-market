@@ -3,6 +3,7 @@ import "../../../global.scss";
 import BreadcrumbUpdater from "@/components/BreadcrumbUpdater";
 import { Avatar, Col, Empty, Flex, Rate, Tag } from "antd";
 import {
+    getNotification,
     handleExportTimeAgo,
     handleFormatCurrency,
     handleGetRegion,
@@ -22,6 +23,8 @@ import PostAction from "@/app/(main)/posts/components/PostAction";
 import Image from "next/image";
 import DetailProductTable from "../components/DetailProductTable";
 import PostItem from "../../components/PostItem";
+import { POST_STATUS } from "../../../../../utils/constants";
+import { redirect } from "next/navigation";
 
 async function fetchDetailPost(id: string) {
     try {
@@ -61,6 +64,11 @@ export default async function PostDetail({
 }) {
     const id = params.id;
     const { post } = await fetchDetailPost(id);
+    if (post?.status !== POST_STATUS.APPROVED.VALUE || post?.is_ordering) {
+        getNotification('error', 'Bài đăng đã bị xóa, đang trong một đơn hàng hoặc không tồn tại')
+        return redirect('/');
+    }
+
     const posterPosts = await fetchUserPost(post?.poster_id, post?._id);
 
     const breadcrumbData = [

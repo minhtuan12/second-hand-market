@@ -176,6 +176,9 @@ export const NOTIFICATION_TYPE = {
     REJECTED_POST: "rejected_post",
     EXPIRED_POST: "expired_post",
     ORDER: "order",
+    PAYMENT_CREDIT : 'payment_credit',
+    DELIVERED_ORDER : 'delivered_order',
+    RECEIVED : 'received'
 };
 
 export const ORDER_STATUS_CHANGABLE = {

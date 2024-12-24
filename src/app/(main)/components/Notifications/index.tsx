@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import {
     NOTIFICATION_TYPE,
+    ORDER_STATUS,
     SERVER_ERROR_MESSAGE,
 } from "../../../../../utils/constants";
 import { useState } from "react";
@@ -47,6 +48,28 @@ export default function Notifications({
             });
     };
 
+    const handleGetUrlByNotificationType = (notification: Notification) => {
+        if (
+            notification?.type === NOTIFICATION_TYPE.APPROVED_POST ||
+            notification?.type === NOTIFICATION_TYPE.EXPIRED_POST
+        ) {
+            return `/posts/${notification?.post_id?._id}`;
+        }
+        if (notification?.type === NOTIFICATION_TYPE.REJECTED_POST) {
+            return `/my-post?tab=rejected`;
+        }
+        if (notification?.type === NOTIFICATION_TYPE.PAYMENT_CREDIT) {
+            return `/order?tab=buying-order?status=${ORDER_STATUS.WAITING_FOR_PAYMENT.VALUE}`;
+        }
+        if (notification?.type === NOTIFICATION_TYPE.DELIVERED_ORDER) {
+            return `/order?tab=buying-order?status=${ORDER_STATUS.DELIVERED.VALUE}`;
+        }
+        if (notification?.type === NOTIFICATION_TYPE.RECEIVED) {
+            return `/order?tab=buying-order?status=${ORDER_STATUS.RECEIVED.VALUE}`;
+        }
+        return '/'
+    };
+
     return (
         <div className="h-[400px] rounded-xl bg-[#fff] w-[400px]">
             {isLoading || loadingSeen ? (
@@ -63,7 +86,7 @@ export default function Notifications({
                         justify="space-between"
                         className="w-full h-fit pt-5 px-6"
                     >
-                        <div className="font-medium text-[15px] text-gray-50">
+                        <div className="font-medium text-[15px] text-gray-200">
                             Mới (
                             {
                                 notifications?.filter(
@@ -102,24 +125,10 @@ export default function Notifications({
                         className="mt-2 overflow-auto scrollbar-thin h-[350px]"
                     >
                         {notifications?.map((item: Notification) => {
-                            // url for other notification type
-                            let url = "/";
-                            if (
-                                item?.type ===
-                                    NOTIFICATION_TYPE.APPROVED_POST ||
-                                item?.type === NOTIFICATION_TYPE.EXPIRED_POST
-                            ) {
-                                url = `/posts/${item?.post_id?._id}`;
-                            } else if (
-                                item?.type === NOTIFICATION_TYPE.REJECTED_POST
-                            ) {
-                                url = `my-post?tab=rejected`;
-                            }
-
                             return (
                                 <Link
                                     target="_blank"
-                                    href={url}
+                                    href={handleGetUrlByNotificationType(item)}
                                     className="flex flex-col text-[#000] hover:bg-[#efefef] hover:text-[#f80] py-5 px-6 border-b-[1px]"
                                     key={item?._id}
                                     onClick={() =>
@@ -137,7 +146,7 @@ export default function Notifications({
                                         ""
                                     )}
                                     <Flex
-                                        className="text-gray-50 w-full"
+                                        className="text-gray-200 w-full"
                                         justify="space-between"
                                         align="center"
                                     >

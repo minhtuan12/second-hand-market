@@ -1,5 +1,5 @@
 import { Post } from "../../../../../../utils/types";
-import { Flex, Popover, Tag } from "antd";
+import { Flex, message, Popover, Tag } from "antd";
 import Button from "@/components/Button";
 import Image from "next/image";
 import moment from "moment";
@@ -31,6 +31,20 @@ export default function PostItem({
     post: Post;
     reFetchMyPosts: () => void;
 }) {
+    const [messageApi, contextHolder] = message.useMessage();
+    const handleCopyUrl = () => {
+        const el = document.createElement("input");
+        el.value = window.location.href;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+        messageApi.open({
+            type: "success",
+            content: "Đã sao chép",
+        });
+    };
+
     const hasFullLocation: boolean = !!(
         post?.location.district && post?.location.city
     );
@@ -73,6 +87,7 @@ export default function PostItem({
 
     return (
         <Flex justify={"space-between"} className={"rounded-lg p-4 shadow-md"}>
+            {contextHolder}
             <Flex gap={30}>
                 <Image
                     src={post?.product?.images?.[0]}
@@ -153,6 +168,7 @@ export default function PostItem({
                                 className={
                                     "border-none w-full h-full rounded-none !h-[45px]"
                                 }
+                                onClick={handleCopyUrl}
                             >
                                 <ShareAltOutlined />
                                 Sao chép đường dẫn
