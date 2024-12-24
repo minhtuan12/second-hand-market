@@ -17,7 +17,6 @@ import { useEffect, useState } from "react";
 import { Flex, Image, Spin, Tag } from "antd";
 import DefaultButton from "@/components/Button";
 import Link from "next/link";
-import PostItem from "../components/PostItem";
 import { useFetchRegions } from "@/api/location";
 import {
     LOCALSTORAGE_DEFAULT_CHAT_USER,

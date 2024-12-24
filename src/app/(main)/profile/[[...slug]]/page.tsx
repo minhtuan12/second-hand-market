@@ -197,7 +197,7 @@ export default function Profile({ params }: { params: { slug: string } }) {
                     Đánh giá
                 </TabItem>
             ),
-            children: <RatingTab isNotMe={!!id} user={user} />,
+            children: <RatingTab isNotMe={!!id} user={user} getUserProfile={getUserProfile}/>,
         },
     ];
 

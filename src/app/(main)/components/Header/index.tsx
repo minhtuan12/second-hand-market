@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import styles from "./styles.module.scss";
 import "./styles.scss";
 import _ from "lodash";
@@ -31,8 +31,9 @@ import { useFetchOldNotifications } from "@/api/notifications";
 import { Notification as NotificationType } from "../../../../../utils/types";
 import { RootState, store } from "@/store/configureStore";
 import { useSocket } from "@/app/context/SocketContext";
+import Loading from "@/components/Loading";
 
-const Header = () => {
+const HeaderSuspense = () => {
     const { authUser } = useAuthUser();
     const [showMenu, setShowMenu] = useState(false);
     const pathname = usePathname();
@@ -204,7 +205,7 @@ const Header = () => {
                                     } else {
                                         params.delete("searchKey");
                                     }
-                                    router.push(`/?${params.toString()}`);
+                                    router.push(`?${params.toString()}`);
                                 }}
                                 className={styles.searchInput}
                                 size={"large"}
@@ -294,4 +295,8 @@ const Header = () => {
     );
 };
 
-export default Header;
+export default function Header() {
+    return <Suspense fallback={<Loading/>}>
+        <HeaderSuspense/>
+    </Suspense>
+}

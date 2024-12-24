@@ -22,9 +22,11 @@ const suggestedComments = [
 ];
 
 export default function RatingTab({
+    getUserProfile,
     isNotMe,
     user,
 }: {
+    getUserProfile: () => void;
     isNotMe: boolean;
     user: UserProfile | null;
 }) {
@@ -55,6 +57,7 @@ export default function RatingTab({
         })
             .then(() => {
                 getNotification("success", "Đánh giá thành công");
+                getUserProfile();
                 setRating({
                     comment: "",
                     ratingCount: 0,
@@ -81,8 +84,6 @@ export default function RatingTab({
             </Flex>
         );
     }
-
-    console.log(ratings);
 
     return (
         <div className="mt-3">
