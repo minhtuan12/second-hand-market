@@ -1,5 +1,5 @@
-import { Flex, Image, Modal, Tag, Timeline } from "antd";
-import { Order, Post } from "../../../../../../utils/types";
+import { Flex, Image, Modal, Skeleton, Tag, Timeline } from "antd";
+import { Order, Post, UserProfile } from "../../../../../../utils/types";
 import { ORDER_STATUS } from "../../../../../../utils/constants";
 import {
     handleFormatCurrency,
@@ -10,18 +10,18 @@ import { useMemo } from "react";
 import moment from "moment";
 
 export default function DetailModal({
+    authUser,
     openModal,
     setOpenDetailModal,
     order,
     type,
 }: {
+    authUser: UserProfile;
     openModal: boolean;
     setOpenDetailModal: (isOpen: boolean) => void;
     order: Order;
     type: string;
 }) {
-    console.log(order);
-
     const orderStatus = handleGetLabelFromValue(ORDER_STATUS, order.status);
     const formatTime = (time: string) => {
         return moment(time).format("HH:mm DD-MM-YYYY");
@@ -134,18 +134,26 @@ export default function DetailModal({
                           <Flex className="text-[16px] font-medium" vertical>
                               {ORDER_STATUS.CANCELLED.LABEL}
                               <div className="text-[14px] font-medium">
-                                  Đã hủy đơn hàng lúc{" "}
-                                  {formatTime(order?.updatedAt)} bởi{" "}
-                                  {order?.cancelled_user_id ===
-                                  order?.customer_id
-                                      ? "người mua"
-                                      : "bạn"}
+                                  {authUser?._id ? (
+                                      order?.cancelled_user_id ===
+                                      authUser?._id ? (
+                                          `Bạn đã hủy đơn hàng lúc ${formatTime(
+                                              order?.updatedAt
+                                          )}`
+                                      ) : (
+                                          `Đơn hàng đã bị hủy lúc ${formatTime(
+                                              order?.updatedAt
+                                          )}`
+                                      )
+                                  ) : (
+                                      <Skeleton.Input size={"small"} />
+                                  )}
                               </div>
                           </Flex>
                       ),
                   },
               ];
-    }, [order?.status]);
+    }, [order?.status, authUser?._id]);
 
     return (
         <Modal

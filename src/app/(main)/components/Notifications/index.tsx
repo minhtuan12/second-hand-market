@@ -14,9 +14,10 @@ import {
     ORDER_STATUS,
     SERVER_ERROR_MESSAGE,
 } from "../../../../../utils/constants";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/configureStore";
+import { useAuthUser } from "@/hooks/useAuthUser";
 
 export default function Notifications({
     isLoading,
@@ -29,6 +30,7 @@ export default function Notifications({
 }) {
     const [loadingSeen, setLoadingSeen] = useState<boolean>(false);
     const { notifications } = useSelector((state: RootState) => state.app);
+    const { authUser } = useAuthUser();
 
     const handleSeenNotification = (notificationId: any) => {
         setLoadingSeen(true);
@@ -48,7 +50,7 @@ export default function Notifications({
             });
     };
 
-    const handleGetUrlByNotificationType = (notification: Notification) => {
+    const handleGetUrlByNotificationType = useCallback((notification: Notification) => {
         if (
             notification?.type === NOTIFICATION_TYPE.APPROVED_POST ||
             notification?.type === NOTIFICATION_TYPE.EXPIRED_POST
@@ -67,8 +69,15 @@ export default function Notifications({
         if (notification?.type === NOTIFICATION_TYPE.RECEIVED) {
             return `/order?tab=buying-order&status=${ORDER_STATUS.RECEIVED.VALUE}`;
         }
+        if (notification?.type === NOTIFICATION_TYPE.CANCELLED_ORDER) {
+            const urlTab = notification?.post_id?.poster_id?._id === authUser?._id ? 'selling-order' : 'buying-order'
+            return `/order?tab=${urlTab}&status=${ORDER_STATUS.CANCELLED.VALUE}`;
+        }
+        if (notification?.type === NOTIFICATION_TYPE.UPDATED_CATEGORY) {
+            return `/my-post`;
+        }
         return '/'
-    };
+    }, [authUser?._id]);
 
     return (
         <div className="h-[400px] rounded-xl bg-[#fff] w-[400px]">

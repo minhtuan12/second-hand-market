@@ -142,6 +142,7 @@ const HeaderSuspense = () => {
         (state: RootState) => state.app.notifications
     );
     const socket = useSocket();
+    const [messageBadge, setMessageBadge] = useState(0);
 
     useEffect(() => {
         if (socket) {
@@ -152,7 +153,12 @@ const HeaderSuspense = () => {
                 );
                 setNotificationBadge((prevBadge) => prevBadge + 1);
             };
+            const getNewMessage = () => {
+                setMessageBadge((prev) => prev + 1);
+            };
+
             socket.on("notification", handleUpdateNoti);
+            socket.on("receiveMessage", getNewMessage);
 
             return () => {
                 socket.off("notification", handleUpdateNoti);
@@ -228,12 +234,18 @@ const HeaderSuspense = () => {
                     className={`${styles.itemHeaderRight} icon-custom`}
                 >
                     <Link
+                        onClick={() => setMessageBadge(0)}
                         href={"/chat"}
                         className={
                             "cursor-pointer text-[#000] hover:text-[#000]"
                         }
                     >
-                        <MessageOutlined className={"text-[24px] mt-1"} />
+                        <Badge
+                            count={messageBadge}
+                            style={{ fontSize: "14px" }}
+                        >
+                            <MessageOutlined className={"text-[24px] mt-1"} />
+                        </Badge>
                     </Link>
                     <Popover
                         trigger={["click"]}
@@ -296,7 +308,9 @@ const HeaderSuspense = () => {
 };
 
 export default function Header() {
-    return <Suspense fallback={<Loading/>}>
-        <HeaderSuspense/>
-    </Suspense>
+    return (
+        <Suspense fallback={<Loading />}>
+            <HeaderSuspense />
+        </Suspense>
+    );
 }

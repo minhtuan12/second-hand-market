@@ -35,6 +35,30 @@ export const requestChangeOrderStatus = (orderId: string, status: string) => {
     });
 };
 
+export const requestCancelOrder = (orderId: string) => {
+    return apiAxios({
+        method: "patch",
+        url: "order/cancel",
+        data: {
+            order: {
+                order_id: orderId,
+            },
+        },
+    });
+};
+
+export const requestReceivedOrder = (orderId: string) => {
+    return apiAxios({
+        method: "patch",
+        url: "order/received-order",
+        data: {
+            order: {
+                order_id: orderId,
+            },
+        },
+    });
+};
+
 export const requestPayOrder = (orderId: string) => {
     return apiAxios({
         method: "post",

@@ -1,37 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     getNotification,
     handleFormatCurrency,
     handleGetLabelFromValue,
 } from "../../../../../../utils/helper";
+import { Empty, Flex, Select, Spin, Table, Tag, Tooltip } from "antd";
 import {
-    Button,
-    Empty,
-    Flex,
-    Image,
-    Select,
-    Spin,
-    Table,
-    Tag,
-    Tooltip,
-} from "antd";
-import {
+    requestCancelOrder,
     requestChangeOrderStatus,
-    requestPayOrder,
+    requestReceivedOrder,
     useFetchOrders,
 } from "./api";
-import { Order, Post } from "../../../../../../utils/types";
+import { Order, UserProfile } from "../../../../../../utils/types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/configureStore";
 import Link from "next/link";
-import {
-    CloseCircleOutlined,
-    CloseOutlined,
-    CreditCardOutlined,
-    EyeOutlined,
-} from "@ant-design/icons";
+import { CloseOutlined, EyeOutlined } from "@ant-design/icons";
 import {
     ORDER_STATUS,
     ORDER_STATUS_CHANGABLE,
@@ -39,6 +25,8 @@ import {
 } from "../../../../../../utils/constants";
 import { setFilter } from "@/store/slices/order";
 import DetailModal from "../DetailModal";
+import BuyingOrder from "../BuyingOrder";
+import { useAuthUser } from "@/hooks/useAuthUser";
 
 const Center = ({ children }: { children: React.ReactNode }) => (
     <Flex
@@ -57,6 +45,7 @@ const options = Object.values(ORDER_STATUS_CHANGABLE).map((item) => ({
 
 export default function OrderTab({ type }: { type: string }) {
     const { filter } = useSelector((state: RootState) => state.order);
+    const { authUser } = useAuthUser();
     const onErrorFetchPosts = () => {
         getNotification(
             "error",
@@ -96,9 +85,53 @@ export default function OrderTab({ type }: { type: string }) {
             });
     };
 
+    const handleCancelOrder = (order: Order) => {
+        setLoadingUpdateStatus(true);
+        requestCancelOrder(order?._id)
+            .then(() => {
+                getOrders();
+                setOrderToDelete(null);
+                getNotification(
+                    "success",
+                    `Đã hủy đơn hàng ${
+                        order?.stripe_payment_intent_id
+                            ? ", số tiền đã thanh toán sẽ sớm được hoàn lại."
+                            : ""
+                    }`
+                );
+            })
+            .catch((err) => {
+                getNotification(
+                    "error",
+                    err?.response?.data || SERVER_ERROR_MESSAGE
+                );
+            })
+            .finally(() => {
+                setLoadingUpdateStatus(false);
+            });
+    };
+
+    const handleReceivedOrder = (orderId: string) => {
+        setLoadingUpdateStatus(true);
+        requestReceivedOrder(orderId)
+            .then(() => {
+                getOrders();
+                getNotification("success", "Đã nhận hàng");
+            })
+            .catch((err) => {
+                getNotification(
+                    "error",
+                    err?.response?.data || SERVER_ERROR_MESSAGE
+                );
+            })
+            .finally(() => {
+                setLoadingUpdateStatus(false);
+            });
+    };
+
     const [isOpenDetailModal, setIsOpenDetailModal] = useState<boolean>(false);
     const [orderDetail, setOrderDetail] = useState<Order | null>(null);
-
+    const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
     const columns = [
         {
             title: "Mã đơn hàng",
@@ -211,12 +244,7 @@ export default function OrderTab({ type }: { type: string }) {
                                 </Flex>
                             ) : (
                                 <CloseOutlined
-                                    onClick={() =>
-                                        handleChangeOrderStatus(
-                                            record?._id,
-                                            ORDER_STATUS.CANCELLED.VALUE
-                                        )
-                                    }
+                                    onClick={() => handleCancelOrder(record)}
                                     style={{
                                         fontSize: "18px",
                                         cursor: "pointer",
@@ -267,142 +295,20 @@ export default function OrderTab({ type }: { type: string }) {
                     }}
                 />
             ) : (
-                <Flex
-                    vertical
-                    className="h-full overflow-auto scrollbar-thin px-3 py-2"
-                    gap={30}
-                >
-                    {ordersData?.orders?.map((order: Order) => {
-                        const orderStatus = handleGetLabelFromValue(
-                            ORDER_STATUS,
-                            order?.status
-                        );
-                        return (
-                            <Flex
-                                key={order?._id}
-                                className="rounded-lg shadow-[rgba(0,_0,_0,_0.16)_0px_1px_4px] p-4"
-                                align="center"
-                                justify="space-between"
-                            >
-                                <Flex gap={25}>
-                                    <Image
-                                        src={order?.product?.images?.[0]}
-                                        width={100}
-                                    />
-                                    <Flex vertical>
-                                        <div className="font-medium text-[18px]">
-                                            Mã đơn hàng: {order?.code}
-                                        </div>
-                                        <div className="text-[16px]">
-                                            {order?.post?.title}
-                                        </div>
-                                        <div className="text-[16px]">
-                                            {order?.product?.description}
-                                        </div>
-                                        <div className="text-[18px] text-[#f80] font-medium">
-                                            {handleFormatCurrency(
-                                                order?.total as number
-                                            )}
-                                        </div>
-                                        <Tag
-                                            color={orderStatus.color}
-                                            className="w-fit mt-1"
-                                        >
-                                            {orderStatus?.label}
-                                        </Tag>
-                                    </Flex>
-                                </Flex>
-                                <Flex
-                                    gap={15}
-                                    align="center"
-                                    justify="center"
-                                    className="mr-12"
-                                >
-                                    {order?.status ===
-                                    ORDER_STATUS.WAITING_FOR_PAYMENT.VALUE ? (
-                                        <Tooltip title="Thanh toán đơn hàng">
-                                            <div
-                                                onClick={() => {
-                                                    requestPayOrder(order?._id)
-                                                        .then((res) => {
-                                                            window.location.href =
-                                                                res?.data;
-                                                        })
-                                                        .catch((err) => {
-                                                            getNotification(
-                                                                "error",
-                                                                err?.response?.data || SERVER_ERROR_MESSAGE
-                                                            );
-                                                        });
-                                                }}
-                                                className="cursor-pointer rounded-[50%] bg-[#a7d2fd] hover:bg-[#7eb9f4] w-fit h-fit flex items-center justify-center p-3"
-                                            >
-                                                <CreditCardOutlined
-                                                    style={{
-                                                        fontSize: "20px",
-                                                    }}
-                                                />
-                                            </div>
-                                        </Tooltip>
-                                    ) : (
-                                        ""
-                                    )}
-                                    <Tooltip title="Chi tiết đơn hàng">
-                                        <div
-                                            onClick={() => {
-                                                setIsOpenDetailModal(true);
-                                                setOrderDetail(order);
-                                            }}
-                                            className="cursor-pointer rounded-[50%] bg-[#ffb561] hover:bg-[#f80] w-fit h-fit flex items-center justify-center p-3"
-                                        >
-                                            <EyeOutlined
-                                                style={{
-                                                    fontSize: "20px",
-                                                }}
-                                            />
-                                        </div>
-                                    </Tooltip>
-                                    {order?.status ===
-                                    ORDER_STATUS.WAITING_FOR_PAYMENT.VALUE ? (
-                                        <Tooltip title="Hủy đơn hàng">
-                                            {loadingUpdateStatus ? (
-                                                <Flex
-                                                    className="w-fit h-full"
-                                                    align="center"
-                                                    justify="center"
-                                                >
-                                                    <Spin size="small" />
-                                                </Flex>
-                                            ) : (
-                                                <div
-                                                    onClick={() =>
-                                                        handleChangeOrderStatus(
-                                                            order?._id,
-                                                            ORDER_STATUS
-                                                                .CANCELLED.VALUE
-                                                        )
-                                                    }
-                                                    className="cursor-pointer rounded-[50%] bg-[#ff5b5b] hover:bg-[red] w-fit h-fit flex items-center justify-center p-3"
-                                                >
-                                                    <CloseOutlined
-                                                        style={{
-                                                            fontSize: "18px",
-                                                        }}
-                                                    />
-                                                </div>
-                                            )}
-                                        </Tooltip>
-                                    ) : (
-                                        ""
-                                    )}
-                                </Flex>
-                            </Flex>
-                        );
-                    })}
-                </Flex>
+                <BuyingOrder
+                handleReceivedOrder={handleReceivedOrder}
+                    orderToDelete={orderToDelete}
+                    setOrderToDelete={setOrderToDelete}
+                    handleCancelOrder={handleCancelOrder}
+                    ordersData={ordersData}
+                    loadingUpdateStatus={loadingUpdateStatus}
+                    setIsOpenDetailModal={setIsOpenDetailModal}
+                    setOrderDetail={setOrderDetail}
+                />
             )}
             {orderDetail && (
                 <DetailModal
+                    authUser={authUser as UserProfile}
                     openModal={isOpenDetailModal}
                     setOpenDetailModal={setIsOpenDetailModal}
                     order={orderDetail}
