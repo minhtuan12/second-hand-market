@@ -1,5 +1,7 @@
 /** @[action] {import('next').NextConfig} */
 
+import { hostname } from "os";
+
 const nextConfig = {
     reactStrictMode: false,
     env: {
@@ -12,6 +14,10 @@ const nextConfig = {
                 protocol: "https",
                 hostname: "res.cloudinary.com",
             },
+            {
+                protocol: "https",
+                hostname: 'lh3.googleusercontent.com'
+            }
         ],
     },
 };

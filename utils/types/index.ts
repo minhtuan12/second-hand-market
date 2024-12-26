@@ -39,8 +39,8 @@ export type UserProfile = {
         ward: string | null;
         detail: string;
     };
-    follower_ids: UserProfile[];
-    following_user_ids: UserProfile[];
+    follower_ids: UserProfile[] | string[];
+    following_user_ids: UserProfile[] | string[];
     rating?: number;
     username?: string;
     role?: string;
@@ -161,6 +161,7 @@ export type Post = {
     is_deleted?: boolean;
     product?: Product;
     is_ordering?: boolean;
+    expired_at?: string;
 };
 
 export type Conversation = {

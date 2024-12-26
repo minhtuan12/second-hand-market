@@ -8,6 +8,8 @@ import DefaultButton from "@/components/Button";
 import { requestRateUser } from "@/api/rating";
 import { getNotification } from "../../../../../../utils/helper";
 import { SERVER_ERROR_MESSAGE } from "../../../../../../utils/constants";
+import { useAuthUser } from "@/hooks/useAuthUser";
+import Link from "next/link";
 
 interface IRating {
     comment: string;
@@ -30,6 +32,7 @@ export default function RatingTab({
     isNotMe: boolean;
     user: UserProfile | null;
 }) {
+    const { authUser } = useAuthUser();
     const {
         data: ratings,
         isLoading,
@@ -136,14 +139,22 @@ export default function RatingTab({
                                     setRating({ ...rating, ratingCount: e })
                                 }
                             />
-                            <DefaultButton
-                                reverseColor
-                                size="large"
-                                onClick={handleSubmit}
-                                loading={loadingSubmit}
-                            >
-                                Gửi đánh giá
-                            </DefaultButton>
+                            {authUser?._id ? (
+                                <DefaultButton
+                                    reverseColor
+                                    size="large"
+                                    onClick={handleSubmit}
+                                    loading={loadingSubmit}
+                                >
+                                    Gửi đánh giá
+                                </DefaultButton>
+                            ) : (
+                                <Link href={`/login?redirect=profile/${user?._id}`}>
+                                    <DefaultButton reverseColor size="large">
+                                        Gửi đánh giá
+                                    </DefaultButton>
+                                </Link>
+                            )}
                         </Flex>
                     </Flex>
                 </Flex>

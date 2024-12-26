@@ -32,9 +32,9 @@ export default function PostItem({
     reFetchMyPosts: () => void;
 }) {
     const [messageApi, contextHolder] = message.useMessage();
-    const handleCopyUrl = () => {
+    const handleCopyUrl = (postId: string) => {
         const el = document.createElement("input");
-        el.value = window.location.href;
+        el.value = window.location.href?.replace('my-post', `posts/${postId}`);
         document.body.appendChild(el);
         el.select();
         document.execCommand("copy");
@@ -130,7 +130,7 @@ export default function PostItem({
                     <div className={"text-gray-500"}>
                         Ngày hết hạn:{" "}
                         <span className={"text-black"}>
-                            {moment(post?.createdAt).format("DD-MM-YYYY")}
+                            {moment(post?.expired_at).format("DD-MM-YYYY")}
                         </span>
                     </div>
                 </Flex>
@@ -159,21 +159,21 @@ export default function PostItem({
                         </Button>
                     </Link>
                 )}
-                <Popover
-                    content={
-                        <Flex vertical>
-                            <Button
-                                reverseColor
-                                size={"large"}
-                                className={
-                                    "border-none w-full h-full rounded-none !h-[45px]"
-                                }
-                                onClick={handleCopyUrl}
-                            >
-                                <ShareAltOutlined />
-                                Sao chép đường dẫn
-                            </Button>
-                            {post?.status === POST_STATUS.APPROVED.VALUE ? (
+                {post?.status === POST_STATUS.APPROVED.VALUE ? (
+                    <Popover
+                        content={
+                            <Flex vertical>
+                                <Button
+                                    reverseColor
+                                    size={"large"}
+                                    className={
+                                        "border-none w-full h-full rounded-none !h-[45px]"
+                                    }
+                                    onClick={() => handleCopyUrl(post?._id as string)}
+                                >
+                                    <ShareAltOutlined />
+                                    Sao chép đường dẫn
+                                </Button>
                                 <Button
                                     reverseColor
                                     size={"large"}
@@ -187,16 +187,16 @@ export default function PostItem({
                                     <LockOutlined />
                                     Ẩn bài đăng
                                 </Button>
-                            ) : (
-                                ""
-                            )}
-                        </Flex>
-                    }
-                >
-                    <Button size={"large"} className={"w-fit"} reverseColor>
-                        <EllipsisOutlined />
-                    </Button>
-                </Popover>
+                            </Flex>
+                        }
+                    >
+                        <Button size={"large"} className={"w-fit"} reverseColor>
+                            <EllipsisOutlined />
+                        </Button>
+                    </Popover>
+                ) : (
+                    ""
+                )}
             </Flex>
         </Flex>
     );

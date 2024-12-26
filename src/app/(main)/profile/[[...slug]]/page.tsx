@@ -84,6 +84,9 @@ export default function Profile({ params }: { params: { slug: string } }) {
             router.push("/");
         }
     );
+    const isFollowed = useMemo(() => {
+        return (user?.follower_ids as string[])?.includes(authUser?._id as string);
+    }, [authUser?._id, user]);
 
     useEffect(() => {
         dispatch(setPageTitle("Trang cá nhân"));
@@ -224,7 +227,7 @@ export default function Profile({ params }: { params: { slug: string } }) {
     const handleFollowOrUnfollowUser = () => {
         if (id) {
             setLoadingFollowBtn(true);
-            if (!user?.following_user_ids?.some((item) => item?._id === id)) {
+            if (!isFollowed) {
                 requestFollowUser(id)
                     .finally(() => {
                         getUserProfile();
@@ -258,12 +261,12 @@ export default function Profile({ params }: { params: { slug: string } }) {
                     name="description"
                     content="Trang cá nhân của người dùng trong hệ thống Chợ đồ cũ, bao gồm thông tin cá nhân, các bài đăng và đánh giá từ những người dùng khác"
                 />
-                <meta
-                    name="keywords"
-                    content="Trang cá nhân"
-                />
+                <meta name="keywords" content="Trang cá nhân" />
                 <meta name="robots" content="index, follow" />
-                <link rel="canonical" href={`https://chodocu.vercel.app/profile/${params.slug?.[0]}`} />
+                <link
+                    rel="canonical"
+                    href={`https://chodocu.vercel.app/profile/${params.slug?.[0]}`}
+                />
             </Head>
             <div className={"w-full pt-3"}>
                 <BreadcrumbUpdater
@@ -364,19 +367,35 @@ export default function Profile({ params }: { params: { slug: string } }) {
                                                 </Flex>
                                             </Flex>
                                         </Flex>
-                                        {!isAuthUser ? (
-                                            <Button
-                                                size={"large"}
-                                                className={"cursor-pointer"}
-                                                onClick={
-                                                    handleFollowOrUnfollowUser
-                                                }
-                                                loading={loadingFollowBtn}
-                                            >
-                                                <UserAddOutlined /> Theo dõi
-                                            </Button>
+                                        {authUser?._id ? (
+                                            !isAuthUser ? (
+                                                <Button
+                                                    size={"large"}
+                                                    className={"cursor-pointer"}
+                                                    onClick={
+                                                        handleFollowOrUnfollowUser
+                                                    }
+                                                    loading={loadingFollowBtn}
+                                                >
+                                                    <UserAddOutlined />{" "}
+                                                    {isFollowed
+                                                        ? "Bỏ theo dõi"
+                                                        : "Theo dõi"}
+                                                </Button>
+                                            ) : (
+                                                ""
+                                            )
                                         ) : (
-                                            ""
+                                            <Link
+                                                href={`/login?redirect=profile/${id}`}
+                                            >
+                                                <Button
+                                                    size={"large"}
+                                                    className={"cursor-pointer"}
+                                                >
+                                                    <UserAddOutlined /> Theo dõi
+                                                </Button>
+                                            </Link>
                                         )}
                                     </Flex>
 

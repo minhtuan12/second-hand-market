@@ -83,6 +83,7 @@ export default function Middle({
                 sender_id: user?._id,
                 content: inputMessage,
             };
+            handleConfirmSeenMessage(socket, chosenConversation?._id);
             setInputMessage("");
             dispatch(setMessages([...messages, newMessage]));
 

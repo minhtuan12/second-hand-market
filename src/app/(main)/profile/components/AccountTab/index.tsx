@@ -635,9 +635,8 @@ export default function AccountTab({
                                                 <div>
                                                     Tài khoản hiện tại:{" "}
                                                     <span className="font-semibold">
-                                                        {
-                                                            accountData?.stripe_account_id
-                                                        }
+                                                        {accountData?.stripe_account_id ||
+                                                            "Chưa liên kết"}
                                                     </span>
                                                 </div>
                                                 <InputWithLabel
@@ -668,22 +667,33 @@ export default function AccountTab({
                                                         <div className="font-semibold text-[26px]">
                                                             Stripe
                                                         </div>
-                                                        <div className="text-[#8c8c8c]">
-                                                            Tài khoản:{" "}
-                                                            {
-                                                                accountData?.stripe_account_id
-                                                            }
-                                                        </div>
+                                                        {accountData?.stripe_account_id ? (
+                                                            <div className="text-[#8c8c8c]">
+                                                                Tài khoản:{" "}
+                                                                {
+                                                                    accountData?.stripe_account_id
+                                                                }
+                                                            </div>
+                                                        ) : (
+                                                            <div className="text-[#8c8c8c]">
+                                                                Chưa liên kết
+                                                                tài khoản
+                                                            </div>
+                                                        )}
                                                     </Flex>
                                                 </Flex>
-                                                <div>
-                                                    <Tag
-                                                        color="green"
-                                                        rootClassName="h-[29px] text-[14px] flex items-center font-medium"
-                                                    >
-                                                        Đã liên kết
-                                                    </Tag>
-                                                </div>
+                                                <Tag
+                                                    color={
+                                                        accountData?.stripe_account_id
+                                                            ? "green"
+                                                            : "red"
+                                                    }
+                                                    rootClassName="h-[29px] text-[14px] flex items-center font-medium"
+                                                >
+                                                    {accountData?.stripe_account_id
+                                                        ? "Đã liên kết"
+                                                        : "Chưa liên kết"}
+                                                </Tag>
                                             </>
                                         )}
                                     </Flex>
@@ -717,7 +727,13 @@ export default function AccountTab({
                                                 Tạo tài khoản mới
                                             </Button>
                                         ) : (
-                                            <Button className="w-[250px] flex items-center justify-center" size="large" disabled={!newExistStripeAccount}>
+                                            <Button
+                                                className="w-[250px] flex items-center justify-center"
+                                                size="large"
+                                                disabled={
+                                                    !newExistStripeAccount
+                                                }
+                                            >
                                                 <Link
                                                     className="w-full h-full"
                                                     type="button"

@@ -111,7 +111,7 @@ function LoginSuspense() {
         if (searchParams.get("redirect")) {
             router.prefetch(`/${searchParams.get("redirect")}`);
         } else {
-            router.prefetch("/")
+            router.prefetch("/");
         }
         dispatch(
             setErrorLogin({
@@ -185,12 +185,20 @@ function LoginSuspense() {
             </div>
 
             <GoogleLogin />
+
+            <div className={styles.noAccountWrap}>
+                <Link className={styles.registerBtn} href={"/"}>
+                    Quay lại trang chủ
+                </Link>
+            </div>
         </div>
     );
 }
 
 export default function Login(): JSX.Element {
-    return <Suspense fallback={<Loading/>}>
-        <LoginSuspense/>
-    </Suspense>
+    return (
+        <Suspense fallback={<Loading />}>
+            <LoginSuspense />
+        </Suspense>
+    );
 }

@@ -74,7 +74,7 @@ export default function Notifications({
             return `/order?tab=${urlTab}&status=${ORDER_STATUS.CANCELLED.VALUE}`;
         }
         if (notification?.type === NOTIFICATION_TYPE.UPDATED_CATEGORY) {
-            return `/my-post`;
+            return `/post/${notification?.post_id}`;
         }
         return '/'
     }, [authUser?._id]);

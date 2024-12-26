@@ -306,3 +306,18 @@ a {
         @apply p-3 #{!important}
     }
 }
+
+.custom-swiper {
+    .swiper-button-prev, .swiper-button-next {
+        color: #000;
+        transform: scale(0.5);
+    }
+
+    .swiper-button-prev {
+        @apply left-0 #{!important};
+    }
+
+    .swiper-button-next {
+        @apply right-0 #{!important};
+    }
+}

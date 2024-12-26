@@ -1,7 +1,7 @@
 import React from "react";
 import "../../../global.scss";
 import BreadcrumbUpdater from "@/components/BreadcrumbUpdater";
-import { Avatar, Col, Empty, Flex, Rate, Tag } from "antd";
+import { Avatar, Carousel, Col, Empty, Flex, Rate, Tag } from "antd";
 import {
     getNotification,
     handleExportTimeAgo,
@@ -20,12 +20,13 @@ import {
 import { fetchRegions } from "@/actions/public";
 import Link from "next/link";
 import PostAction from "@/app/(main)/posts/components/PostAction";
-import Image from "next/image";
 import DetailProductTable from "../components/DetailProductTable";
 import PostItem from "../../components/PostItem";
 import { POST_STATUS } from "../../../../../utils/constants";
 import { redirect } from "next/navigation";
 import Head from "next/head";
+import dynamic from "next/dynamic";
+import SlidingImages from "../components/SlidingImages";
 
 async function fetchDetailPost(id: string) {
     try {
@@ -96,7 +97,10 @@ export default async function PostDetail({
                     name="description"
                     content="Chi tiết bài đăng gồm thông tin người đăng bài, chi tiết sản phẩm trong bài đăng giúp người dùng có cái nhìn tổng quan hơn về sản phẩm cũng như những bài đăng khác của chủ bài đăng"
                 />
-                <meta name="keywords" content="Chi tiết bài đăng, chi tiết, bài đăng" />
+                <meta
+                    name="keywords"
+                    content="Chi tiết bài đăng, chi tiết, bài đăng"
+                />
                 <meta name="robots" content="index, follow" />
                 <link
                     rel="canonical"
@@ -123,13 +127,9 @@ export default async function PostDetail({
                                         "relative min-w-[300px] max-w-[300px] h-[300px] custom-carousel border-[1px] border-[gray] p-2 rounded-lg"
                                     }
                                 >
-                                    <Image
-                                        src={post?.product?.images?.[0]}
-                                        alt={post?.title}
-                                        className="p-2"
-                                        fill
+                                    <SlidingImages
+                                        images={post?.product?.images}
                                     />
-
                                     {/* <LikedPostHeart postId={post?._id} /> */}
                                 </div>
                             </Flex>
@@ -338,11 +338,15 @@ export default async function PostDetail({
                             <div className="font-semibold">
                                 Chi tiết sản phẩm
                             </div>
-                            <DetailProductTable
-                                productAttributes={
-                                    post?.product?.product_attributes
-                                }
-                            />
+                            {post?.product?.product_attributes?.length > 0 ? (
+                                <DetailProductTable
+                                    productAttributes={
+                                        post?.product?.product_attributes
+                                    }
+                                />
+                            ) : (
+                                <i className="text-gray-500 mt-1">Không có</i>
+                            )}
                         </Flex>
                     </Flex>
                 </div>
