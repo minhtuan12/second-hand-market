@@ -12,6 +12,8 @@ export const PROTECTED_ROUTES: string[] = [
     "/saved-posts",
     "/my-post",
     "/order",
+    "/post/create",
+    "/dashboard"
 ];
 export const PER_PAGE = 20;
 export const ACCOUNT_TYPE = {
