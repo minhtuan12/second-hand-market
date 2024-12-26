@@ -11,7 +11,7 @@ import Head from "next/head";
 
 let controller: AbortController | null = null;
 
-async function fetchPosts(filter: any, signal: any) {
+async function fetchPosts(filter: any) {
     try {
         let url = `${process.env.API_URL}/public/posts?column=${
             filter?.column || "createdAt"
@@ -42,7 +42,7 @@ async function fetchPosts(filter: any, signal: any) {
             }
         }
 
-        const postsResponse = await fetch(url, { cache: "no-store", signal });
+        const postsResponse = await fetch(url, { cache: "no-store" });
         if (!postsResponse?.ok) {
             return { posts: 0, total: 0 };
         }
@@ -74,7 +74,7 @@ async function fetchCategories() {
 async function fetchRegions() {
     try {
         const result = await fetch(`${process.env.API_URL}/location/regions`, {
-            cache: "default",
+            cache: "no-store",
         });
         if (!result?.ok) {
             return { regions: [] };
@@ -86,11 +86,7 @@ async function fetchRegions() {
 }
 
 async function HomeSuspense({ searchParams }: { searchParams: any }) {
-    if (controller) {
-        controller.abort();
-    }
-    controller = new AbortController();
-    const { posts, total } = await fetchPosts(searchParams, controller?.signal);
+    const { posts, total } = await fetchPosts(searchParams);
     const { categories } = await fetchCategories();
     const { regions } = await fetchRegions();
 
