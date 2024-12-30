@@ -297,7 +297,7 @@ export default function PostManagement() {
                                     loadingActionBtn
                                 }
                                 type="primary"
-                                rootClassName="bg-[red] hover:!bg-[red]"
+                                rootClassName="!bg-[red] hover:!bg-[red]"
                                 onClick={() =>
                                     handleApproveOrRejectPost(
                                         record?._id,
