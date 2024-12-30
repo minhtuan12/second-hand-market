@@ -223,7 +223,7 @@ export default function CategoryAction({
             render: (text, record: DataType) => {
                 return (
                     <Popconfirm
-                        okButtonProps={{ className: "bg-[#1677ff]" }}
+                        okButtonProps={{ className: "!bg-[#1677ff]" }}
                         title="Xóa thuộc tính này?"
                         onConfirm={() => handleDeleteAttribute(record.order)}
                     >
