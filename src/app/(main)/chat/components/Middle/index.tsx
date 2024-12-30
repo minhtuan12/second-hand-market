@@ -30,9 +30,11 @@ import { getMenu } from "../RightSider";
 import Image from "next/image";
 import Link from "next/link";
 import { setIsOpenConfirmSell } from "@/store/slices/order";
+import OnlineDotIcon from "../../../../../assets/images/icons/solid/online-dot.svg";
 
 interface IProps {
     user: UserProfile;
+    onlineUserIds: string[];
     socket: any;
     handleConfirmSeenMessage: (socket: any, conversationId: string) => void;
     handleClickCreateOrderBtn: (post: Post) => void;
@@ -48,6 +50,7 @@ export interface Message {
 
 export default function Middle({
     user,
+    onlineUserIds,
     socket,
     handleConfirmSeenMessage,
     handleClickCreateOrderBtn,
@@ -189,22 +192,42 @@ export default function Middle({
         <div className="flex-1 flex flex-col w-1/2 h-full">
             <div className="bg-[white] p-4 flex items-center justify-between border-b border-gray-300">
                 <div className="flex items-center">
-                    {chosenConversation?.participant?.avatar ? (
-                        <Image
-                            width={40}
-                            height={40}
-                            src={chosenConversation?.participant?.avatar}
-                            alt={fullName || ""}
-                            className="w-10 h-10 rounded-full mr-3"
-                        />
-                    ) : (
-                        <div className="mr-3.5">
-                            <Avatar
-                                icon={<UserOutlined />}
-                                className="h-[40px] w-[40px]"
+                    <div className="relative">
+                        {chosenConversation?.participant?.avatar ? (
+                            <Image
+                                width={40}
+                                height={40}
+                                src={chosenConversation?.participant?.avatar}
+                                alt={fullName || ""}
+                                className="w-10 h-10 rounded-full mr-3"
                             />
-                        </div>
-                    )}
+                        ) : (
+                            <div className="mr-3.5">
+                                <Avatar
+                                    icon={<UserOutlined />}
+                                    className="h-[40px] w-[40px]"
+                                />
+                            </div>
+                        )}
+                        {onlineUserIds?.includes(
+                            chosenConversation?.participant?._id
+                        ) ? (
+                            <div
+                                className={
+                                    "absolute right-[10px] bottom-1 border-[3px] rounded-2xl border-white"
+                                }
+                            >
+                                <Image
+                                    src={OnlineDotIcon}
+                                    alt={""}
+                                    width={7}
+                                    height={7}
+                                />
+                            </div>
+                        ) : (
+                            ""
+                        )}
+                    </div>
                     <div>
                         <h2 className="font-semibold">{fullName}</h2>
                         <p className="text-sm text-gray-500">

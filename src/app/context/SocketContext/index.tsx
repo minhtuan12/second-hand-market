@@ -12,6 +12,7 @@ import { io, Socket } from "socket.io-client";
 
 interface SocketContextType {
     socket: Socket | null;
+    onlineUserIds: string[];
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -22,13 +23,14 @@ interface SocketProviderProps {
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [socket, setSocket] = useState<any>(null);
+    const [onlineUserIds, setOnlineUserIds] = useState<any>([]);
     const { authUser } = useAuthUser();
 
     useEffect(() => {
         if (authUser?._id) {
             setSocket(
                 io(process.env.API_URL, {
-                    query: {user_id: authUser?._id},
+                    query: { user_id: authUser?._id },
                     transports: ["websocket"],
                 })
             );
@@ -39,8 +41,18 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         }
     }, [authUser?._id]);
 
+    useEffect(() => {
+        if (socket) {
+            socket.on("online", (res: any) => {
+                setOnlineUserIds(res);
+            });
+        }
+    }, [socket]);
+
     return (
-        <SocketContext.Provider value={{ socket: socket }}>
+        <SocketContext.Provider
+            value={{ socket: socket, onlineUserIds: onlineUserIds }}
+        >
             {children}
         </SocketContext.Provider>
     );
@@ -51,9 +63,9 @@ export const useSocket = (): any => {
     if (!context) {
         throw new Error("useSocket must be used within a SocketProvider");
     }
-    const socket = useMemo(() => {
-        return context.socket;
+    const socketData = useMemo(() => {
+        return { socket: context.socket, onlineUserIds: context.onlineUserIds };
     }, [context]);
 
-    return socket;
+    return socketData;
 };

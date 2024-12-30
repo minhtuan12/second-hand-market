@@ -141,7 +141,7 @@ const HeaderSuspense = () => {
     const notificationsStore = useSelector(
         (state: RootState) => state.app.notifications
     );
-    const socket = useSocket();
+    const {socket} = useSocket();
     const [messageBadge, setMessageBadge] = useState(0);
 
     useEffect(() => {

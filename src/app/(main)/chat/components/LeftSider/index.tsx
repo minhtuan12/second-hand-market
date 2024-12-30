@@ -8,9 +8,11 @@ import { Avatar, Badge, Flex, Skeleton } from "antd";
 import socketService from "@/socket";
 import _ from "lodash";
 import Image from "next/image";
+import OnlineDotIcon from "../../../../../assets/images/icons/solid/online-dot.svg";
 
 interface IProps {
     socket: any;
+    onlineUserIds: string[];
     user: UserProfile;
     conversations: Conversation[];
     handleChosenConversation: (conversation: Conversation) => void;
@@ -19,6 +21,7 @@ interface IProps {
 
 export default function LeftSider({
     socket,
+    onlineUserIds,
     user,
     conversations,
     handleChosenConversation,
@@ -67,17 +70,35 @@ export default function LeftSider({
         <div className="flex flex-col w-1/4 bg-white p-4 border-r border-gray-300 w-1/4 h-full rounded-l-xl">
             <div className="flex items-center justify-between mb-6 w-full">
                 <div className="flex items-center w-full">
-                    {user?.avatar ? (
-                        <Image
-                            src={user?.avatar}
-                            alt={userFullName}
-                            className="w-10 h-10 rounded-full mr-3"
-                            width={40}
-                            height={40}
-                        />
-                    ) : (
-                        <Avatar icon={<UserOutlined />} />
-                    )}
+                    <div className="h-full relative">
+                        {user?.avatar ? (
+                            <Image
+                                src={user?.avatar}
+                                alt={userFullName}
+                                className="w-10 h-10 rounded-full mr-3"
+                                width={40}
+                                height={40}
+                            />
+                        ) : (
+                            <Avatar icon={<UserOutlined />} />
+                        )}
+                        {onlineUserIds?.includes(user?._id) ? (
+                            <div
+                                className={
+                                    "absolute right-[-6px] bottom-1 border-[3px] rounded-2xl border-white"
+                                }
+                            >
+                                <Image
+                                    src={OnlineDotIcon}
+                                    alt={""}
+                                    width={7}
+                                    height={7}
+                                />
+                            </div>
+                        ) : (
+                            ""
+                        )}
+                    </div>
                     <span className="font-semibold ml-2 w-full overflow-hidden text-ellipsis">
                         {userFullName || <Skeleton />}
                     </span>
@@ -109,31 +130,52 @@ export default function LeftSider({
                                   }
                               >
                                   <Flex>
-                                      {conversation?.participant?.avatar ? (
-                                          <Image
-                                              src={
-                                                  conversation?.participant
-                                                      ?.avatar
-                                              }
-                                              alt={
-                                                  conversation?.participant
-                                                      ?.firstname +
-                                                  " " +
-                                                  conversation?.participant
-                                                      ?.lastname
-                                              }
-                                              className="w-12 h-12 rounded-full mr-3"
-                                              width={48}
-                                              height={48}
-                                          />
-                                      ) : (
-                                          <div className="mr-3.5">
-                                              <Avatar
-                                                  icon={<UserOutlined />}
-                                                  className="h-[40px] w-[40px]"
+                                      <div className="relative">
+                                          {conversation?.participant?.avatar ? (
+                                              <Image
+                                                  src={
+                                                      conversation?.participant
+                                                          ?.avatar
+                                                  }
+                                                  alt={
+                                                      conversation?.participant
+                                                          ?.firstname +
+                                                      " " +
+                                                      conversation?.participant
+                                                          ?.lastname
+                                                  }
+                                                  className="w-12 h-12 rounded-full mr-3"
+                                                  width={48}
+                                                  height={48}
                                               />
-                                          </div>
-                                      )}
+                                          ) : (
+                                              <div className="mr-3.5">
+                                                  <Avatar
+                                                      icon={<UserOutlined />}
+                                                      className="h-[40px] w-[40px]"
+                                                  />
+                                              </div>
+                                          )}
+                                          {onlineUserIds?.includes(
+                                              conversation?.participant
+                                                  ?._id as string
+                                          ) ? (
+                                              <div
+                                                  className={
+                                                      "absolute right-[10px] bottom-1 border-[3px] rounded-2xl border-white"
+                                                  }
+                                              >
+                                                  <Image
+                                                      src={OnlineDotIcon}
+                                                      alt={""}
+                                                      width={7}
+                                                      height={7}
+                                                  />
+                                              </div>
+                                          ) : (
+                                              ""
+                                          )}
+                                      </div>
                                       <div>
                                           <h3 className="font-semibold">
                                               {conversation?.participant

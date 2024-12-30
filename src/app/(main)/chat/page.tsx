@@ -37,7 +37,7 @@ export default function Chat() {
         (state: RootState) => state.chat
     );
     const [creatingPost, setCreatingPost] = useState<any>(null);
-    const socket = useSocket();
+    const {socket, onlineUserIds} = useSocket();
 
     useEffect(() => {
         if (socket) {
@@ -131,6 +131,7 @@ export default function Chat() {
                     <>
                         <LeftSider
                             socket={socket}
+                            onlineUserIds={onlineUserIds}
                             user={user as UserProfile}
                             conversations={conversations}
                             handleChosenConversation={handleChosenConversation}
@@ -139,6 +140,7 @@ export default function Chat() {
 
                         <Middle
                             user={user as UserProfile}
+                            onlineUserIds={onlineUserIds}
                             socket={socket}
                             handleConfirmSeenMessage={handleConfirmSeenMessage}
                             handleClickCreateOrderBtn={
