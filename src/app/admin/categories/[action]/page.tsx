@@ -739,7 +739,7 @@ export default function CategoryAction({
                 <div className={"w-fit mt-[22px]"}>
                     <Button
                         size={"large"}
-                        className={"bg-[#1677ff]"}
+                        className={"!bg-[#1677ff] admin-button"}
                         type={"primary"}
                         onClick={handleSubmit}
                         loading={isLoadingSubmit}
