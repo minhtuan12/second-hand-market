@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse<any
     const previousPathname: string = requestCookies.get(PATHNAME)?.value || '/'
 
     if (accessToken && (authUserProfile && Object.keys(authUserProfile).length > 0)) {
-        if (authUserProfile?.username && !currentPathname?.includes('/admin') && !currentPathname?.includes('/admin/login')) {
+        if (authUserProfile?.username && (!currentPathname?.includes('/admin') || currentPathname?.includes('/admin/login'))) {
             return NextResponse.redirect(new URL('/admin', request.url))
         }
         if (AUTH_ROUTES.includes(currentPathname.split('?')[0])) {
