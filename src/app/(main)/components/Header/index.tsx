@@ -234,7 +234,10 @@ const HeaderSuspense = () => {
                     className={`${styles.itemHeaderRight} icon-custom`}
                 >
                     <Link
-                        onClick={() => setMessageBadge(0)}
+                        onClick={() => {
+                            setMessageBadge(0);
+                            window.location.href = "/chat";
+                        }}
                         href={"/chat"}
                         className={
                             "cursor-pointer text-[#000] hover:text-[#000]"
