@@ -130,7 +130,7 @@ export default function PostItem({
                     <div className={"text-gray-500"}>
                         Ngày hết hạn:{" "}
                         <span className={"text-black"}>
-                            {moment(post?.expired_at).format("DD-MM-YYYY")}
+                            {post?.expired_at ? moment(post?.expired_at).format("DD-MM-YYYY") : 'Chưa có'}
                         </span>
                     </div>
                 </Flex>

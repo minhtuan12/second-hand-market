@@ -75,7 +75,7 @@ export default function AdminLogin(): JSX.Element {
                                 "Tài khoản của bạn đã bị khóa"
                             );
                             break;
-                        case 404:
+                        case 400:
                             getNotification(
                                 "error",
                                 "Tài khoản quản trị viên không tồn tại"

@@ -717,7 +717,7 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
                         wrap
                     >
                         {loadingGetCategories ? (
-                            <Flex className="relative top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]" justify="center" align="center">
+                            <Flex className="h-[calc(100vh_/_2)] w-full" justify="center" align="center">
                                 <Spin />
                             </Flex>
                         ) : (

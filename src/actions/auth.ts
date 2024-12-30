@@ -65,6 +65,21 @@ export async function handleGetNewTokens(): Promise<any> {
         });
 }
 
+export async function handleGetNewTokensInMiddleware(): Promise<any> {
+    const refreshToken: string = await getCookieValue(SERVER_REFRESH_TOKEN);
+
+    return requestGetNewTokens(refreshToken)
+        .then((res: AxiosResponse): any => {
+            return {
+                accessToken: res.data.access_token,
+                refreshToken: res.data.refresh_token
+            }
+        })
+        .catch((err): void => {
+            deleteAllCookies();
+        });
+}
+
 export async function setCookie(name: string, value: string): Promise<any> {
     return cookies().set(name, value);
 }

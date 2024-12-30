@@ -1,7 +1,8 @@
 import {NextRequest, NextResponse} from 'next/server'
-import {PATHNAME, SERVER_AUTH_TOKEN, SERVER_USER_PROFILE} from "../utils/cookie/constants";
+import {PATHNAME, SERVER_AUTH_TOKEN, SERVER_REFRESH_TOKEN, SERVER_USER_PROFILE} from "../utils/cookie/constants";
 import {AUTH_ROUTES, PROTECTED_ROUTES} from "../utils/constants";
 import {RequestCookies} from "next/dist/compiled/@edge-runtime/cookies";
+import { handleGetNewTokens, handleGetNewTokensInMiddleware } from './actions/auth';
 
 const isValidPathname = (pathname: string): boolean => {
     return pathname?.startsWith('/')
@@ -12,6 +13,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse<any
     const response: NextResponse = NextResponse.next()
 
     const accessToken: string | undefined = requestCookies.get(SERVER_AUTH_TOKEN)?.value || ''
+    const refreshToken: string | undefined = requestCookies.get(SERVER_REFRESH_TOKEN)?.value || ''
     const authUserProfile: any = (requestCookies.has(SERVER_USER_PROFILE) && requestCookies.get(SERVER_USER_PROFILE)?.value) ?
         JSON.parse(<string>requestCookies.get(SERVER_USER_PROFILE)?.value) : ''
 
@@ -30,11 +32,17 @@ export async function middleware(request: NextRequest): Promise<NextResponse<any
             return NextResponse.redirect(new URL('/', request.url))
         }
     } else if (!accessToken) {
-        if (PROTECTED_ROUTES.includes(currentPathname)) {
-            return NextResponse.redirect(new URL(`/login?redirect=${currentPathname?.substring(1)}`, request.url))
-        }
-        if (currentPathname?.includes('/admin') && !currentPathname?.includes('/login')) {
-            return NextResponse.redirect(new URL('/admin/login', request.url))
+        if (refreshToken) {
+            const tokens = await handleGetNewTokensInMiddleware()
+            response.cookies.set(SERVER_AUTH_TOKEN, tokens?.accessToken);
+            response.cookies.set(SERVER_REFRESH_TOKEN, tokens?.refreshToken);
+        } else {
+            if (PROTECTED_ROUTES.includes(currentPathname)) {
+                return NextResponse.redirect(new URL(`/login?redirect=${currentPathname?.substring(1)}`, request.url))
+            }
+            if (currentPathname?.includes('/admin') && !currentPathname?.includes('/login')) {
+                return NextResponse.redirect(new URL('/admin/login', request.url))
+            }
         }
     }
 

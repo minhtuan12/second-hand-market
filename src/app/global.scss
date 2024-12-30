@@ -321,3 +321,7 @@ a {
         @apply right-0 #{!important};
     }
 }
+
+.ant-spin-dot-item {
+    @apply bg-[#f80] #{!important};
+}
