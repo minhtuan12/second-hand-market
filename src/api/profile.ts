@@ -4,10 +4,10 @@ import { IChangePasswordData } from "@/app/(main)/profile/type";
 import { Baby } from "../../utils/types";
 import useSWR from "swr";
 
-export const requestGetProfile = async (): Promise<AxiosResponse> => {
+export const requestGetProfile = async (type = 'user'): Promise<AxiosResponse> => {
     return apiAxios({
         method: "get",
-        url: "user/get-profile",
+        url: `${type}/get-profile`,
     });
 };
 

@@ -7,7 +7,7 @@ import {SERVER_REFRESH_TOKEN, SERVER_USER_PROFILE} from "../../utils/cookie/cons
 import {handleGetProfile, handleLogout} from "@/actions/auth";
 import {useRouter} from "next/navigation";
 
-export const useAuthUser = () => {
+export const useAuthUser = (type = 'user') => {
     const [authUser, setAuthUser] = useState<UserProfile | AdminProfile | null>(null)
     const router = useRouter()
     const [loading, setLoading] = useState(true)
@@ -20,8 +20,10 @@ export const useAuthUser = () => {
             } else {
                 const hasRefreshToken = await getCookieValue(SERVER_REFRESH_TOKEN)
                 if (hasRefreshToken) {
-                    handleGetProfile()
+                    handleGetProfile(type)
                         .then(user => {
+                            console.log(user);
+                            
                             setLoading(false)
                             setAuthUser(user)
                         })

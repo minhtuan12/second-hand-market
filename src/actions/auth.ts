@@ -17,19 +17,22 @@ import { AxiosResponse } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export async function handleLoginResult(data: ILoginData): Promise<any> {
+export async function handleLoginResult(
+    data: ILoginData,
+    type = "user"
+): Promise<any> {
     return requestLogin(data)
         .then(async (res) => {
             await setAuthToken(res.data?.access_token);
             await setRefreshToken(res.data?.refresh_token);
-            await handleGetProfile();
+            await handleGetProfile(type);
             return {
                 status: res.status,
                 data: res.data,
             };
         })
-        .catch((err) => {console.log('err',err);
-        
+        .catch((err) => {
+            console.log("err", err);
             return {
                 status: err.response?.status,
                 message: err.response?.data,
@@ -37,8 +40,8 @@ export async function handleLoginResult(data: ILoginData): Promise<any> {
         });
 }
 
-export async function handleGetProfile(): Promise<any> {
-    return requestGetProfile()
+export async function handleGetProfile(type = 'user'): Promise<any> {
+    return requestGetProfile(type)
         .then((res) => {
             setAuthProfile(res.data);
             return res.data;

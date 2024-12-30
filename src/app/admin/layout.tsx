@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { StoreProvider } from "@/store/StoreProvider";
 import {
     Breadcrumb,
@@ -15,7 +15,7 @@ import {
 import viVN from "antd/locale/vi_VN";
 import NextTopLoader from "nextjs-toploader";
 import { ToastContainer } from "react-toastify";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import "react-toastify/dist/ReactToastify.css";
 import "tw-elements-react/dist/css/tw-elements-react.min.css";
 import "../global.scss";
@@ -57,10 +57,9 @@ export default function RootLayout({
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
-    const router = useRouter();
     const pathname = usePathname();
     const breadcrumb = useSelector((state: RootState) => state.app.breadcrumb);
-    const { loading, authUser } = useAuthUser();
+    const { loading, authUser } = useAuthUser('admin');
 
     if (loading) {
         return (

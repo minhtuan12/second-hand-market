@@ -55,7 +55,7 @@ export default function AdminLogin(): JSX.Element {
             dispatch(setErrorAdminLogin(formValidation.errorData));
         } else {
             setIsLoadingRequestLogin(true);
-            handleLoginResult(loginData)
+            handleLoginResult(loginData, 'admin')
                 .then((res) => {
                     setIsLoadingRequestLogin(false);
                     switch (res.status) {
