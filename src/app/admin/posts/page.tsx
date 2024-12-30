@@ -255,7 +255,7 @@ export default function PostManagement() {
                                     record?._id === actionPostId &&
                                     loadingActionBtn
                                 }
-                                className="admin-button"
+                                className="!bg-[#1677ff] admin-button"
                                 type="primary"
                                 onClick={() =>
                                     handleApproveOrRejectPost(
@@ -276,7 +276,7 @@ export default function PostManagement() {
                                     loadingActionBtn
                                 }
                                 type="primary"
-                                rootClassName="bg-[red] hover:!bg-[red]"
+                                rootClassName="!bg-[red] hover:!bg-[red]"
                                 onClick={() =>
                                     handleApproveOrRejectPost(
                                         record?._id,

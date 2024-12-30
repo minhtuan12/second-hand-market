@@ -88,7 +88,7 @@ export default function CategoryManagementPage() {
                 />
                 <Link href={"/admin/categories/create"}>
                     <Button
-                        className={"bg-[#1677ff] admin-button"}
+                        className={"!bg-[#1677ff] admin-button"}
                         size={"large"}
                         type={"primary"}
                     >

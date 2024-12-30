@@ -161,7 +161,7 @@ a {
 }
 
 .admin-button {
-    @apply bg-[#1677ff]
+    @apply bg-[#1677ff] #{!important}
 }
 
 .popover-icon {
