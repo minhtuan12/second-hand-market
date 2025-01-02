@@ -108,7 +108,7 @@ export default function RootLayout({
                         <Menu
                             theme="dark"
                             mode="inline"
-                            defaultSelectedKeys={[pathname]}
+                            defaultSelectedKeys={[pathname as string]}
                             items={[
                                 {
                                     key: "/admin",
