@@ -1,15 +1,16 @@
 import React, { Suspense } from "react";
 import PostItem from "@/app/(main)/components/PostItem";
 import { Post } from "../../../utils/types";
-import { Col, Empty, Flex, Row } from "antd";
-import MoreLoadedPosts from "@/app/(main)/components/MoreLoadedPosts";
-import { FilterOutlined } from "@ant-design/icons";
-import FilterByRegions from "@/app/(main)/components/FilterByRegions";
-import FilterBar from "@/app/(main)/components/FilterBar";
+import { Col, Flex, Row } from "antd";
 import Loading from "@/components/Loading";
 import Head from "next/head";
+import dynamic from "next/dynamic";
+import Filter from "./components/Filter";
 
-let controller: AbortController | null = null;
+const MorePostsLoading = dynamic(() => import("./components/MoreLoadedPosts"), {
+    ssr: false,
+    loading: () => <p>Đang tải...</p>,
+});
 
 async function fetchPosts(filter: any) {
     try {
@@ -92,62 +93,41 @@ async function HomeSuspense({ searchParams }: { searchParams: any }) {
 
     return (
         <>
-            <Flex gap={50}>
-                <Flex
-                    vertical
-                    gap={15}
-                    className={
-                        "rounded-lg bg-white h-[calc(100vh_-_140px)] w-[280px] p-5 fixed"
-                    }
-                >
-                    <Flex
-                        gap={8}
-                        className={"font-semibold text-[18px] tracking-[0.7px]"}
-                    >
-                        <FilterOutlined />
-                        Bộ lọc tìm kiếm
-                    </Flex>
-                    <FilterByRegions regions={regions} />
-                    <FilterBar categories={categories} />
-                </Flex>
+            <Flex gap={50} className="max-lg:flex-col lg:flex">
+                <Filter regions={regions} categories={categories} />
 
-                <div className={"ml-[320px] flex-1"}>
+                <div className={"max-lg:ml-0 lg:ml-[320px] flex-1"}>
                     <div
                         className={
                             "font-semibold tracking-[0.6px] text-[20px] mt-1"
                         }
                     >
-                        {posts?.length} kết quả
+                        {total} kết quả
                     </div>
                     <Row gutter={[24, 24]}>
-                        {!posts || posts?.length === 0 ? (
-                            <div
-                                className={
-                                    "absolute top-1/2 left-1/2 translate-x-[60%] translate-y-[-100%]"
-                                }
+                        {posts?.map((item: Post) => (
+                            <Col
+                                key={item?._id}
+                                xxl={6}
+                                xl={8}
+                                lg={8}
+                                md={8}
+                                sm={8}
+                                xs={24}
                             >
-                                <Empty description="Chưa có bài đăng nào" />
-                            </div>
-                        ) : (
-                            posts?.map((item: Post) => (
-                                <Col
-                                    key={item?._id}
-                                    xl={6}
-                                    lg={12}
-                                    md={12}
-                                    sm={24}
-                                    xs={24}
-                                >
-                                    <PostItem
-                                        key={item._id}
-                                        post={item}
-                                        regions={regions}
-                                    />
-                                </Col>
-                            ))
-                        )}
+                                <PostItem
+                                    key={item._id}
+                                    post={item}
+                                    regions={regions}
+                                />
+                            </Col>
+                        ))}
                     </Row>
-                    <MoreLoadedPosts regions={regions} />
+                    <MorePostsLoading
+                        regions={regions}
+                        total={total}
+                        searchParams={searchParams}
+                    />
                 </div>
             </Flex>
         </>
@@ -156,7 +136,17 @@ async function HomeSuspense({ searchParams }: { searchParams: any }) {
 
 export default async function Home({ searchParams }: { searchParams: any }) {
     return (
-        <Suspense fallback={<Loading />}>
+        <Suspense
+            fallback={
+                <Flex
+                    className="h-screen w-full"
+                    align="center"
+                    justify="center"
+                >
+                    <Loading />
+                </Flex>
+            }
+        >
             <Head>
                 <title>Chợ đồ cũ</title>
                 <meta

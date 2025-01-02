@@ -23,6 +23,7 @@ import {
     Post,
     Product,
     SelectOption,
+    UserProfile,
 } from "../../../../../utils/types";
 import {
     requestGetAttributesOfCategory,
@@ -93,7 +94,7 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
     const id = params.slug?.[0];
     const router = useRouter();
     const dispatch = useDispatch();
-    const { authUser } = useAuthUser();
+    const { authUser } = useAuthUser() as { authUser: UserProfile };
     const [categories, setCategories] = useState<Category[]>([]);
     const [loadingGetPost, setLoadingGetPost] = useState(false);
     const [loadingGetCategories, setLoadingGetCategories] = useState(false);
@@ -364,7 +365,6 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
             let updatedAttributeIndex = productAttributes?.findIndex(
                 (item) => item.attribute_id === id
             );
-            console.log(updatedAttributeIndex, productAttributes);
 
             if (
                 updatedAttributeIndex !== null &&
@@ -372,8 +372,6 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
                 updatedAttributeIndex !== -1 &&
                 productAttributes
             ) {
-                console.log(handleGetValueTypeByInputType(e, inputType));
-
                 productAttributes[updatedAttributeIndex] = {
                     ...productAttributes?.[updatedAttributeIndex],
                     attribute_id: id,
@@ -686,6 +684,18 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
             );
         }
     }, [regions, post.location.city]);
+
+    useEffect(() => {
+        if (authUser?._id && authUser?.address?.city && authUser?.address?.district) {
+            setPost({
+                ...post,
+                location: {
+                    city: authUser?.address?.city,
+                    district: authUser?.address?.district
+                }
+            })
+        }
+    }, [authUser?._id])
 
     if (loadingGetPost || (id !== 'create' && post?.poster_id !== authUser?._id)) {
         return (
@@ -1010,6 +1020,7 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
                                                     <Flex
                                                         gap={15}
                                                         className={"mt-1"}
+                                                        wrap
                                                     >
                                                         {conditionOptions.map(
                                                             (item) => (

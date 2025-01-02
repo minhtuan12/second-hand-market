@@ -1,9 +1,8 @@
 import React from "react";
 import "../../../global.scss";
 import BreadcrumbUpdater from "@/components/BreadcrumbUpdater";
-import { Avatar, Carousel, Col, Empty, Flex, Rate, Tag } from "antd";
+import { Avatar, Col, Flex, Rate, Tag } from "antd";
 import {
-    getNotification,
     handleExportTimeAgo,
     handleFormatCurrency,
     handleGetRegion,
@@ -25,7 +24,6 @@ import PostItem from "../../components/PostItem";
 import { POST_STATUS } from "../../../../../utils/constants";
 import { redirect } from "next/navigation";
 import Head from "next/head";
-import dynamic from "next/dynamic";
 import SlidingImages from "../components/SlidingImages";
 
 async function fetchDetailPost(id: string) {
@@ -124,13 +122,12 @@ export default async function PostDetail({
                             <Flex vertical>
                                 <div
                                     className={
-                                        "relative min-w-[300px] max-w-[300px] h-[300px] custom-carousel border-[1px] border-[gray] p-2 rounded-lg"
+                                        "relative min-w-[300px] max-w-[300px] max-xsm:!max-w-[250px] max-xsm:!min -w-[250px] h-[300px] custom-carousel border-[1px] border-[gray] p-2 rounded-lg"
                                     }
                                 >
                                     <SlidingImages
                                         images={post?.product?.images}
                                     />
-                                    {/* <LikedPostHeart postId={post?._id} /> */}
                                 </div>
                             </Flex>
                             <Flex
@@ -373,12 +370,20 @@ export default async function PostDetail({
                     </Flex>
                     <Flex
                         style={{ scrollbarGutter: "stable" }}
-                        className="mt-2 w-full overflow-hidden hover:overflow-auto scrollbar-thin py-3"
+                        className="mt-2 w-full overflow-auto scrollbar-thin py-3"
                         gap={20}
                     >
                         {posterPosts?.length > 0 ? (
                             posterPosts?.map((post: any) => (
-                                <Col key={post?._id} span={5}>
+                                <Col
+                                    key={post?._id}
+                                    xxl={6}
+                                    xl={6}
+                                    lg={6}
+                                    md={8}
+                                    sm={8}
+                                    xs={24}
+                                >
                                     <PostItem
                                         post={post}
                                         regions={regions}

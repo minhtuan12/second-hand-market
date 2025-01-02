@@ -22,6 +22,8 @@ import { useAuthUser } from "@/hooks/useAuthUser";
 import { UserProfile } from "../../../../../../utils/types";
 import { requestAddToWishlist, requestRemoveFromWishlist } from "@/api/post";
 import { requestGetProfile, useFetchProfile } from "@/api/profile";
+import { getCookieValue } from "../../../../../../utils/cookie/server";
+import { SERVER_AUTH_TOKEN } from "../../../../../../utils/cookie/constants";
 
 export default function PostAction({
     posterId,
@@ -30,7 +32,7 @@ export default function PostAction({
     posterId: string;
     postId: string;
 }) {
-    const { data: user } = useFetchProfile(() => {});
+    const { data: user, mutate: getProfile } = useFetchProfile(() => {});
     const [wishlist, setWishlist] = useState(user?.wishlist);
     const isLiked = useMemo(() => {
         return wishlist?.includes(postId);
@@ -65,6 +67,15 @@ export default function PostAction({
                 });
         }
     };
+
+    useEffect(() => {
+        async function getUserProfile() {
+            if (await getCookieValue(SERVER_AUTH_TOKEN)) {
+                getProfile();
+            }
+        }
+        getUserProfile();
+    }, [])
 
     useEffect(() => {
         if (user?.wishlist) {

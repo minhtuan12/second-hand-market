@@ -22,8 +22,6 @@ export const useAuthUser = (type = 'user') => {
                 if (hasRefreshToken) {
                     handleGetProfile(type)
                         .then(user => {
-                            console.log(user);
-                            
                             setLoading(false)
                             setAuthUser(user)
                         })

@@ -7,13 +7,13 @@ import { ToastContainer } from "react-toastify";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import { Flex, Spin } from "antd";
 
-export default function HomePageBody({ children }: { children: ReactNode }) {
+export default function HomePageBody({ children, hasCookie }: { children: ReactNode, hasCookie: boolean }) {
     const { authUser } = useAuthUser();
 
-    if (!authUser) {
+    if (hasCookie && !authUser) {
         return (
             <Flex className="w-full h-screen" align="center" justify="center">
-                <Spin size="large"/>
+                <Spin size="large" />
             </Flex>
         );
     }

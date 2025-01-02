@@ -60,23 +60,25 @@ export default function BuyingOrder({
                             className="rounded-lg shadow-[rgba(0,_0,_0,_0.16)_0px_1px_4px] p-4"
                             align="center"
                             justify="space-between"
+                            wrap
+                            gap={30}
                         >
-                            <Flex gap={25}>
+                            <Flex gap={25} wrap>
                                 <Image
                                     src={order?.product?.images?.[0]}
                                     width={100}
                                 />
                                 <Flex vertical>
-                                    <div className="font-medium text-[18px]">
+                                    <div className="font-medium text-[18px] w-full text-ellipsis overflow-hidden">
                                         Mã đơn hàng: {order?.code}
                                     </div>
-                                    <div className="text-[16px]">
+                                    <div className="text-[16px] w-full">
                                         {order?.post?.title}
                                     </div>
-                                    <div className="text-[16px]">
+                                    <div className="text-[16px] w-full">
                                         Mô tả: {order?.product?.description}
                                     </div>
-                                    <div className="text-[18px] text-[#f80] font-medium">
+                                    <div className="text-[18px] text-[#f80] font-medium w-full">
                                         {handleFormatCurrency(
                                             order?.total as number
                                         )}

@@ -24,6 +24,7 @@ import {
 } from "../../../../utils/constants";
 import { requestCreateConversation } from "@/api/chat";
 import { requestRemoveFromWishlist } from "@/api/post";
+import useWindowSize from "@/hooks/useWindowSize";
 
 export default function SavedPosts() {
     const breadcrumbData = [
@@ -70,6 +71,8 @@ export default function SavedPosts() {
     useEffect(() => {
         getSavedPosts();
     }, []);
+
+    const { width } = useWindowSize();
 
     return (
         <>
@@ -121,7 +124,10 @@ export default function SavedPosts() {
                                                 href={`/posts/${item?._id}`}
                                                 className="hover:shadow-lg p-4 cursor-pointer text-[#000] hover:text-[#000] rounded-lg"
                                             >
-                                                <Flex justify="space-between">
+                                                <Flex
+                                                    justify="space-between"
+                                                    wrap
+                                                >
                                                     <Flex gap={30}>
                                                         <Image
                                                             width={100}
@@ -187,7 +193,8 @@ export default function SavedPosts() {
                                                         </Flex>
                                                     </Flex>
                                                     <Flex
-                                                        vertical
+                                                        className={`${!!(width && width <= 650) ? 'mt-5' : ''}`}
+                                                        vertical={!!(width && width > 650)}
                                                         align="end"
                                                         gap={10}
                                                     >

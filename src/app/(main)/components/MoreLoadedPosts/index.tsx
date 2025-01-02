@@ -1,47 +1,72 @@
-'use client'
+"use client";
 
-import React, {useEffect, useState} from "react";
-import {useFetchAllPosts} from "@/api/post";
-import {useSelector} from "react-redux";
-import {RootState} from "@/store/configureStore";
-import {Skeleton} from "antd";
+import React, { useEffect, useState } from "react";
+import { useFetchAllPosts } from "@/api/post";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/configureStore";
+import { Col, Row, Skeleton } from "antd";
 import PostItem from "@/app/(main)/components/PostItem";
+import { Post } from "../../../../../utils/types";
 
-export default function MoreLoadedPosts({regions}: {regions: any}) {
-    const [filter, setFilter] = useState({
-        page: 2,
-        column: 'createdAt',
-        sort_order: -1
-    })
-    const {searchKey, isSearched} = useSelector((state: RootState) => state.app)
+export default function MoreLoadedPosts({
+    regions,
+    total,
+    searchParams,
+}: {
+    regions: any;
+    total: number;
+    searchParams: any;
+}) {
+    const [loading, setLoading] = useState(false);
 
     const {
         data: postsData,
         isLoading: loadingGetPosts,
-        mutate: getAllPosts
-    } = useFetchAllPosts({
-        search: searchKey,
-        page: filter.page,
-        column: filter.column,
-        sort_order: filter.sort_order
-    }, () => {
-    })
+        mutate: getAllPosts,
+    } = useFetchAllPosts(
+        {
+            filter: searchParams,
+        },
+        () => {}
+    );
 
     useEffect(() => {
-        if (isSearched) {
-            getAllPosts()
-        }
-    }, [filter, searchKey, isSearched])
+        const handleScroll = () => {
+            if (
+                window.innerHeight + document.documentElement.scrollTop >=
+                document.documentElement.offsetHeight
+            ) {
+                if (!loading) {
+                    setLoading(true);
+                    getAllPosts();
+                }
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [loading]);
 
     if (loadingGetPosts) {
-        return <Skeleton/>
+        return <Skeleton />;
     }
 
-    return <div>
-        {
-            postsData?.posts?.map((item: any) => (
-                <PostItem post={item} key={item?._id} regions={regions}/>
-            ))
-        }
-    </div>
+    return (
+        <Row gutter={[24, 24]}>
+            {postsData?.posts?.map((item: Post) => (
+                <Col
+                    key={item?._id}
+                    xxl={6}
+                    xl={8}
+                    lg={8}
+                    md={8}
+                    sm={8}
+                    xs={24}
+                >
+                    <PostItem key={item._id} post={item} regions={regions} />
+                </Col>
+            ))}
+        </Row>
+    );
 }

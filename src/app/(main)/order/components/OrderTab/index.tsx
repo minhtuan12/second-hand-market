@@ -296,7 +296,7 @@ export default function OrderTab({ type }: { type: string }) {
                 />
             ) : (
                 <BuyingOrder
-                handleReceivedOrder={handleReceivedOrder}
+                    handleReceivedOrder={handleReceivedOrder}
                     orderToDelete={orderToDelete}
                     setOrderToDelete={setOrderToDelete}
                     handleCancelOrder={handleCancelOrder}

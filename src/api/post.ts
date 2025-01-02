@@ -1,44 +1,51 @@
-import {AxiosResponse} from "axios";
-import {apiAxios, fetcher} from "@/api/callApi";
-import {Post} from "../../utils/types";
-import {POST_STATUS} from "../../utils/constants";
+import { AxiosResponse } from "axios";
+import { apiAxios, fetcher } from "@/api/callApi";
+import { Post } from "../../utils/types";
+import { POST_STATUS } from "../../utils/constants";
 import useSWR from "swr";
 
-export const requestUploadPostImage = async (images: any[]): Promise<AxiosResponse> => {
+export const requestUploadPostImage = async (
+    images: any[]
+): Promise<AxiosResponse> => {
     return apiAxios({
         headers: {
-            "Content-Type": 'multipart/form-data'
+            "Content-Type": "multipart/form-data",
         },
-        method: 'post',
-        url: 'post/images-upload',
-        data: {images}
-    })
-}
+        method: "post",
+        url: "post/images-upload",
+        data: { images },
+    });
+};
 
-export const requestSaveDraftOrPost = async (post: Post): Promise<AxiosResponse> => {
+export const requestSaveDraftOrPost = async (
+    post: Post
+): Promise<AxiosResponse> => {
     return apiAxios({
-        method: 'post',
-        url: 'post/create',
-        data: {post}
-    })
-}
+        method: "post",
+        url: "post/create",
+        data: { post },
+    });
+};
 
-export const requestUpdatePost = async (postId: string, post: Post): Promise<any> => {
+export const requestUpdatePost = async (
+    postId: string,
+    post: Post
+): Promise<any> => {
     if (postId) {
         return apiAxios({
-            method: 'put',
+            method: "put",
             url: `post/update/${postId}`,
-            data: {post}
-        })
+            data: { post },
+        });
     }
-}
+};
 
 export const requestGetPost = async (id: string): Promise<AxiosResponse> => {
     return apiAxios({
-        method: 'get',
-        url: `post/${id}`
-    })
-}
+        method: "get",
+        url: `post/${id}`,
+    });
+};
 
 export const useFetchMyPosts = (
     status: string,
@@ -46,75 +53,98 @@ export const useFetchMyPosts = (
         search,
         page,
         column,
-        sort_order
+        sort_order,
     }: {
-        search?: string,
-        page: number,
-        column?: string,
-        sort_order?: number
-    }, onError: () => void
+        search?: string;
+        page: number;
+        column?: string;
+        sort_order?: number;
+    },
+    onError: () => void
 ) => {
-    let url: string = status ? `post/get-own-post?status=${status}` : `post/get-own-post?status=${POST_STATUS.APPROVED.VALUE}`
-    url += search ? `&search=${search}` : ''
-    url += page ? `&page=${page}` : ''
-    url += column ? `&column=${column}` : ''
-    url += sort_order ? `&sort_order=${sort_order}` : ''
+    let url: string = status
+        ? `post/get-own-post?status=${status}`
+        : `post/get-own-post?status=${POST_STATUS.APPROVED.VALUE}`;
+    url += search ? `&search=${search}` : "";
+    url += page ? `&page=${page}` : "";
+    url += column ? `&column=${column}` : "";
+    url += sort_order ? `&sort_order=${sort_order}` : "";
 
     return useSWR(url, fetcher, {
         revalidateIfStale: true,
         revalidateOnFocus: true,
         revalidateOnReconnect: true,
         onError,
-        revalidateOnMount: true
-    })
-}
+        revalidateOnMount: true,
+    });
+};
 
-export const requestChangePostVisibility = async (postId: string, isVisibility: boolean): Promise<AxiosResponse> => {
+export const requestChangePostVisibility = async (
+    postId: string,
+    isVisibility: boolean
+): Promise<AxiosResponse> => {
     return apiAxios({
-        method: 'patch',
+        method: "patch",
         url: `post/${postId}/visibility`,
-        data: {is_visibility: isVisibility}
-    })
-}
+        data: { is_visibility: isVisibility },
+    });
+};
 
-export const useFetchAllPosts = (
-    {
-        search,
-        page,
-        column,
-        sort_order
-    }: {
-        search: string,
-        page: number,
-        column: string,
-        sort_order: number
-    }, onError: () => void
-) => {
-    let url: string = `public/posts?page=${page}`
-    url += search ? `&search=${search}` : ''
-    url += column ? `&column=${column}` : ''
-    url += sort_order ? `&sort_order=${sort_order}` : ''
+export const useFetchAllPosts = (filter: any, onError: () => void) => {
+    let url = `${process.env.API_URL}/public/posts?column=${
+        filter?.column || "createdAt"
+    }`;
+    if (filter?.sortOrder) url += `&sort_order=${filter?.sortOrder}`;
+    if (filter?.city) url += `&city=${filter?.city}`;
+    if (filter?.searchKey) url += `&search_key=${filter?.searchKey}`;
+    if (filter?.categoryIds) {
+        if (typeof filter.categoryIds === "string")
+            url += `&category_ids=${filter?.categoryIds}`;
+        else {
+            filter?.categoryIds?.forEach((id: string) => {
+                url += `&category_ids=${id}`;
+            });
+        }
+    }
+    if (filter?.priceFrom || filter?.priceFrom === "none")
+        url += `&price_from=${filter?.priceFrom}`;
+    if (filter?.priceTo || filter?.priceTo === "none")
+        url += `&price_to=${filter?.priceTo}`;
+    if (filter?.condition) {
+        if (typeof filter.condition === "string")
+            url += `&condition=${filter?.condition}`;
+        else {
+            filter?.condition?.forEach((id: string) => {
+                url += `&condition=${id}`;
+            });
+        }
+    }
 
     return useSWR(url, fetcher, {
-        revalidateIfStale: true,
-        revalidateOnFocus: true,
-        revalidateOnReconnect: true,
         onError,
-        revalidateOnMount: true
-    })
-}
+        revalidateIfStale: true,
+        revalidateOnReconnect: false,
+        revalidateOnMount: false,
+        revalidateOnFocus: false,
+        suspense: false,
+    });
+};
 
-export const requestAddToWishlist = async (postId: string): Promise<AxiosResponse> => {
+export const requestAddToWishlist = async (
+    postId: string
+): Promise<AxiosResponse> => {
     return apiAxios({
-        method: 'post',
+        method: "post",
         url: `wishlist/add-to-wishlist`,
-        data: {postId}
-    })
-}
+        data: { postId },
+    });
+};
 
-export const requestRemoveFromWishlist = async (postId: string): Promise<AxiosResponse> => {
+export const requestRemoveFromWishlist = async (
+    postId: string
+): Promise<AxiosResponse> => {
     return apiAxios({
-        method: 'patch',
-        url: `wishlist/remove/${postId}`
-    })
-}
+        method: "patch",
+        url: `wishlist/remove/${postId}`,
+    });
+};

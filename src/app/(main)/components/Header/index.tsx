@@ -8,20 +8,19 @@ import {
     BellOutlined,
     DashboardOutlined,
     HeartFilled,
+    MenuFoldOutlined,
     MessageOutlined,
-    ProductOutlined,
     SearchOutlined,
     ShopFilled,
     ShoppingFilled,
     SnippetsOutlined,
-    UserOutlined,
 } from "@ant-design/icons";
-import { Badge, Flex, MenuProps, Popover, Tooltip } from "antd";
+import { Badge, Flex, MenuProps, Popover } from "antd";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import DefaultInput from "@/components/Input";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import { useDispatch, useSelector } from "react-redux";
-import { setFilter, setIsSearched, setNotifications } from "@/store/slices/app";
+import { setFilter, setNotifications } from "@/store/slices/app";
 import DefaultButton from "@/components/Button";
 import AuthUserPopover from "@/components/Popover";
 import Notifications from "../Notifications";
@@ -32,6 +31,8 @@ import { Notification as NotificationType } from "../../../../../utils/types";
 import { RootState, store } from "@/store/configureStore";
 import { useSocket } from "@/app/context/SocketContext";
 import Loading from "@/components/Loading";
+import useWindowSize from "@/hooks/useWindowSize";
+import MenuDrawer from "../MenuDrawer";
 
 const HeaderSuspense = () => {
     const { authUser } = useAuthUser();
@@ -138,10 +139,7 @@ const HeaderSuspense = () => {
         mutate: getOldNotifications,
     } = useFetchOldNotifications();
 
-    const notificationsStore = useSelector(
-        (state: RootState) => state.app.notifications
-    );
-    const {socket} = useSocket();
+    const { socket } = useSocket();
     const [messageBadge, setMessageBadge] = useState(0);
 
     useEffect(() => {
@@ -177,23 +175,27 @@ const HeaderSuspense = () => {
         }
     }, [notifications]);
 
+    const { width } = useWindowSize();
+    const [openDrawer, setOpenDrawer] = useState(false);
+
     return (
         <header className={styles.headerWrap}>
-            <div className={styles.headerLeftWrap}>
-                <div
-                    className={styles.menuIcon}
-                    onClick={() => setShowMenu(true)}
+            {!!(width && width <= 1200) ? (
+                ""
+            ) : (
+                <Link
+                    className={`${styles.headerTitle} !text-[#000]`}
+                    href={"/"}
                 >
-                    <Link
-                        className={`${styles.headerTitle} !text-[#000]`}
-                        href={"/"}
-                    >
-                        Chợ đồ cũ
-                    </Link>
-                </div>
-            </div>
+                    Chợ đồ cũ
+                </Link>
+            )}
             {pathname !== "/checkout" ? (
-                <div className={styles.headerMiddleWrap}>
+                <div
+                    className={`${styles.headerMiddleWrap} ${
+                        !!(width && width <= 900) ? "!justify-center !w-2/3" : ""
+                    }`}
+                >
                     <div className={`${styles.search}`}>
                         <div className={"h-[45px] max-w-[500px]"}>
                             <DefaultInput
@@ -227,85 +229,155 @@ const HeaderSuspense = () => {
             ) : (
                 ""
             )}
-            <div className={`${styles.headerRightWrap}`}>
-                <Flex
-                    gap={30}
-                    align="center"
-                    className={`${styles.itemHeaderRight} icon-custom`}
-                >
-                    <Link
-                        onClick={() => {
-                            setMessageBadge(0);
-                            window.location.href = "/chat";
-                        }}
-                        href={"/chat"}
-                        className={
-                            "cursor-pointer text-[#000] hover:text-[#000]"
-                        }
-                    >
-                        <Badge
-                            count={messageBadge}
-                            style={{ fontSize: "14px" }}
+            {!!(width && width <= 900) ? (
+                <>
+                    <Flex align="center" gap={30}>
+                        <Link
+                            onClick={() => {
+                                setMessageBadge(0);
+                                window.location.href = "/chat";
+                            }}
+                            href={"/chat"}
+                            className={
+                                "cursor-pointer text-[#000] hover:text-[#000]"
+                            }
                         >
-                            <MessageOutlined className={"text-[24px] mt-1"} />
-                        </Badge>
-                    </Link>
-                    <Popover
-                        trigger={["click"]}
-                        content={
-                            <Notifications
-                                userId={authUser?._id as string}
-                                getOldNotifications={getOldNotifications}
-                                isLoading={isLoading}
-                            />
-                        }
-                    >
-                        <div className={"cursor-pointer"}>
                             <Badge
-                                count={notificationBadge}
+                                count={messageBadge}
                                 style={{ fontSize: "14px" }}
                             >
-                                <BellOutlined className={"text-[24px] mt-1"} />
+                                <MessageOutlined
+                                    className={"text-[24px] mt-1"}
+                                />
                             </Badge>
-                        </div>
-                    </Popover>
-                    <Link
-                        href={"/my-post"}
-                        className="flex items-center gap-[8px] cursor-pointer text-[#000] hover:text-[#000]"
-                    >
-                        <SnippetsOutlined className={"text-[24px]"} />
-                        <div className="text-[17px]">Quản lý bài đăng</div>
-                    </Link>
-                    {_.isEmpty(authUser) ? (
-                        <Flex gap={2} justify={"center"} align={"center"}>
-                            <Flex vertical justify={"center"} align={"start"}>
-                                <Link
-                                    href="/register"
-                                    className="text-white font-medium hover:text-white"
+                        </Link>
+                        <Popover
+                            trigger={["click"]}
+                            content={
+                                <Notifications
+                                    userId={authUser?._id as string}
+                                    getOldNotifications={getOldNotifications}
+                                    isLoading={isLoading}
+                                />
+                            }
+                        >
+                            <div className={"cursor-pointer"}>
+                                <Badge
+                                    count={notificationBadge}
+                                    style={{ fontSize: "14px" }}
                                 >
-                                    Đăng ký
-                                </Link>
-                                <Link
-                                    href="/login"
-                                    className="text-white font-medium hover:text-white"
-                                >
-                                    Đăng nhập
-                                </Link>
-                            </Flex>
-                        </Flex>
-                    ) : (
-                        <AuthUserPopover
-                            authUser={authUser}
-                            items={dropdownMenu}
+                                    <BellOutlined
+                                        className={"text-[24px] mt-1"}
+                                    />
+                                </Badge>
+                            </div>
+                        </Popover>
+                        <Link href={"/post/create"}>
+                            <DefaultButton reverseColor size="large">
+                                ĐĂNG TIN
+                            </DefaultButton>
+                        </Link>
+                        <MenuFoldOutlined
+                            style={{ fontSize: "20px" }}
+                            onClick={() => setOpenDrawer(true)}
                         />
-                    )}
-                    <Link href={"/post/create"}>
-                        <DefaultButton reverseColor size="large">
-                            ĐĂNG TIN
-                        </DefaultButton>
-                    </Link>
-                </Flex>
-            </div>
+                    </Flex>
+                    <MenuDrawer
+                        messageBadge={messageBadge}
+                        setMessageBadge={setMessageBadge}
+                        open={openDrawer}
+                        setOpen={setOpenDrawer}
+                    />
+                </>
+            ) : (
+                <div className={`${styles.headerRightWrap}`}>
+                    <Flex
+                        gap={30}
+                        align="center"
+                        className={`${styles.itemHeaderRight} icon-custom`}
+                    >
+                        <Link
+                            onClick={() => {
+                                setMessageBadge(0);
+                                window.location.href = "/chat";
+                            }}
+                            href={"/chat"}
+                            className={
+                                "cursor-pointer text-[#000] hover:text-[#000]"
+                            }
+                        >
+                            <Badge
+                                count={messageBadge}
+                                style={{ fontSize: "14px" }}
+                            >
+                                <MessageOutlined
+                                    className={"text-[24px] mt-1"}
+                                />
+                            </Badge>
+                        </Link>
+                        <Popover
+                            trigger={["click"]}
+                            content={
+                                <Notifications
+                                    userId={authUser?._id as string}
+                                    getOldNotifications={getOldNotifications}
+                                    isLoading={isLoading}
+                                />
+                            }
+                        >
+                            <div className={"cursor-pointer"}>
+                                <Badge
+                                    count={notificationBadge}
+                                    style={{ fontSize: "14px" }}
+                                >
+                                    <BellOutlined
+                                        className={"text-[24px] mt-1"}
+                                    />
+                                </Badge>
+                            </div>
+                        </Popover>
+                        <Link
+                            href={"/my-post"}
+                            className="flex items-center gap-[8px] cursor-pointer text-[#000] hover:text-[#000]"
+                        >
+                            <SnippetsOutlined className={"text-[24px]"} />
+                            <div className="text-[17px]">Quản lý bài đăng</div>
+                        </Link>
+                        {_.isEmpty(authUser) ? (
+                            <Flex gap={2} justify={"center"} align={"center"}>
+                                <Flex
+                                    vertical
+                                    justify={"center"}
+                                    align={"start"}
+                                >
+                                    <Link
+                                        href="/register"
+                                        className="text-white font-medium hover:text-white"
+                                    >
+                                        Đăng ký
+                                    </Link>
+                                    <Link
+                                        href="/login"
+                                        className="text-white font-medium hover:text-white"
+                                    >
+                                        Đăng nhập
+                                    </Link>
+                                </Flex>
+                            </Flex>
+                        ) : (
+                            <AuthUserPopover
+                                authUser={authUser}
+                                items={dropdownMenu}
+                            />
+                        )}
+                        <Link href={"/post/create"}>
+                            <DefaultButton reverseColor size="large">
+                                ĐĂNG TIN
+                            </DefaultButton>
+                        </Link>
+                    </Flex>
+                </div>
+            )}
         </header>
     );
 };

@@ -12,7 +12,13 @@ import { PRODUCT_CONDITION } from "../../../../../utils/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import _ from "lodash";
 
-export default function FilterBar({ categories }: { categories: Category[] }) {
+export default function FilterBar({
+    categories,
+    setOpenFilterDrawer,
+}: {
+    categories: Category[];
+    setOpenFilterDrawer?: (isOpen: boolean) => void;
+}) {
     const filter = useSelector((state: RootState) => state.app.filter);
     const [isPriceless, setIsPriceless] = useState(true);
     const [price, setPrice] = useState<{
@@ -45,6 +51,7 @@ export default function FilterBar({ categories }: { categories: Category[] }) {
             const params = new URLSearchParams(searchParams);
             params.set("priceFrom", "none");
             params.set("priceTo", "none");
+            setOpenFilterDrawer && setOpenFilterDrawer(false);
             router.push(`?${params.toString()}`);
         } else {
             const params = new URLSearchParams(searchParams);
@@ -110,7 +117,7 @@ export default function FilterBar({ categories }: { categories: Category[] }) {
 
     return (
         <>
-            <div className={"h-[calc(100%_-_388px)]"}>
+            <div className={"max-h-[calc(100%_-_388px)]"}>
                 <div className={"text-[17px] mb-2"}>Theo danh mục</div>
                 {categories?.length === 0 ? (
                     <Empty
@@ -139,6 +146,7 @@ export default function FilterBar({ categories }: { categories: Category[] }) {
                                 );
                                 params.delete("categoryIds");
                             }
+                            setOpenFilterDrawer && setOpenFilterDrawer(false);
                             router.push(`?${params.toString()}`);
                         }}
                         value={filter.categoryIds}
@@ -174,6 +182,7 @@ export default function FilterBar({ categories }: { categories: Category[] }) {
                             const params = new URLSearchParams(searchParams);
                             params.delete("priceFrom");
                             params.delete("priceTo");
+                            setOpenFilterDrawer && setOpenFilterDrawer(false);
                             router.push(`?${params.toString()}`);
                         }}
                     >
@@ -227,6 +236,7 @@ export default function FilterBar({ categories }: { categories: Category[] }) {
                                 params.delete("priceTo");
                                 params.set("priceFrom", value[0].toString());
                                 params.set("priceTo", value[1].toString());
+                                setOpenFilterDrawer && setOpenFilterDrawer(false);
                                 router.push(`?${params.toString()}`);
                             }}
                         />
@@ -259,6 +269,7 @@ export default function FilterBar({ categories }: { categories: Category[] }) {
                                 params.append("condition", id);
                             });
                         }
+                        setOpenFilterDrawer && setOpenFilterDrawer(false);
                         router.push(`?${params.toString()}`);
                     }}
                 >
