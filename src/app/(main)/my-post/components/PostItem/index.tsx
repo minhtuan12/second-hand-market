@@ -17,7 +17,7 @@ import {
     POST_STATUS,
     SERVER_ERROR_MESSAGE,
 } from "../../../../../../utils/constants";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { requestChangePostVisibility } from "@/api/post";
 import {
     getNotification,
@@ -71,8 +71,10 @@ export default function PostItem({
         }
         return "";
     }, [regionsData, hasFullLocation]);
+    const [loadingHidden, setLoadingHidden] = useState(false);
 
     const handleChangeVisibility = (isVisibility: boolean) => {
+        setLoadingHidden(true);
         requestChangePostVisibility(post?._id as string, isVisibility)
             .then(() => {
                 reFetchMyPosts();
@@ -86,7 +88,10 @@ export default function PostItem({
                     "error",
                     err?.response?.data?.message || SERVER_ERROR_MESSAGE
                 );
-            });
+            })
+            .finally(() => {
+                setLoadingHidden(false);
+            })
     };
 
     return !!(width && width > 900) ? (
@@ -191,6 +196,7 @@ export default function PostItem({
                                     onClick={() =>
                                         handleChangeVisibility(false)
                                     }
+                                    loading={loadingHidden}
                                 >
                                     <LockOutlined />
                                     Ẩn bài đăng
@@ -275,6 +281,7 @@ export default function PostItem({
                                         onClick={() =>
                                             handleChangeVisibility(true)
                                         }
+                                        loading={loadingHidden}
                                     >
                                         <UnlockOutlined />
                                         Hiện bài đăng

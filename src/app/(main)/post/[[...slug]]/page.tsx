@@ -900,7 +900,7 @@ export default function CreatePost({ params }: { params: { slug: string } }) {
                                                                     </Upload>
                                                                     <div
                                                                         className={
-                                                                            "absolute z-[999] top-[-10px] right-[-9px] w-[20px] h-[20px] bg-[red] rounded-[50%]"
+                                                                            "absolute z-[999] top-[-2px] right-[-2px] w-[20px] h-[20px] bg-[#f85a5a00] rounded-[50%]"
                                                                         }
                                                                         onClick={() => {
                                                                             setImageUrls(
