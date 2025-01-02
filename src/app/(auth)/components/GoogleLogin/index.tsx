@@ -4,7 +4,7 @@ import Image from "next/image";
 import React from "react";
 
 export default function GoogleLogin() {
-    const apiUrl = process.env.API_URL!
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL!
     return <div className={styles.googleLoginWrap}>
         <div className={styles.option}>Hoặc</div>
         <div className={styles.btnLoginWithGoogle}>

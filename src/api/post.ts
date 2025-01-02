@@ -91,7 +91,7 @@ export const requestChangePostVisibility = async (
 };
 
 export const useFetchAllPosts = (filter: any, onError: () => void) => {
-    let url = `${process.env.API_URL}/public/posts?column=${
+    let url = `${process.env.NEXT_PUBLIC_API_URL}/public/posts?column=${
         filter?.column || "createdAt"
     }`;
     if (filter?.sortOrder) url += `&sort_order=${filter?.sortOrder}`;

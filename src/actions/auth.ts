@@ -98,7 +98,7 @@ export async function fetchUserProfile(
         const url = userId
             ? `user/get-user-profile/${userId}`
             : "user/get-profile";
-        let response = await fetch(`${process.env.API_URL}/${url}`, {
+        let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${url}`, {
             cache: "default",
             headers: { Authorization: `Bearer ${accessToken}` },
         });
@@ -109,7 +109,7 @@ export async function fetchUserProfile(
             result.message === "accessToken đã hết hạn"
         ) {
             const refreshResponse = await fetch(
-                `${process.env.API_URL}/auth/new-access-token`,
+                `${process.env.NEXT_PUBLIC_API_URL}/auth/new-access-token`,
                 {
                     method: "POST",
                     headers: {
@@ -125,7 +125,7 @@ export async function fetchUserProfile(
                 setAuthToken(access_token);
                 setRefreshToken(refresh_token);
 
-                response = await fetch(`${process.env.API_URL}/${url}`, {
+                response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${url}`, {
                     cache: "default",
                     headers: { Authorization: `Bearer ${accessToken}` },
                 });

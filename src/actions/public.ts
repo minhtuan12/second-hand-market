@@ -1,6 +1,6 @@
 export async function fetchRegions() {
     try {
-        const result = await fetch(`${process.env.API_URL}/location/regions`, {cache: 'default'})
+        const result = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/location/regions`, {cache: 'default'})
         if (!result?.ok) {
             return {regions: []}
         }

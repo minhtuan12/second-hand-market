@@ -8,7 +8,7 @@ class SocketService {
     }
 
     initSocket(userId: string) {
-        this.socket = io(process.env.API_URL, {query: {user_id: userId}})
+        this.socket = io(process.env.NEXT_PUBLIC_API_URL, {query: {user_id: userId}})
     }
 
     getSocket(userId: string) {

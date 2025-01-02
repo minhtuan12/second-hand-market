@@ -14,7 +14,7 @@ const MorePostsLoading = dynamic(() => import("./components/MoreLoadedPosts"), {
 
 async function fetchPosts(filter: any) {
     try {
-        let url = `${process.env.API_URL}/public/posts?column=${
+        let url = `${process.env.NEXT_PUBLIC_API_URL}/public/posts?column=${
             filter?.column || "createdAt"
         }`;
         if (filter?.sortOrder) url += `&sort_order=${filter?.sortOrder}`;
@@ -60,7 +60,7 @@ async function fetchPosts(filter: any) {
 async function fetchCategories() {
     try {
         const categoriesResponse = await fetch(
-            `${process.env.API_URL}/public/categories`,
+            `${process.env.NEXT_PUBLIC_API_URL}/public/categories`,
             { cache: "no-store" }
         );
         if (!categoriesResponse?.ok) {
@@ -74,7 +74,7 @@ async function fetchCategories() {
 
 async function fetchRegions() {
     try {
-        const result = await fetch(`${process.env.API_URL}/location/regions`, {
+        const result = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/location/regions`, {
             cache: "no-store",
         });
         if (!result?.ok) {

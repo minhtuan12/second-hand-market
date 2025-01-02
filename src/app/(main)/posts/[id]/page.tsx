@@ -29,7 +29,7 @@ import SlidingImages from "../components/SlidingImages";
 async function fetchDetailPost(id: string) {
     try {
         const postResponse = await fetch(
-            `${process.env.API_URL}/public/posts/${id}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/public/posts/${id}`,
             { cache: "no-store" }
         );
         if (!postResponse?.ok) {
@@ -44,7 +44,7 @@ async function fetchDetailPost(id: string) {
 async function fetchUserPost(userId: string, postId: string) {
     try {
         const response = await fetch(
-            `${process.env.API_URL}/public/user/${userId}/posts`,
+            `${process.env.NEXT_PUBLIC_API_URL}/public/user/${userId}/posts`,
             { cache: "no-store" }
         );
         if (!response?.ok) {

@@ -29,7 +29,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     useEffect(() => {
         if (authUser?._id) {
             setSocket(
-                io(process.env.API_URL, {
+                io(process.env.NEXT_PUBLIC_API_URL, {
                     query: { user_id: authUser?._id },
                     transports: ["websocket"],
                 })

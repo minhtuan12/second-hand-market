@@ -4,7 +4,7 @@ import {SERVER_AUTH_TOKEN} from "../../utils/cookie/constants";
 import {AUTH_ROUTES} from "../../utils/constants";
 import {handleGetNewTokens, handleLogout} from "@/actions/auth";
 
-const baseUrl = process.env.API_URL!;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL!;
 
 const onRejected = (error: any): Promise<any> => {
     return Promise.reject(error)

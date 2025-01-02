@@ -738,7 +738,7 @@ export default function AccountTab({
                                                     className="w-full h-full"
                                                     type="button"
                                                     target="_blank"
-                                                    href={`${process.env.API_URL}/stripe/account-link/${newExistStripeAccount}/${accountData?._id}`}
+                                                    href={`${process.env.NEXT_PUBLIC_API_URL}/stripe/account-link/${newExistStripeAccount}/${accountData?._id}`}
                                                 >
                                                     <LinkOutlined className="mr-1" />
                                                     Liên kết
