@@ -65,7 +65,7 @@ function LoginSuspense() {
                     switch (res.status) {
                         case 200:
                             getNotification("success", "Đăng nhập thành công");
-                            if (searchParams.get("redirect")) {
+                            if (searchParams?.get("redirect")) {
                                 router.push(`/${searchParams.get("redirect")}`);
                             } else {
                                 router.push("/");
@@ -108,7 +108,7 @@ function LoginSuspense() {
     };
 
     useEffect(() => {
-        if (searchParams.get("redirect")) {
+        if (searchParams?.get("redirect")) {
             router.prefetch(`/${searchParams.get("redirect")}`);
         } else {
             router.prefetch("/");

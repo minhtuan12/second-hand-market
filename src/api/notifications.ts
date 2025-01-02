@@ -7,6 +7,8 @@ export const useFetchOldNotifications = () => {
         revalidateIfStale: true,
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
+        revalidateOnMount: false,
+        suspense: false
     });
 };
 

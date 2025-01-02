@@ -5,8 +5,8 @@ import { hostname } from "os";
 const nextConfig = {
     reactStrictMode: false,
     env: {
-        API_URL: process.env.API_URL,
-        APP_ENV: process.env.APP_ENV,
+        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+        NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
     },
     images: {
         remotePatterns: [

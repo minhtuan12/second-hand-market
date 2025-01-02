@@ -15,7 +15,7 @@ import {ReadonlyURLSearchParams, redirect, useSearchParams} from "next/navigatio
 import Loading from "@/components/Loading";
 
 function ResetPasswordSuspense() {
-    const searchParams: ReadonlyURLSearchParams = useSearchParams()
+    const searchParams: ReadonlyURLSearchParams = useSearchParams() as ReadonlyURLSearchParams
     const resetToken: string | null = searchParams.get('token')
     const expiryTime: string | null = searchParams.get('expired_within')
     const [minutes, setMinutes] = useState<string>('')

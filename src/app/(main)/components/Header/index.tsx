@@ -125,11 +125,13 @@ const HeaderSuspense = () => {
     const searchParams = useSearchParams();
 
     const handleChangeKeySearch = (value: string): void => {
-        dispatch(setFilter({ ...filter, searchKey: value }));
-        if (!value) {
-            const params = new URLSearchParams(searchParams);
-            params.delete("searchKey");
-            router.push(`/?${params.toString()}`);
+        if (searchParams) {
+            dispatch(setFilter({ ...filter, searchKey: value }));
+            if (!value) {
+                const params = new URLSearchParams(searchParams);
+                params.delete("searchKey");
+                router.push(`/?${params.toString()}`);
+            }
         }
     };
 
@@ -141,6 +143,12 @@ const HeaderSuspense = () => {
 
     const { socket } = useSocket();
     const [messageBadge, setMessageBadge] = useState(0);
+
+    useEffect(() => {
+        if (authUser?._id) {
+            getOldNotifications();
+        }
+    }, [authUser?._id]);
 
     useEffect(() => {
         if (socket) {
@@ -193,27 +201,31 @@ const HeaderSuspense = () => {
             {pathname !== "/checkout" ? (
                 <div
                     className={`${styles.headerMiddleWrap} ${
-                        !!(width && width <= 900) ? "!justify-center !w-2/3" : ""
+                        !!(width && width <= 900)
+                            ? "!justify-center !w-2/3"
+                            : ""
                     }`}
                 >
                     <div className={`${styles.search}`}>
                         <div className={"h-[45px] max-w-[500px]"}>
                             <DefaultInput
                                 onPressEnter={() => {
-                                    // dispatch(setIsSearched(true))
-                                    const params = new URLSearchParams(
-                                        searchParams
-                                    );
-                                    const { filter } = store.getState().app;
-                                    if (filter.searchKey) {
-                                        params.set(
-                                            "searchKey",
-                                            filter.searchKey
+                                    if (searchParams) {
+                                        // dispatch(setIsSearched(true))
+                                        const params = new URLSearchParams(
+                                            searchParams
                                         );
-                                    } else {
-                                        params.delete("searchKey");
+                                        const { filter } = store.getState().app;
+                                        if (filter.searchKey) {
+                                            params.set(
+                                                "searchKey",
+                                                filter.searchKey
+                                            );
+                                        } else {
+                                            params.delete("searchKey");
+                                        }
+                                        router.push(`?${params.toString()}`);
                                     }
-                                    router.push(`?${params.toString()}`);
                                 }}
                                 className={styles.searchInput}
                                 size={"large"}

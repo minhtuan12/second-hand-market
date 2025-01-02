@@ -25,7 +25,7 @@ export default function FilterByRegions({
     const searchParams = useSearchParams();
 
     const handleChangeRegion = (region: { city: string }) => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(searchParams as any);
         dispatch(setFilter({ ...filter, city: region.city }));
         if (region.city) {
             params.set("city", region.city);

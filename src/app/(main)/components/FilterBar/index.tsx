@@ -47,72 +47,76 @@ export default function FilterBar({
             from: isFree ? null : 20000,
             to: isFree ? null : 50000000,
         });
-        if (isFree) {
-            const params = new URLSearchParams(searchParams);
-            params.set("priceFrom", "none");
-            params.set("priceTo", "none");
-            setOpenFilterDrawer && setOpenFilterDrawer(false);
-            router.push(`?${params.toString()}`);
-        } else {
-            const params = new URLSearchParams(searchParams);
-            params.set("priceFrom", "20000");
-            params.set("priceTo", "50000000");
-            router.push(`?${params.toString()}`);
+        if (searchParams) {
+            if (isFree) {
+                const params = new URLSearchParams(searchParams);
+                params.set("priceFrom", "none");
+                params.set("priceTo", "none");
+                setOpenFilterDrawer && setOpenFilterDrawer(false);
+                router.push(`?${params.toString()}`);
+            } else {
+                const params = new URLSearchParams(searchParams);
+                params.set("priceFrom", "20000");
+                params.set("priceTo", "50000000");
+                router.push(`?${params.toString()}`);
+            }
         }
     };
 
     useEffect(() => {
-        const params = new URLSearchParams(searchParams);
-        let existingFilter = _.cloneDeep(filter);
+        if (searchParams) {
+            const params = new URLSearchParams(searchParams);
+            let existingFilter = _.cloneDeep(filter);
 
-        if (params.get("priceFrom") && params.get("priceTo")) {
-            const from = params.get("priceFrom");
-            const to = params.get("priceTo");
-            if (from !== "none" && to !== "none") {
-                existingFilter = {
-                    ...existingFilter,
-                    priceFrom: Number(params.get("priceFrom")),
-                    priceTo: Number(params.get("priceTo")),
-                };
-                setPrice({
-                    from: Number(params.get("priceFrom")),
-                    to: Number(params.get("priceTo")),
-                });
-                setIsPriceless(false);
-            } else {
-                existingFilter = {
-                    ...existingFilter,
-                    priceFrom: params.get("priceFrom"),
-                    priceTo: params.get("priceTo"),
-                };
-                setPrice({
-                    from: null,
-                    to: null,
-                });
-                setIsPriceless(true);
+            if (params.get("priceFrom") && params.get("priceTo")) {
+                const from = params.get("priceFrom");
+                const to = params.get("priceTo");
+                if (from !== "none" && to !== "none") {
+                    existingFilter = {
+                        ...existingFilter,
+                        priceFrom: Number(params.get("priceFrom")),
+                        priceTo: Number(params.get("priceTo")),
+                    };
+                    setPrice({
+                        from: Number(params.get("priceFrom")),
+                        to: Number(params.get("priceTo")),
+                    });
+                    setIsPriceless(false);
+                } else {
+                    existingFilter = {
+                        ...existingFilter,
+                        priceFrom: params.get("priceFrom"),
+                        priceTo: params.get("priceTo"),
+                    };
+                    setPrice({
+                        from: null,
+                        to: null,
+                    });
+                    setIsPriceless(true);
+                }
+                setResetPrice(false);
             }
-            setResetPrice(false);
-        }
-        if (params.getAll("categoryIds")?.length > 0) {
-            existingFilter = {
-                ...existingFilter,
-                categoryIds: params.getAll("categoryIds"),
-            };
-        }
-        if (params.get("city")) {
-            existingFilter = {
-                ...existingFilter,
-                city: params.get("city"),
-            };
-        }
-        if (params.getAll("condition")?.length > 0) {
-            existingFilter = {
-                ...existingFilter,
-                condition: params.getAll("condition"),
-            };
-        }
+            if (params.getAll("categoryIds")?.length > 0) {
+                existingFilter = {
+                    ...existingFilter,
+                    categoryIds: params.getAll("categoryIds"),
+                };
+            }
+            if (params.get("city")) {
+                existingFilter = {
+                    ...existingFilter,
+                    city: params.get("city"),
+                };
+            }
+            if (params.getAll("condition")?.length > 0) {
+                existingFilter = {
+                    ...existingFilter,
+                    condition: params.getAll("condition"),
+                };
+            }
 
-        dispatch(setFilter(existingFilter));
+            dispatch(setFilter(existingFilter));
+        }
     }, [searchParams]);
 
     return (
@@ -131,23 +135,31 @@ export default function FilterBar({
                         }
                         style={{ scrollbarGutter: "stable" }}
                         onChange={(e) => {
-                            const params = new URLSearchParams(searchParams);
-                            if (e?.length > 0) {
-                                dispatch(
-                                    setFilter({ ...filter, categoryIds: e })
+                            if (searchParams) {
+                                const params = new URLSearchParams(
+                                    searchParams
                                 );
-                                params.delete("categoryIds");
-                                e?.forEach((id: any) =>
-                                    params.append("categoryIds", id)
-                                );
-                            } else {
-                                dispatch(
-                                    setFilter({ ...filter, categoryIds: null })
-                                );
-                                params.delete("categoryIds");
+                                if (e?.length > 0) {
+                                    dispatch(
+                                        setFilter({ ...filter, categoryIds: e })
+                                    );
+                                    params.delete("categoryIds");
+                                    e?.forEach((id: any) =>
+                                        params.append("categoryIds", id)
+                                    );
+                                } else {
+                                    dispatch(
+                                        setFilter({
+                                            ...filter,
+                                            categoryIds: null,
+                                        })
+                                    );
+                                    params.delete("categoryIds");
+                                }
+                                setOpenFilterDrawer &&
+                                    setOpenFilterDrawer(false);
+                                router.push(`?${params.toString()}`);
                             }
-                            setOpenFilterDrawer && setOpenFilterDrawer(false);
-                            router.push(`?${params.toString()}`);
                         }}
                         value={filter.categoryIds}
                         options={categories?.map((item: Category) => ({
@@ -179,11 +191,16 @@ export default function FilterBar({
                                 from: null,
                                 to: null,
                             });
-                            const params = new URLSearchParams(searchParams);
-                            params.delete("priceFrom");
-                            params.delete("priceTo");
-                            setOpenFilterDrawer && setOpenFilterDrawer(false);
-                            router.push(`?${params.toString()}`);
+                            if (searchParams) {
+                                const params = new URLSearchParams(
+                                    searchParams
+                                );
+                                params.delete("priceFrom");
+                                params.delete("priceTo");
+                                setOpenFilterDrawer &&
+                                    setOpenFilterDrawer(false);
+                                router.push(`?${params.toString()}`);
+                            }
                         }}
                     >
                         Xóa
@@ -222,22 +239,28 @@ export default function FilterBar({
                                 });
                             }}
                             onChangeComplete={(value: number[]) => {
-                                dispatch(
-                                    setFilter({
-                                        ...filter,
-                                        priceFrom: value[0],
-                                        priceTo: value[1],
-                                    })
-                                );
-                                const params = new URLSearchParams(
-                                    searchParams
-                                );
-                                params.delete("priceFrom");
-                                params.delete("priceTo");
-                                params.set("priceFrom", value[0].toString());
-                                params.set("priceTo", value[1].toString());
-                                setOpenFilterDrawer && setOpenFilterDrawer(false);
-                                router.push(`?${params.toString()}`);
+                                if (searchParams) {
+                                    dispatch(
+                                        setFilter({
+                                            ...filter,
+                                            priceFrom: value[0],
+                                            priceTo: value[1],
+                                        })
+                                    );
+                                    const params = new URLSearchParams(
+                                        searchParams
+                                    );
+                                    params.delete("priceFrom");
+                                    params.delete("priceTo");
+                                    params.set(
+                                        "priceFrom",
+                                        value[0].toString()
+                                    );
+                                    params.set("priceTo", value[1].toString());
+                                    setOpenFilterDrawer &&
+                                        setOpenFilterDrawer(false);
+                                    router.push(`?${params.toString()}`);
+                                }
                             }}
                         />
                         <Flex justify={"space-between"} className={"w-full"}>
@@ -256,21 +279,23 @@ export default function FilterBar({
                 <Checkbox.Group
                     value={filter.condition}
                     onChange={(e) => {
-                        dispatch(
-                            setFilter({
-                                ...filter,
-                                condition: e?.length > 0 ? e : null,
-                            })
-                        );
-                        const params = new URLSearchParams(searchParams);
-                        params.delete("condition");
-                        if (e?.length > 0) {
-                            e?.forEach((id: any) => {
-                                params.append("condition", id);
-                            });
+                        if (searchParams) {
+                            dispatch(
+                                setFilter({
+                                    ...filter,
+                                    condition: e?.length > 0 ? e : null,
+                                })
+                            );
+                            const params = new URLSearchParams(searchParams);
+                            params.delete("condition");
+                            if (e?.length > 0) {
+                                e?.forEach((id: any) => {
+                                    params.append("condition", id);
+                                });
+                            }
+                            setOpenFilterDrawer && setOpenFilterDrawer(false);
+                            router.push(`?${params.toString()}`);
                         }
-                        setOpenFilterDrawer && setOpenFilterDrawer(false);
-                        router.push(`?${params.toString()}`);
                     }}
                 >
                     {Object.values(PRODUCT_CONDITION).map((condition: any) => (
