@@ -12,10 +12,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
             .json({ error: "Thiếu token hoặc thông tin người dùng" });
     }
     
-    // res.setHeader(
-    //     "Set-Cookie",
-    //     `access_token=${accessToken}; refresh_token=${refreshToken}; user_profile=${userProfile}; HttpOnly; Secure; Path=/;`
-    // );
+    res.setHeader(
+        "Set-Cookie",
+        `access_token=${accessToken}; refresh_token=${refreshToken}; user_profile=${userProfile}; HttpOnly; Secure; Path=/;`
+    );
 
     res.send({});
 }
