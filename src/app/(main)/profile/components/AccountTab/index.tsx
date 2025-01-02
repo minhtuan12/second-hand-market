@@ -130,7 +130,7 @@ export default function AccountTab({
         });
         setAccountData(authUser as UserProfile);
         setAvatarUrl(authUser?.avatar || null);
-    }, [authUser]);
+    }, [authUser?._id]);
 
     const handleChangeAccountData = (key: string, value: string) => {
         if (key === "firstname" || key === "lastname") {

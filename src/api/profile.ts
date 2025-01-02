@@ -15,8 +15,8 @@ export const useFetchProfile = (onError: () => void) => {
     return useSWR("/user/get-profile", fetcher, {
         revalidateIfStale: true,
         revalidateOnReconnect: false,
-        revalidateOnMount: false,
-        revalidateOnFocus: false,
+        revalidateOnMount: true,
+        revalidateOnFocus: true,
         onError,
     });
 };
