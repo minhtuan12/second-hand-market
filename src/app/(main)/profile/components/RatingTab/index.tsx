@@ -61,6 +61,7 @@ export default function RatingTab({
             .then(() => {
                 getNotification("success", "Đánh giá thành công");
                 getUserProfile();
+                getRatings();
                 setRating({
                     comment: "",
                     ratingCount: 0,
