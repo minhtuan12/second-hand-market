@@ -232,7 +232,8 @@ export default function OrderTab({ type }: { type: string }) {
                         />
                     </Tooltip>
                     {record?.status ===
-                    ORDER_STATUS.WAITING_FOR_PAYMENT.VALUE ? (
+                        ORDER_STATUS.WAITING_FOR_PAYMENT.VALUE ||
+                    record?.status === ORDER_STATUS.PROCESSING.VALUE ? (
                         <Tooltip title="Hủy đơn hàng">
                             {loadingUpdateStatus ? (
                                 <Flex

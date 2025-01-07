@@ -175,7 +175,9 @@ export default function BuyingOrder({
                                     ""
                                 )}
                                 {order?.status ===
-                                ORDER_STATUS.WAITING_FOR_PAYMENT.VALUE ? (
+                                    ORDER_STATUS.WAITING_FOR_PAYMENT.VALUE ||
+                                order?.status ===
+                                    ORDER_STATUS.PROCESSING.VALUE ? (
                                     <Tooltip title="Hủy đơn hàng">
                                         {loadingUpdateStatus ? (
                                             <Flex
