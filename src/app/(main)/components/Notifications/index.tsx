@@ -76,6 +76,9 @@ export default function Notifications({
         if (notification?.type === NOTIFICATION_TYPE.UPDATED_CATEGORY) {
             return `/post/${notification?.post_id}`;
         }
+        if (notification?.type === NOTIFICATION_TYPE.SUCCESS_PAYMENT) {
+            return `/order?tab=buying-order&status=${ORDER_STATUS.PROCESSING.VALUE}`;
+        }
         return '/'
     }, [authUser?._id]);
 
