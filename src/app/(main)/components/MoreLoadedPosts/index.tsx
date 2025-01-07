@@ -12,10 +12,12 @@ export default function MoreLoadedPosts({
     regions,
     total,
     searchParams,
+    posts
 }: {
     regions: any;
     total: number;
     searchParams: any;
+    posts: any
 }) {
     const [loading, setLoading] = useState(false);
 
@@ -25,7 +27,7 @@ export default function MoreLoadedPosts({
         mutate: getAllPosts,
     } = useFetchAllPosts(
         {
-            filter: searchParams,
+            filter: {searchParams, page: 2},
         },
         () => {}
     );
@@ -34,7 +36,7 @@ export default function MoreLoadedPosts({
         const handleScroll = () => {
             if (
                 window.innerHeight + document.documentElement.scrollTop >=
-                document.documentElement.offsetHeight
+                document.documentElement.offsetHeight && total > posts?.length
             ) {
                 if (!loading) {
                     setLoading(true);

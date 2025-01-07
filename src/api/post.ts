@@ -94,6 +94,7 @@ export const useFetchAllPosts = (filter: any, onError: () => void) => {
     let url = `${process.env.NEXT_PUBLIC_API_URL}/public/posts?column=${
         filter?.column || "createdAt"
     }`;
+    if (filter?.page) url += `&page=${filter?.page}`;
     if (filter?.sortOrder) url += `&sort_order=${filter?.sortOrder}`;
     if (filter?.city) url += `&city=${filter?.city}`;
     if (filter?.searchKey) url += `&search_key=${filter?.searchKey}`;

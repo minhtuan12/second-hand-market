@@ -127,6 +127,7 @@ async function HomeSuspense({ searchParams }: { searchParams: any }) {
                         regions={regions}
                         total={total}
                         searchParams={searchParams}
+                        posts={posts}
                     />
                 </div>
             </Flex>
