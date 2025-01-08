@@ -38,6 +38,7 @@ export default function PostAction({
         return wishlist?.includes(postId);
     }, [wishlist?.length]);
     const [loadingLikeBtn, setLoadingLikeBtn] = useState(false);
+    const [loadingCreate, setLoadingCreate] = useState(false);
 
     const handleLikeOrUnlikePost = () => {
         setLoadingLikeBtn(true);
@@ -110,6 +111,7 @@ export default function PostAction({
                     </Button>
                     <div
                         onClick={() => {
+                            setLoadingCreate(true);
                             setLocalStorageItem(
                                 LOCALSTORAGE_DEFAULT_CHAT_USER,
                                 posterId
@@ -123,10 +125,17 @@ export default function PostAction({
                                         "error",
                                         SERVER_ERROR_MESSAGE
                                     );
+                                })
+                                .finally(() => {
+                                    setLoadingCreate(false);
                                 });
                         }}
                     >
-                        <Button size={"large"} className={"w-[200px]"}>
+                        <Button
+                            size={"large"}
+                            className={"w-[200px]"}
+                            loading={loadingCreate}
+                        >
                             <MessageOutlined />
                             Nhắn tin
                         </Button>
