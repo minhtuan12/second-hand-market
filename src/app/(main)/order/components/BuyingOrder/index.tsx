@@ -78,6 +78,9 @@ export default function BuyingOrder({
                                     <div className="text-[16px] w-full">
                                         Mô tả: {order?.product?.description}
                                     </div>
+                                    <div className="text-[16px] w-full">
+                                        Địa chỉ nhận hàng: {order?.customer_address}
+                                    </div>
                                     <div className="text-[18px] text-[#f80] font-medium w-full">
                                         {handleFormatCurrency(
                                             order?.total as number
