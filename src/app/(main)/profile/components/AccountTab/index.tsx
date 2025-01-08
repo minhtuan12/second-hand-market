@@ -19,6 +19,7 @@ import {
 } from "../../../../../../utils/helper";
 import { EditOutlined, LinkOutlined, UserOutlined } from "@ant-design/icons";
 import {
+    requestCheckPayableStripeAccount,
     requestConnectAccount,
     requestCreateNewAccount,
     requestUpdateAvatar,
@@ -71,6 +72,19 @@ export default function AccountTab({
             getNotification("error", SERVER_ERROR_MESSAGE);
         }
     );
+
+    const [isConnectedStripe, setIsConnectedStripe] = useState(false);
+    useEffect(() => {
+        if (accountData?.stripe_account_id && accountData?._id) {
+            requestCheckPayableStripeAccount(accountData?.stripe_account_id)
+                .then(() => {
+                    setIsConnectedStripe(true);
+                })
+                .catch(() => {
+                    setIsConnectedStripe(false);
+                });
+        }
+    }, [accountData?._id]);
 
     /* get regions */
     const {
@@ -635,8 +649,9 @@ export default function AccountTab({
                                                 <div>
                                                     Tài khoản hiện tại:{" "}
                                                     <span className="font-semibold">
-                                                        {accountData?.stripe_account_id ||
-                                                            "Chưa liên kết"}
+                                                        {(isConnectedStripe && accountData?.stripe_account_id)
+                                                            ? accountData?.stripe_account_id
+                                                            : "Chưa liên kết"}
                                                     </span>
                                                 </div>
                                                 <InputWithLabel
@@ -667,7 +682,8 @@ export default function AccountTab({
                                                         <div className="font-semibold text-[26px]">
                                                             Stripe
                                                         </div>
-                                                        {accountData?.stripe_account_id ? (
+                                                        {accountData?.stripe_account_id &&
+                                                        isConnectedStripe ? (
                                                             <div className="text-[#8c8c8c]">
                                                                 Tài khoản:{" "}
                                                                 {
@@ -684,13 +700,15 @@ export default function AccountTab({
                                                 </Flex>
                                                 <Tag
                                                     color={
-                                                        accountData?.stripe_account_id
+                                                        accountData?.stripe_account_id &&
+                                                        isConnectedStripe
                                                             ? "green"
                                                             : "red"
                                                     }
                                                     rootClassName="h-[29px] text-[14px] flex items-center font-medium"
                                                 >
-                                                    {accountData?.stripe_account_id
+                                                    {accountData?.stripe_account_id &&
+                                                    isConnectedStripe
                                                         ? "Đã liên kết"
                                                         : "Chưa liên kết"}
                                                 </Tag>

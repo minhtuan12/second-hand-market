@@ -4,7 +4,9 @@ import { IChangePasswordData } from "@/app/(main)/profile/type";
 import { Baby } from "../../utils/types";
 import useSWR from "swr";
 
-export const requestGetProfile = async (type = 'user'): Promise<AxiosResponse> => {
+export const requestGetProfile = async (
+    type = "user"
+): Promise<AxiosResponse> => {
     return apiAxios({
         method: "get",
         url: `${type}/get-profile`,
@@ -151,5 +153,14 @@ export const requestConnectAccount = async (
     return apiAxios({
         method: "get",
         url: `stripe/account-link/${accountId}/${userId}`,
+    });
+};
+
+export const requestCheckPayableStripeAccount = async (
+    stripeAccount: String
+): Promise<AxiosResponse> => {
+    return apiAxios({
+        method: "get",
+        url: `stripe/check-linked-account/${stripeAccount}`,
     });
 };
