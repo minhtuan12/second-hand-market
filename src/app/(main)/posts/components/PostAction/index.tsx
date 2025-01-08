@@ -75,7 +75,7 @@ export default function PostAction({
             }
         }
         getUserProfile();
-    }, [])
+    }, []);
 
     useEffect(() => {
         if (user?.wishlist) {
@@ -108,21 +108,29 @@ export default function PostAction({
                         <HeartOutlined />
                         {isLiked ? "Bỏ yêu thích" : "Yêu thích"}
                     </Button>
-                    <Link
-                        href={"/chat"}
+                    <div
                         onClick={() => {
                             setLocalStorageItem(
                                 LOCALSTORAGE_DEFAULT_CHAT_USER,
                                 posterId
                             );
-                            requestCreateConversation(posterId, postId);
+                            requestCreateConversation(posterId, postId)
+                                .then(() => {
+                                    window.location.href = "/chat";
+                                })
+                                .catch(() => {
+                                    getNotification(
+                                        "error",
+                                        SERVER_ERROR_MESSAGE
+                                    );
+                                });
                         }}
                     >
                         <Button size={"large"} className={"w-[200px]"}>
                             <MessageOutlined />
                             Nhắn tin
                         </Button>
-                    </Link>
+                    </div>
                 </Flex>
             )}
         </>
